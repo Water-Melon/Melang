@@ -393,6 +393,34 @@ mln_dump(userData); // userData = 'world'
 
 
 
+### Pre-process
+
+#### 1.macro
+
+```
+@define NAME 'John'
+@undef NAME
+```
+
+#### 2.condition
+
+```
+@if NAME
+@endif
+
+@if NAME
+@else
+@endif
+```
+
+#### 3.include
+
+```
+@include '~/lib.mln'
+```
+
+
+
 ### Functions
 
 For more details, see https://github.com/Water-Melon/Melon/blob/master/doc/Melon%20Developer%20Guide.txt  section *Internal Function*.
