@@ -1,0 +1,72 @@
+#!/bin/bash
+
+libPath=`echo "/usr/local/melon"`
+installPath=""
+
+for param in $@
+do
+	if [ $param == "--help" ]; then
+		echo -e "\nMelang installation help."
+		echo "Copyright (C) Niklaus F.Schen."
+		echo "Options:"
+		echo -e "\t--prefix=INSTALL_PATH"
+		echo -e "\t--libprefix=LIB_INSTALL_PATH"
+		exit 0
+	fi
+	param_prefix=`echo $param|cut -d '=' -f 1`
+	param_suffix=`echo $param|cut -d '=' -f 2`
+	if [ $param_prefix == "--prefix" ]; then
+		installPath=$param_suffix
+	fi
+	if [ $param_prefix == "--libprefix" ]; then
+		libPath=$param_suffix
+	fi
+done
+
+rm -fr Melon
+git clone https://github.com/Water-Melon/Melon.git
+cd Melon
+./configure --prefix=$libPath
+make
+make install
+cd ..
+
+cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon
+
+os=`uname -s`
+if [ $os == 'Darwin' ]; then
+	install_name_tool -change lib/libmelon.so $libPath/lib/libmelon.so melang
+elif [ $os == 'Linux' ]; then
+	ldpath=$libPath/lib
+	exist=0
+	`cat /etc/ld.so.conf`|while read line
+	do
+		if [ $line == $ldpath -o $line == $ldpath/ ]; then
+			exist=1
+		fi
+	done
+	if [ $exist -eq 0 ]; then
+		echo "$libPath/lib/" >> /etc/ld.so.conf
+		ldconfig
+	fi
+fi
+
+if [ $installPath"x" != "x" ]; then
+	test -d $installPath || mkdir -p $installPath
+	cp melang $installPath/
+fi
+
+
+echo 'log_level "none";' > melang.conf
+echo 'daemon off;' >> melang.conf
+echo 'core_file_size "unlimited";' >> melang.conf
+echo 'max_nofile 1024;' >> melang.conf
+echo 'worker_proc 1;' >> melang.conf
+echo 'thread_mode off;' >> melang.conf
+echo 'framework off;' >> melang.conf
+echo -n 'log_path "' >> melang.conf
+echo $libPath'/logs/melon.log";' >> melang.conf
+mv melang.conf temp/conf/melon.conf
+
+echo "Complete!"
+echo "Thank you for using melang."
