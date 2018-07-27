@@ -2,6 +2,10 @@
 
 libPath=`echo "/usr/local/melon"`
 installPath=""
+arm=`cpp -dM /dev/null |grep __arm__`
+if [ '$arm' != "" ]; then
+	arm='--enable_arm32'
+fi
 
 for param in $@
 do
@@ -26,7 +30,7 @@ done
 rm -fr Melon
 git clone https://github.com/Water-Melon/Melon.git
 cd Melon
-./configure --prefix=$libPath
+./configure --prefix=$libPath $arm
 make
 make install
 cd ..
@@ -66,7 +70,7 @@ echo 'thread_mode off;' >> melang.conf
 echo 'framework off;' >> melang.conf
 echo -n 'log_path "' >> melang.conf
 echo $libPath'/logs/melon.log";' >> melang.conf
-mv melang.conf temp/conf/melon.conf
+mv melang.conf $libPath/conf/melon.conf
 
 echo "Complete!"
 echo "Thank you for using melang."
