@@ -3,8 +3,10 @@
 libPath=`echo "/usr/local/melon"`
 installPath=""
 arm=`cpp -dM /dev/null |grep __arm__`
+macro=''
 if [ '$arm' != "" ]; then
 	arm='--enable_arm32'
+	macro='-DMLN_ARM32'
 fi
 
 for param in $@
@@ -35,7 +37,7 @@ make
 make install
 cd ..
 
-cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon
+cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon $macro
 
 os=`uname -s`
 if [ $os == 'Darwin' ]; then
