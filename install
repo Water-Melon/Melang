@@ -3,10 +3,13 @@
 libPath=`echo "/usr/local/melon"`
 installPath=""
 arm=`cpp -dM /dev/null |grep __arm__`
+arm=`echo $?`
 macro=''
-if [ '$arm' != "" ]; then
+if [ '$arm' == '0' ]; then
 	arm='--enable_arm32'
 	macro='-DMLN_ARM32'
+else
+    arm=""
 fi
 
 for param in $@
