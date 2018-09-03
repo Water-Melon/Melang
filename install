@@ -32,13 +32,16 @@ do
 	fi
 done
 
-rm -fr Melon
-git clone https://github.com/Water-Melon/Melon.git
-cd Melon
-./configure --prefix=$libPath $arm
-make
-make install
-cd ..
+test -d $libPath
+if [ $? != 0 ]; then
+	rm -fr Melon
+	git clone https://github.com/Water-Melon/Melon.git
+	cd Melon
+	./configure --prefix=$libPath $arm
+	make
+	make install
+	cd ..
+fi
 
 cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon $macro
 
@@ -65,17 +68,6 @@ if [ $installPath"x" != "x" ]; then
 	cp melang $installPath/
 fi
 
-
-echo 'log_level "none";' > melang.conf
-echo 'daemon off;' >> melang.conf
-echo 'core_file_size "unlimited";' >> melang.conf
-echo 'max_nofile 1024;' >> melang.conf
-echo 'worker_proc 1;' >> melang.conf
-echo 'thread_mode off;' >> melang.conf
-echo 'framework off;' >> melang.conf
-echo -n 'log_path "' >> melang.conf
-echo $libPath'/logs/melon.log";' >> melang.conf
-mv melang.conf $libPath/conf/melon.conf
 
 echo "Complete!"
 echo "Thank you for using melang."
