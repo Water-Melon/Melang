@@ -78,12 +78,12 @@ Every statement must be separated by  *;* . Any statement must be ended by  *;* 
 ```
 a = 1;
 b = 2;
-c() {
+@c() {
     return 1;
 }
-d {
+@d {
     p = 1;
-    q () {
+    @q () {
         return 2;
     }
 }
@@ -159,7 +159,7 @@ for (i = 0; i < 4; i++)
     array2[] = array[i];
 array3 = [];
 for (i = 0; i < 4; i++) {
-    if (array[i] == array['a']) continue;
+    if (array[i] == array['a']) continue; fi
     array3[] = array[i];
 }
 ```
@@ -197,18 +197,18 @@ human {
 	age;
 	gender;
 	score;
-	init (name, age, gender, score)
+	@init (name, age, gender, score)
 	{
 		this.name = name;
 		this.age = age;
 		this.gender = gender;
 		this.score = score;
 	}
-	getScore ()
+	@getScore ()
 	{
 		return this.score;
 	}
-	setScore (score)
+	@setScore (score)
 	{
 		this.score = score;
 	}
@@ -221,13 +221,14 @@ child.init('John', 8, 'male', 98);
 #### 11.goto
 
 ```
-foo ()
+@foo ()
 {
-	a = 10;
+    a = 10;
 again:
     a++;
     if (a < 100)
     	goto again;
+    fi
     return a;
 }
 ```
@@ -236,13 +237,13 @@ again:
 
 ```
 for (i = 0; i < 1000; i++) {
-	if (i > 10) break;
+	if (i > 10) break; fi
 }
 
 i = 0;
 while (i < 1000) {
 	i++;
-	if (i > 10) break;
+	if (i > 10) break; fi
 }
 
 switch (i) {
@@ -260,7 +261,7 @@ switch (i) {
 ```
 j = 0;
 for (i = 0; i < 1000; i++) {
-	if (i % 2) continue;
+	if (i % 2) continue; fi
 	++j;
 }
 ```
@@ -268,31 +269,31 @@ for (i = 0; i < 1000; i++) {
 #### 14.return
 
 ```
-foo1 ()
+@foo1 ()
 {
 	return 1;
 }
 
-foo2 ()
+@foo2 ()
 {
 	a = 2;
 	return a + 1;
 }
 
-foo3 ()
+@foo3 ()
 {
-	bar ()
+	@bar ()
 	{
 		return 100;
 	}
 	return bar;
 }
 
-foo4 ()
+@foo4 ()
 {
 	test {
 		a;
-		b ()
+		@b ()
 		{
 			this.a = 10;
 		}
@@ -302,8 +303,8 @@ foo4 ()
 
 test {
 	a;
-	b() {}
-	c() {return this.b;}
+	@b() {}
+	@c() {return this.b;}
 }
 a = $test;
 a.c()();
@@ -311,16 +312,28 @@ a.c()();
 
 #### 15.function
 
+There are two ways to call function:
+
+  1> foo();
+
+  2> @foo();
+
+The difference between these two is:
+
+    The first case is usually used to call a function where is in some functions' scope.
+
+    The second case is usually to call some global functions, such as *mln_print*, especially in some other functions.
+
 ```
-foo ()
+@foo ()
 {
 	a = 1;
 	return a;
 }
 
-foo ()
+@foo ()
 {
-	b ()
+	@b ()
 	{
 		return 'aaa';
 	}
@@ -331,23 +344,23 @@ test
 {
 	var1;
 	var2;
-	foo1() {return this.var1;}
-	foo2() {return this.var2;}
+	@foo1() {return this.var1;}
+	@foo2() {return this.var2;}
 }
 
-foo (&a)
+@foo (&a)
 {
 	a = 'aaa';
 }
 a = 1;
 foo(a);
-mln_dump(a); // a = 'aaa'
+@mln_dump(a); // a = 'aaa'
 ```
 
 #### 16.reflection
 
 ```
-foo ()
+@foo ()
 {
 	return 'hello';
 }
@@ -360,35 +373,35 @@ b();
 
 ```
 set {
-    a = 1;
+    a;
 }
 inst = $set;
 inst.b = 10;
-mln_dump(inst.b); // 10
+@mln_dump(inst.b); // 10
 ```
 
 #### 18.reactive programming
 
 ```
-handler (newValue, userData)
+@handler (newValue, userData)
 {
-    mln_dump(newValue);
-    mln_dump(userData);
+    @mln_dump(newValue);
+    @mln_dump(userData);
 }
 var = 10;
 userData = 'hello';
-mln_watch(var, handler, userData);
+@mln_watch(var, handler, userData);
 var = 11; //then handler() will be called.
 
-handler (&newValue, &userData)
+@handler (&newValue, &userData)
 {
     userData = 'world';
 }
 var = 10;
 userData = 'hello';
-mln_watch(var, handler, userData);
+@mln_watch(var, handler, userData);
 var = 11; //then handler() will be called.
-mln_dump(userData); // userData = 'world'
+@mln_dump(userData); // userData = 'world'
 ```
 
 
@@ -398,25 +411,26 @@ mln_dump(userData); // userData = 'world'
 #### 1.macro
 
 ```
-@define NAME 'John'
-@undef NAME
+#define NAME 'John'
+#NAME
+#undef NAME
 ```
 
 #### 2.condition
 
 ```
-@if NAME
-@endif
+#if NAME
+#endif
 
-@if NAME
-@else
-@endif
+#if NAME
+#else
+#endif
 ```
 
 #### 3.include
 
 ```
-@include '~/lib.mln'
+#include '~/lib.mln'
 ```
 
 

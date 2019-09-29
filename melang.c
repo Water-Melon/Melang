@@ -32,8 +32,6 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    printf("Melang version 0.1.0\n\n");
-
     mln_run_all(argc, argv);
 
     return 0;
@@ -107,7 +105,7 @@ static void mln_params_check(int argc, char *argv[])
     int i = 1, fd, nofile = 1;
     for (; i < argc; ++i) {
         if (!strcmp(argv[i], "-v")) {
-            printf("Melang 0.1.0.\n");
+            printf("Melang 0.2.0.\n");
         } else if (!strcmp(argv[i], "-h")) {
             printf("Melang Usage:\n");
             printf("\tmelang <script-file> ...\n");
