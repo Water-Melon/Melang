@@ -1,6 +1,6 @@
 #!/bin/bash
 
-libPath=`echo "/usr/local/melon"`
+libPath=`echo "/usr/local/melon_for_melang"`
 installPath=""
 arm=`cpp -dM /dev/null |grep __arm__`
 arm=`echo $?`
@@ -43,31 +43,15 @@ if [ $? != 0 ]; then
 	cd ..
 fi
 
+rm -fr $libPath/lib/libmelon.so
 cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon $macro
-
-os=`uname -s`
-if [ $os == 'Darwin' ]; then
-	install_name_tool -change lib/libmelon.so $libPath/lib/libmelon.so melang
-elif [ $os == 'Linux' ]; then
-	ldpath=$libPath/lib
-	exist=0
-	`cat /etc/ld.so.conf`|while read line
-	do
-		if [ $line == $ldpath -o $line == $ldpath/ ]; then
-			exist=1
-		fi
-	done
-	if [ $exist -eq 0 ]; then
-		echo "$libPath/lib/" >> /etc/ld.so.conf
-		ldconfig
-	fi
-fi
 
 if [ $installPath"x" != "x" ]; then
 	test -d $installPath || mkdir -p $installPath
 	cp melang $installPath/
+else
+	cp melang /usr/bin/
 fi
-
 
 echo "Complete!"
 echo "Thank you for using melang."

@@ -12,12 +12,12 @@ At first, you should confirm that your device can visit GitHub. Then execute the
 ```
 git clone https://github.com/Water-Melon/Melang.git
 cd Melang
-./install [--prefix=INSTALL_PATH] [--libprefix=Lib_INSTALL_PATH]
+sudo ./install [--prefix=INSTALL_PATH] [--libprefix=Lib_INSTALL_PATH]
 ```
 
-*prefix* is the path where melang will be placed after shell *install* executed.
+*prefix* is the path where melang will be placed after shell *install* executed. Default is */usr/bin/*.
 
-*libprefix* is the install-path of library that melang relied on. The library will be installed at */usr/local/melon* by default.
+*libprefix* is the install-path of library that melang relied on. The library will be installed at */usr/local/melon_for_melang* by default.
 
 So you have to confirm that you have *w* to these two installation directories.
 
