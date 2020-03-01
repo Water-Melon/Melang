@@ -1,5 +1,12 @@
 #!/bin/bash
+#
+# Copyright (C) Niklaus F.Schen.
+#
 
+
+mysql_header_path="/usr/include/mysql"
+mysql_lib_path="/usr/lib64/mysql"
+mysql_lib=""
 libPath=`echo "/usr/local/melon_for_melang"`
 installPath=""
 arm=`cpp -dM /dev/null |grep __arm__`
@@ -20,6 +27,8 @@ do
 		echo "Options:"
 		echo -e "\t--prefix=INSTALL_PATH"
 		echo -e "\t--libprefix=LIB_INSTALL_PATH"
+		echo -e "\t--mysql_header_path=MYSQL_CLIENT_HREADER_PATH"
+		echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
 		exit 0
 	fi
 	param_prefix=`echo $param|cut -d '=' -f 1`
@@ -30,7 +39,28 @@ do
 	if [ $param_prefix == "--libprefix" ]; then
 		libPath=$param_suffix
 	fi
+	if [ $param_prefix == "--mysql_header_path" ]; then
+		mysql_header_path=$param_suffix
+	fi
+	if [ $param_prefix == "--mysql_lib_path" ]; then
+		mysql_lib_path=$param_suffix
+	fi
 done
+
+#test MySQL Asynchronous----------#
+echo -e "#include <stdio.h>\n#include <mysql.h>" > mysql_test.c
+echo "int main(void){MYSQL *mysql_local = mysql_init(NULL);mysql_real_connect_nonblocking(mysql_local, NULL, NULL, NULL, NULL, 3306, NULL, 0);return 0;}" >> mysql_test.c
+cc -o mysql_test mysql_test.c -I/usr/include/mysql/ -L/usr/lib64/mysql/ -lmysqlclient 2>/dev/null
+if [ "$?" == "0" ]; then
+	mysql=1
+	mysql_lib="-I $mysql_header_path -L $mysql_lib_path -lmysqlclient"
+	echo "MySQL Asynchronous	[support]"
+else
+	mysql=0
+	echo "MySQL Asynchronous	[not support]"
+fi
+rm -fr mysql_test mysql_test.c
+#test MySQL Asynchronous end------#
 
 test -d $libPath
 if [ $? != 0 ]; then
@@ -44,7 +74,7 @@ if [ $? != 0 ]; then
 fi
 
 rm -fr $libPath/lib/libmelon.so
-cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon $macro
+cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon -lpthread $macro $mysql_lib
 
 if [ $installPath"x" != "x" ]; then
 	test -d $installPath || mkdir -p $installPath

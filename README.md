@@ -3,6 +3,12 @@ Melang is a Reactive Programming Language. It's just a baby girl now.
 
 It is noly support UNIX/Linux now, and actually I don't know what it will become or where it will be used.
 
+Melang has already supported MySQL 8.0, but the newest MySQL C client library is unstable.
+
+So if trying to connect an unreachable address, a buffer-overflow will happened even though program may not crash.
+
+I have submitted bug report to MySQL community, no more news now.
+
 
 
 ### Installation
