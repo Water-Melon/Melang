@@ -85,13 +85,13 @@ Every statement must be separated by  *;* . Any statement must be ended by  *;* 
 a = 1;
 b = 2;
 @c() {
-    return 1;
+  return 1;
 }
 @d {
-    p = 1;
-    @q () {
-        return 2;
-    }
+  p = 1;
+  @q () {
+    return 2;
+  }
 }
 ```
 
@@ -110,50 +110,50 @@ a = 1, b = 2
 
 ```
 if (a == 1) {
-    a = 2;
+  a = 2;
 } fi
 
 if (a == 1)
-	a = 2;
+  a = 2;
 fi
 
 if (a == 1) {
-    a = 2;
+  a = 2;
 } else {
-    a = 3;
+  a = 3;
 }
 
 if (a == 1)
-	a = 2;
+  a = 2;
 else
-	a = 3;
+  a = 3;
 
 if (a == 1) {
-    a = 2;
+  a = 2;
 } else if (a == 10) {
-    a = 8;
+  a = 8;
 } fi
 
 if (a == 1) {
-    a = 2;
+  a = 2;
 } else if (a == 10) {
-    a = 8;
+  a = 8;
 } else {
-    a = 1;
+  a = 1;
 }
 
 if (a == 1)
-	a = 2;
+  a = 2;
 else if (a == 10)
-	a = 8;
+  a = 8;
 fi
 
 if (a == 1)
-	a = 2;
+  a = 2;
 else if (a == 10)
-	a = 8;
+  a = 8;
 else
-	a = 1;
+  a = 1;
 ```
 
 #### 7.for
@@ -162,11 +162,11 @@ else
 array = [1, 2, 'a':3, 4];
 array2 = [];
 for (i = 0; i < 4; i++)
-    array2[] = array[i];
+  array2[] = array[i];
 array3 = [];
 for (i = 0; i < 4; i++) {
-    if (array[i] == array['a']) continue; fi
-    array3[] = array[i];
+  if (array[i] == array['a']) continue; fi
+  array3[] = array[i];
 }
 ```
 
@@ -175,14 +175,14 @@ for (i = 0; i < 4; i++) {
 ```
 i = 'hello';
 switch (i) {
-	case 1:
-		i = 100;
-		break;
-	case 'hello':
-		i = 'world';
-	default:
-		i += ' hello';
-		break;
+  case 1:
+    i = 100;
+    break;
+  case 'hello':
+    i = 'world';
+  default:
+    i += ' hello';
+    break;
 }
 ```
 
@@ -191,7 +191,7 @@ switch (i) {
 ```
 i = 0;
 while (i < 10) {
-	i++;
+  i++;
 }
 ```
 
@@ -199,25 +199,25 @@ while (i < 10) {
 
 ```
 human {
-	name;
-	age;
-	gender;
-	score;
-	@init (name, age, gender, score)
-	{
-		this.name = name;
-		this.age = age;
-		this.gender = gender;
-		this.score = score;
-	}
-	@getScore ()
-	{
-		return this.score;
-	}
-	@setScore (score)
-	{
-		this.score = score;
-	}
+  name;
+  age;
+  gender;
+  score;
+  @init (name, age, gender, score)
+  {
+    this.name = name;
+    this.age = age;
+    this.gender = gender;
+    this.score = score;
+  }
+  @getScore ()
+  {
+    return this.score;
+  }
+  @setScore (score)
+  {
+    this.score = score;
+  }
 }
 
 child = $human; //child is an instance of set human.
@@ -229,13 +229,13 @@ child.init('John', 8, 'male', 98);
 ```
 @foo ()
 {
-    a = 10;
+  a = 10;
 again:
-    a++;
-    if (a < 100)
-    	goto again;
-    fi
-    return a;
+  a++;
+  if (a < 100)
+    goto again;
+  fi
+  return a;
 }
 ```
 
@@ -243,22 +243,22 @@ again:
 
 ```
 for (i = 0; i < 1000; i++) {
-	if (i > 10) break; fi
+  if (i > 10) break; fi
 }
 
 i = 0;
 while (i < 1000) {
-	i++;
-	if (i > 10) break; fi
+  i++;
+  if (i > 10) break; fi
 }
 
 switch (i) {
-	case 'aaa':
-		i += 'bbb';
-		break;
-	default:
-		i = true;
-		break;
+  case 'aaa':
+    i += 'bbb';
+    break;
+  default:
+    i = true;
+    break;
 }
 ```
 
@@ -267,8 +267,8 @@ switch (i) {
 ```
 j = 0;
 for (i = 0; i < 1000; i++) {
-	if (i % 2) continue; fi
-	++j;
+  if (i % 2) continue; fi
+  ++j;
 }
 ```
 
@@ -277,40 +277,40 @@ for (i = 0; i < 1000; i++) {
 ```
 @foo1 ()
 {
-	return 1;
+  return 1;
 }
 
 @foo2 ()
 {
-	a = 2;
-	return a + 1;
+  a = 2;
+  return a + 1;
 }
 
 @foo3 ()
 {
-	@bar ()
-	{
-		return 100;
-	}
-	return bar;
+  @bar ()
+  {
+    return 100;
+  }
+  return bar;
 }
 
 @foo4 ()
 {
-	test {
-		a;
-		@b ()
-		{
-			this.a = 10;
-		}
-	}
-	return $test;
+  test {
+    a;
+    @b ()
+    {
+      this.a = 10;
+    }
+  }
+  return $test;
 }
 
 test {
-	a;
-	@b() {}
-	@c() {return this.b;}
+  a;
+  @b() {}
+  @c() {return this.b;}
 }
 a = $test;
 a.c()();
@@ -327,36 +327,36 @@ There are two ways to call function:
 The difference between these two is:
 
     The first case is usually used to call a function where is in some functions' scope.
-
+    
     The second case is usually to call some global functions, such as *mln_print*, especially in some other functions.
 
 ```
 @foo ()
 {
-	a = 1;
-	return a;
+  a = 1;
+  return a;
 }
 
 @foo ()
 {
-	@b ()
-	{
-		return 'aaa';
-	}
-	return b;
+  @b ()
+  {
+    return 'aaa';
+  }
+  return b;
 }
 
 test
 {
-	var1;
-	var2;
-	@foo1() {return this.var1;}
-	@foo2() {return this.var2;}
+  var1;
+  var2;
+  @foo1() {return this.var1;}
+  @foo2() {return this.var2;}
 }
 
 @foo (&a)
 {
-	a = 'aaa';
+  a = 'aaa';
 }
 a = 1;
 foo(a);
@@ -368,7 +368,7 @@ foo(a);
 ```
 @foo ()
 {
-	return 'hello';
+  return 'hello';
 }
 a = 'foo';
 b = 'a';
@@ -379,11 +379,15 @@ b();
 
 ```
 set {
-    a;
+  a;
 }
 inst = $set;
 inst.b = 10;
 @mln_dump(inst.b); // 10
+ret = @mln_setProperty(inst, 'c', 'abc');
+@mln_print(ret); // 'abc'
+@mln_print(inst.c); // 'abc'
+@mln_print(@mln_getProperty(inst, 'c')); // 'abc'
 ```
 
 #### 18.reactive programming
@@ -391,8 +395,8 @@ inst.b = 10;
 ```
 @handler (newValue, userData)
 {
-    @mln_dump(newValue);
-    @mln_dump(userData);
+  @mln_dump(newValue);
+  @mln_dump(userData);
 }
 var = 10;
 userData = 'hello';
@@ -401,7 +405,7 @@ var = 11; //then handler() will be called.
 
 @handler (&newValue, &userData)
 {
-    userData = 'world';
+  userData = 'world';
 }
 var = 10;
 userData = 'hello';
