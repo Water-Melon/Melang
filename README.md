@@ -357,6 +357,13 @@ test
 a = 1;
 foo(a);
 @mln_dump(a); // a = 'aaa'
+
+//variable arguments
+@foo ()
+{
+  @mln_print(args); //args is an internal variable.
+}
+@foo('Hello', 1, ['world', 2]); //output: [hello, 1, [world, 2, ], ]
 ```
 
 #### 16.reflection
