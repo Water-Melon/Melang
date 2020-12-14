@@ -465,7 +465,7 @@ for (i = 0; i < 100; ++i) {
 }
 while (1) {
     fd = @mln_tcpAccept(listenfd);
-    @mln_msgQueue('test', fd);
+    @mln_msgQueueSend('test', fd);
 }
 ```
 
@@ -473,7 +473,7 @@ while (1) {
 /* filename: processor.mln */
 @mln_print(EVAL_DATA);
 while (1) {
-    fd = @mln_msgQueue('test');
+    fd = @mln_msgQueueRecv('test');
     ret = @mln_tcpRecv(fd);
     if (ret) {
         @mln_tcpSend(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
