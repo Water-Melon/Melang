@@ -73,7 +73,19 @@ _    _name    abc123      //correct
 123  123abc   //incorrect
 ```
 
-#### 4.statement
+#### 4.variable
+
+```
+a = 1;
+//a is a common variable, but this variable cannot be found in function
+__a = 2;
+//__a is also a varible, but can be found in function, which means __a is a global variable
+
+```
+
+Global variable's name must be prefixed by __ (two underscores). Otherwise, as local one.
+
+#### 5.statement
 
 Every statement must be separated by  *;* . Any statement must be ended by  *;*  . There are two exceptions — the definitions of function and set.
 
@@ -91,7 +103,7 @@ b = 2;
 }
 ```
 
-#### 5.expression
+#### 6.expression
 
 Expression is the basic unit of statement.
 
@@ -102,7 +114,7 @@ a = 1
 a = 1, b = 2
 ```
 
-#### 6.if-else
+#### 7.if-else
 
 ```
 if (a == 1) {
@@ -152,7 +164,7 @@ else
   a = 1;
 ```
 
-#### 7.for
+#### 8.for
 
 ```
 array = [1, 2, 'a':3, 4];
@@ -166,7 +178,7 @@ for (i = 0; i < 4; i++) {
 }
 ```
 
-#### 8.switch
+#### 9.switch
 
 ```
 i = 'hello';
@@ -182,7 +194,7 @@ switch (i) {
 }
 ```
 
-#### 9.while
+#### 10.while
 
 ```
 i = 0;
@@ -191,7 +203,7 @@ while (i < 10) {
 }
 ```
 
-#### 10.set
+#### 11.set
 
 ```
 human {
@@ -220,7 +232,7 @@ child = $human; //child is an instance of set human.
 child.init('John', 8, 'male', 98);
 ```
 
-#### 11.goto
+#### 12.goto
 
 ```
 @foo ()
@@ -235,7 +247,7 @@ again:
 }
 ```
 
-#### 12.break
+#### 13.break
 
 ```
 for (i = 0; i < 1000; i++) {
@@ -258,7 +270,7 @@ switch (i) {
 }
 ```
 
-#### 13.continue
+#### 14.continue
 
 ```
 j = 0;
@@ -268,7 +280,7 @@ for (i = 0; i < 1000; i++) {
 }
 ```
 
-#### 14.return
+#### 15.return
 
 ```
 @foo1 ()
@@ -312,7 +324,7 @@ a = $test;
 a.c()();
 ```
 
-#### 15.function
+#### 16.function
 
 There are two ways to call function:
 
@@ -366,7 +378,7 @@ foo(a);
 @foo('Hello', 1, ['world', 2]); //output: [hello, 1, [world, 2, ], ]
 ```
 
-#### 16.reflection
+#### 17.reflection
 
 ```
 @foo ()
@@ -378,7 +390,7 @@ b = 'a';
 b();
 ```
 
-#### 17.injection
+#### 18.injection
 
 ```
 set {
@@ -393,7 +405,7 @@ ret = @mln_setProperty(inst, 'c', 'abc');
 @mln_print(@mln_getProperty(inst, 'c')); // 'abc'
 ```
 
-#### 18.reactive programming
+#### 19.reactive programming
 
 ```
 @handler (newValue, userData)
@@ -417,7 +429,7 @@ var = 11; //then handler() will be called.
 @mln_dump(userData); // userData = 'world'
 ```
 
-**19.co-routine**
+#### **20.co-routine**
 
 ​		<1>Run co-routine in command line
 
@@ -453,7 +465,7 @@ if (ret) {
 
 ​		Now, you can use ab (apache bench) to make a test.
 
-**20.co-routine pool**
+#### **21.co-routine pool**
 
 ​		web server example
 
