@@ -1,7 +1,5 @@
 # Melang
-Melang is a Co-routine Programming Language. It's just a baby girl now.
-
-It is noly support UNIX/Linux, and actually I don't know what it will become or where it will be used.
+Melang is a Co-routine Programming Language. It is noly support UNIX/Linux.
 
 Melang has already supported MySQL 8.0, but the newest MySQL C client library is unstable. So if trying to connect an unreachable address, a buffer-overflow will happened even though program may not crash. I have submitted bug report to MySQL community, no more news now.
 
@@ -77,13 +75,21 @@ _    _name    abc123      //correct
 
 ```
 a = 1;
-//a is a common variable, but this variable cannot be found in function
-__a = 2;
-//__a is also a varible, but can be found in function, which means __a is a global variable
-
+b = 2;
+@foo() {
+  a = 10;
+  @mln_print(a); //will output 10
+  @mln_print(_a); //also 10
+  @mln_print(b); //will output nil
+  @mln_print(_b); //will output 2
+}
 ```
 
-Global variable's name must be prefixed by __ (two underscores). Otherwise, as local one.
+The first two outputs are the same value because interpreter found the same variable -- the local *a*.
+
+*b* is nil because there is no local variable named *b*.
+
+The last *_b* is 2 because interpreter scans this symbol (*b*) from function scope to the outer one.
 
 #### 5.statement
 
@@ -381,6 +387,7 @@ foo(a);
 #### 17.reflection
 
 ```
+//function reflection
 @foo ()
 {
   return 'hello';
@@ -388,6 +395,15 @@ foo(a);
 a = 'foo';
 b = 'a';
 b();
+
+//set reflection
+s = 'human';
+human {
+name;
+sex;
+age;
+}
+one = $s; //set human will be instantiated
 ```
 
 #### 18.injection
