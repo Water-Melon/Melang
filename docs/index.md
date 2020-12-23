@@ -25,8 +25,6 @@ Now, let's start our journey.
 
 [Statement](https://water-melon.github.io/Melang/statement.html)
 
-[Expression](https://water-melon.github.io/Melang/expression.html)
-
 [Flow control](https://water-melon.github.io/Melang/flowcontrol.html)
 
 [Set](https://water-melon.github.io/Melang/set.html)
