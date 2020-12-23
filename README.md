@@ -1,7 +1,13 @@
 # Melang
-Melang is a Co-routine Programming Language. It is noly support UNIX/Linux.
 
-Melang has already supported MySQL 8.0, but the newest MySQL C client library is unstable. So if trying to connect an unreachable address, a buffer-overflow will happened even though program may not crash. I have submitted bug report to MySQL community, no more news now.
+![License](https://img.shields.io/github/license/Water-Melon/Melang)
+
+
+
+Melang is a Co-routine Programming Language. It is only support on UNIX/Linux.
+
+> Melang has already supported MySQL 8.0, but the newest MySQL C client library is unstable. So if trying to connect an unreachable address, a buffer-overflow will happened even though program may not crash. I have submitted bug report to MySQL community, no more news now.
+>
 
 
 
