@@ -5,11 +5,12 @@ Thank you for using Melang.
 Melang is a script language with these features below:
 
 - basic programming structures
-- preemptive scheduling coroutine
+- preemptive scheduling coroutine in single thread
 - reflection
 - injection
 - reactive programming
 - preprocess
+- synchronous code asynchronous execution
 
 Now, let's start our journey.
 
