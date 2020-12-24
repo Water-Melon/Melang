@@ -28,9 +28,9 @@ Now, let's start our journey.
 
 [Flow control](https://water-melon.github.io/Melang/flowcontrol.html)
 
-[Set](https://water-melon.github.io/Melang/set.html)
-
 [Function](https://water-melon.github.io/Melang/function.html)
+
+[Set](https://water-melon.github.io/Melang/set.html)
 
 [Reflection](https://water-melon.github.io/Melang/reflection.html)
 
