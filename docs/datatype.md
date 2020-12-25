@@ -7,6 +7,7 @@ But every value has its type. Types in Melang are shown below:
 - integer
 - real
 - boolean
+- string
 - nil
 - array
 - set
