@@ -16,7 +16,7 @@ Now, let's start our journey.
 
 
 
-### Content
+### Contents
 
 [Data types](https://water-melon.github.io/Melang/datatype.html)
 
