@@ -1,6 +1,6 @@
 ### Reflection
 
-Reflection makes us call a specified function or set via a name string.
+Reflection makes us call a specified function or set by a name string.
 
 
 

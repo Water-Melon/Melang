@@ -42,6 +42,8 @@ Now, let's start our journey.
 
 [Coroutine](https://water-melon.github.io/Melang/coroutine.html)
 
+[Library](https://water-melon.github.io/Melang/library.html)
+
 
 
 ### License
