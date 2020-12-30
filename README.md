@@ -1,3 +1,5 @@
+<img src="https://github.com/Water-Melon/Melang/blob/master/docs/logo.png?raw=true" style="zoom:50%;" />
+
 # Melang
 
 ![License](https://img.shields.io/github/license/Water-Melon/Melang)
