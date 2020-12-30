@@ -19,7 +19,7 @@ Return value:
 
 Error:
 
-- invalid argument will throw an error.
+- Invalid argument will throw an error.
 
 Example:
 
