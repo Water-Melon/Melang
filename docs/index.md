@@ -1,5 +1,3 @@
-<img src="https://github.com/Water-Melon/Melang/blob/master/docs/logo.png?raw=true" style="zoom:50%;" />
-
 ### Melang Cookbook
 
 Thank you for using Melang.
