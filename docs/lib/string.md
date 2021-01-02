@@ -499,3 +499,67 @@ Output:
 1
 ```
 
+
+
+##### mln_regEqual
+
+Match string by a regular expression.
+
+```
+@mln_regEqual(exp, text);
+```
+
+Input:
+
+- exp - the input regular expression.
+- text - the input text string.
+
+Return value:
+
+- *true* if completely matched, otherwise *false* returned.
+
+Example:
+
+```
+@mln_print(@mln_regEqual('.*', 'test'));
+@mln_print(@mln_regEqual('.*ed', 'test'));
+```
+
+Output:
+
+```
+true
+false
+```
+
+
+
+##### mln_regMatch
+
+Match string by a regular expression and get matched string pieces.
+
+```
+@mln_regMatch(exp, text);
+```
+
+Input:
+
+- exp - the input regular expression.
+- text - the input text string.
+
+Return value:
+
+- an array that if matched anything, otherwise *false* returned.
+
+Example:
+
+```
+@mln_print(@mln_regMatch('((this )*i(s)).*', 'this is a reg exp test.'));
+```
+
+Output:
+
+```
+[this , s, this is, this is a reg exp test., ]
+```
+
