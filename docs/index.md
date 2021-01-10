@@ -1,4 +1,4 @@
-### Melang Cookbook
+### Melang
 
 Thank you for using Melang.
 
@@ -51,3 +51,11 @@ Now, let's start our journey.
 [BSD-3-Clause License](https://github.com/Water-Melon/Melang/blob/master/LICENSE)
 
 Copyright (c) 2018-present, Niklaus F. Schen
+
+
+
+### Contact
+
+Official Telegram group: [https://t.me/joinchat/GcQ8JRBqT7CLF8o-](https://t.me/joinchat/GcQ8JRBqT7CLF8o-)
+
+中文QQ官方群号: 756582294
