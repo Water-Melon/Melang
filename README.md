@@ -47,3 +47,11 @@ Copyright (c) 2018-present, Niklaus F. Schen
 ### Document
 
 Please visit [Pages](https://water-melon.github.io/Melang/) to get more information.
+
+
+
+### Contact
+
+Official Telegram group: [https://t.me/joinchat/GcQ8JRBqT7CLF8o-](https://t.me/joinchat/GcQ8JRBqT7CLF8o-)
+
+中文QQ官方群号: 756582294
