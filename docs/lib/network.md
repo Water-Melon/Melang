@@ -9,17 +9,20 @@ This document introduces a set of functions about TCP and UDP in Melang.
 create a TCP connection to server.
 
 ```
-@mln_tcpConnect(host, service);
+@mln_tcpConnect(host, service, timeout);
 ```
 
 Input:
 
 - host - a string value. It can be an IP or domain name.
 - service -  a string value. It can be a port number or protocol name, like: http, 80.
+- timeout - a millisecond timer. It's an optional argument. It must be an positive integer or zero (timeout immediately). Omit means never timeout.
 
 Return value:
 
-- a TCP socket file descriptor return on success, otherwise *false* returned.
+- a TCP socket file descriptor return on success
+- *nil* on timed out
+- otherwise *false* returned
 
 
 
