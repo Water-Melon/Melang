@@ -102,6 +102,7 @@ Return value:
 
 - Received data will be returned on success.
 - If *timeout* >= 0 and no data arrived, *nil* will be returned.
+- If TCP closed, *true* will be returned.
 - Otherwise *false* returned.
 
 
