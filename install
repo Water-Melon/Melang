@@ -3,12 +3,16 @@
 # Copyright (C) Niklaus F.Schen.
 #
 
-
+os=`uname -s`
 mysql_header_path="/usr/include/mysql"
 mysql_lib_path="/usr/lib64/mysql"
 mysql_lib=""
 libPath=`echo "/usr/local/melon_for_melang"`
-installPath=""
+if [ $os == 'Darwin' ]; then
+	installPath="/usr/local/bin/"
+else
+	installPath="/usr/bin/"
+fi
 arm=`cpp -dM /dev/null |grep __arm__`
 arm=`echo $?`
 macro=''
@@ -76,12 +80,8 @@ fi
 rm -fr $libPath/lib/libmelon.so
 cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon -lpthread $macro $mysql_lib
 
-if [ $installPath"x" != "x" ]; then
-	test -d $installPath || mkdir -p $installPath
-	cp melang $installPath/
-else
-	cp melang /usr/bin/
-fi
+test -d $installPath || mkdir -p $installPath
+cp melang $installPath/
 
 echo "Complete!"
 echo "Thank you for using melang."
