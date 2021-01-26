@@ -7,7 +7,7 @@
 Get array length.
 
 ```
-@mln_size(array);
+@mln_size(&array);
 ```
 
 Input:
@@ -506,7 +506,7 @@ Tom
 Return all the keys or a subset of the keys of an array.
 
 ```
-@mln_keys(array);
+@mln_keys(&array);
 ```
 
 Input:
