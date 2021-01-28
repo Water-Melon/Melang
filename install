@@ -13,15 +13,6 @@ if [ $os == 'Darwin' ]; then
 else
 	installPath="/usr/bin/"
 fi
-arm=`cpp -dM /dev/null |grep __arm__`
-arm=`echo $?`
-macro=''
-if [ '$arm' == '0' ]; then
-	arm='--enable_arm32'
-	macro='-DMLN_ARM32'
-else
-    arm=""
-fi
 
 for param in $@
 do
@@ -71,14 +62,14 @@ if [ $? != 0 ]; then
 	rm -fr Melon
 	git clone https://github.com/Water-Melon/Melon.git
 	cd Melon
-	./configure --prefix=$libPath $arm
+	./configure --prefix=$libPath
 	make
 	make install
 	cd ..
 fi
 
 rm -fr $libPath/lib/libmelon.so
-cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon -lpthread $macro $mysql_lib
+cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon -lpthread $mysql_lib
 
 test -d $installPath || mkdir -p $installPath
 cp melang $installPath/
