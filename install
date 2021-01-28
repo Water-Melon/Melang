@@ -57,16 +57,13 @@ fi
 rm -fr mysql_test mysql_test.c
 #test MySQL Asynchronous end------#
 
-test -d $libPath
-if [ $? != 0 ]; then
-	rm -fr Melon
-	git clone https://github.com/Water-Melon/Melon.git
-	cd Melon
-	./configure --prefix=$libPath
-	make
-	make install
-	cd ..
-fi
+rm -fr Melon
+git clone https://github.com/Water-Melon/Melon.git
+cd Melon
+./configure --prefix=$libPath
+make
+make install
+cd ..
 
 rm -fr $libPath/lib/libmelon.so
 cc -o melang melang.c -I $libPath/include -L $libPath/lib -lmelon -lpthread $mysql_lib
