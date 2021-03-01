@@ -164,7 +164,7 @@ static void mln_run_all(int argc, char *argv[])
 static void taskChecker(mln_event_t *ev, void *data)
 {
     mln_lang_t *lang = (mln_lang_t *)data;
-    if (lang->run_head == NULL && lang->blocked_head == NULL && lang->wait_head == NULL) {
+    if (lang->run_head == NULL && lang->wait_head == NULL) {
         mln_event_set_break(ev);
         return;
     }
