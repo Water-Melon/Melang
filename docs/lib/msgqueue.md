@@ -9,12 +9,12 @@ Melang supports many coroutines to listen the same queue. If message is a queue 
 
 
 
-##### mln_msgTopicSubscribe
+##### mln_msg_topic_subscribe
 
 Subscribe a topic message.
 
 ```
-@mln_msgTopicSubscribe(qname);
+@mln_msg_topic_subscribe(qname);
 ```
 
 Input:
@@ -31,12 +31,12 @@ Error:
 
 
 
-##### mln_msgTopicUnsubscribe
+##### mln_msg_topic_unsubscribe
 
 Unsubscribe a topic.
 
 ```
-@mln_msgTopicUnsubscribe(qname);
+@mln_msg_topic_unsubscribe(qname);
 ```
 
 Input:
@@ -53,12 +53,12 @@ Error:
 
 
 
-##### mln_msgQueueSend
+##### mln_msg_queue_send
 
 Send message to a specified queue.
 
 ```
-@mln_msgQueueSend(qname, msg, asTopic);
+@mln_msg_queue_send(qname, msg, asTopic);
 ```
 
 Input:
@@ -77,10 +77,10 @@ Error:
 
 
 
-##### mln_msgQueueRecv
+##### mln_msg_queue_recv
 
 ```
-@smln_msgQueueRecv(qname, timeout);
+@smln_msg_queue_recv(qname, timeout);
 ```
 
 Input:
@@ -102,12 +102,12 @@ Error:
 
 ```
 //file a.mln
-@mln_msgQueueSend('test', 'hello');
+@mln_msg_queue_send('test', 'hello');
 ```
 
 ```
 //b.mln
-msg = @mln_msgQueueRecv('test');
+msg = @mln_msg_queue_recv('test');
 @mln_print(msg);
 ```
 

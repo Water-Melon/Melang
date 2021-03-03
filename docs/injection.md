@@ -37,18 +37,18 @@ someone.print();
 
 There is another way to inject properties and methods.
 
-##### mln_setProperty
+##### mln_set_property
 
 ```
-@mln_setProperty(object, name, value);
+@mln_set_property(object, name, value);
 ```
 
-use *mln_setProperty* to inject property or method into an object. Its return value is the same as argument *value*.
+use *mln_set_property* to inject property or method into an object. Its return value is the same as argument *value*.
 
 Let's add a *name* in *someone*.
 
 ```
-ret = @mln_setProperty(someone, 'name', 'Jason');
+ret = @mln_set_property(someone, 'name', 'Jason');
 @mln_print(ret);
 @mln_print(someone.name);
 ```
@@ -67,7 +67,7 @@ Let's add a method in *someone* to print name.
 {
   @mln_print(this.name);
 }
-@mln_setProperty(someone, 'showName', printName);
+@mln_set_property(someone, 'showName', printName);
 someone.showName();
 ```
 
@@ -75,16 +75,16 @@ someone.showName();
 
 Since there is a function for setting property, there will be a function for getting property.
 
-##### mln_getProperty
+##### mln_get_property
 
 ```
-@mln_getProperty(object, name);
+@mln_get_property(object, name);
 ```
 
 e.g.
 
 ```
-@mln_print(@mln_getProperty(someone, 'name'));
+@mln_print(@mln_get_property(someone, 'name'));
 ```
 
 The output is:

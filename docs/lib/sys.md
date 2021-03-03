@@ -32,12 +32,12 @@ Output:
 
 
 
-##### mln_isInt
+##### mln_is_int
 
 Find whether the type of a variable is integer.
 
 ```
-@mln_isInt(var);
+@mln_is_int(var);
 ```
 
 Input:
@@ -51,8 +51,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_isInt(1));
-@mln_print(@mln_isInt('1'));
+@mln_print(@mln_is_int(1));
+@mln_print(@mln_is_int('1'));
 ```
 
 Output:
@@ -64,12 +64,12 @@ false
 
 
 
-##### mln_isReal
+##### mln_is_real
 
 Find whether the type of a variable is real.
 
 ```
-@mln_isReal(var); 
+@mln_is_real(var);
 ```
 
 Input:
@@ -83,8 +83,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_isReal(1));
-@mln_print(@mln_isReal(1.0));
+@mln_print(@mln_is_real(1));
+@mln_print(@mln_is_real(1.0));
 ```
 
 Output:
@@ -96,12 +96,12 @@ true
 
 
 
-##### mln_isStr
+##### mln_is_str
 
 Find whether the type of a variable is string.
 
 ```
-@mln_isStr(var); 
+@mln_is_str(var);
 ```
 
 Input:
@@ -115,7 +115,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_isStr('123'));
+@mln_print(@mln_is_str('123'));
 ```
 
 Output:
@@ -126,12 +126,12 @@ true
 
 
 
-##### mln_isNil
+##### mln_is_nil
 
 Find whether the type of a variable is nil.
 
 ```
-@mln_isNil(var);
+@mln_is_nil(var);
 ```
 
 Input:
@@ -145,8 +145,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_isNil(0));
-@mln_print(@mln_isNil(nil));
+@mln_print(@mln_is_nil(0));
+@mln_print(@mln_is_nil(nil));
 ```
 
 Output:
@@ -158,12 +158,12 @@ true
 
 
 
-##### mln_isBool
+##### mln_is_bool
 
 Find whether the type of a variable is bool.
 
 ```
-@mln_isBool(var);
+@mln_is_bool(var);
 ```
 
 Input:
@@ -177,8 +177,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_isBool(0));
-@mln_print(@mln_isBool(false));
+@mln_print(@mln_is_bool(0));
+@mln_print(@mln_is_bool(false));
 ```
 
 Output:
@@ -190,12 +190,12 @@ true
 
 
 
-##### mln_isObj
+##### mln_is_obj
 
 Find whether the type of a variable is object.
 
 ```
-@mln_isObj(var);
+@mln_is_obj(var);
 ```
 
 Input:
@@ -211,7 +211,7 @@ Example:
 ```
 set {}
 o = $set;
-@mln_print(@mln_isObj(o));
+@mln_print(@mln_is_obj(o));
 ```
 
 Output:
@@ -222,12 +222,12 @@ true
 
 
 
-##### mln_isFunc
+##### mln_is_func
 
 Find whether the type of a variable is function.
 
 ```
-@mln_isFunc(var); 
+@mln_is_func(var);
 ```
 
 Input:
@@ -242,7 +242,7 @@ Example:
 
 ```
 @foo() {}
-@mln_print(@mln_isFunc(foo));
+@mln_print(@mln_is_func(foo));
 ```
 
 Output:
@@ -253,12 +253,12 @@ true
 
 
 
-##### mln_isArray
+##### mln_is_array
 
 Find whether the type of a variable is array.
 
 ```
-@mln_isArray(var);
+@mln_is_array(var);
 ```
 
 Input:
@@ -272,8 +272,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_isArray([1, 2]));
-@mln_print(@mln_isArray(['key1': 1, 'key2':2]));
+@mln_print(@mln_is_array([1, 2]));
+@mln_print(@mln_is_array(['key1': 1, 'key2':2]));
 ```
 
 Output:
@@ -652,12 +652,12 @@ object
 
 
 
-##### mln_getProperty
+##### mln_get_property
 
 Get property value from an object.
 
 ```
-@mln_getProperty(&obj, prop);
+@mln_get_property(&obj, prop);
 ```
 
 Input:
@@ -677,7 +677,7 @@ Human {
 }
 o = $Human;
 o.name = 'Tom';
-@mln_print(@mln_getProperty(o, 'name'));
+@mln_print(@mln_get_property(o, 'name'));
 ```
 
 Output:
@@ -688,12 +688,12 @@ Tom
 
 
 
-##### mln_setProperty
+##### mln_set_property
 
 Set a property with its value in an object.
 
 ```
-@mln_setProperty(&obj, prop, &val);
+@mln_set_property(&obj, prop, &val);
 ```
 
 Input:
@@ -714,8 +714,8 @@ Human {
 }
 o = $Human;
 o.name = 'Tom';
-@mln_print(@mln_setProperty(o, 'age', 18));
-@mln_print(@mln_getProperty(o, 'age'));
+@mln_print(@mln_set_property(o, 'age', 18));
+@mln_print(@mln_get_property(o, 'age'));
 ```
 
 Output:

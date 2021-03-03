@@ -12,7 +12,7 @@ This function is used to calculate MD5 digest.
 
 Input:
 
-- data - a string or an opened MFile object.
+- data - a string or an opened File object.
 
 Return value:
 

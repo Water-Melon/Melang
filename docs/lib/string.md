@@ -467,12 +467,12 @@ true
 
 
 
-##### mln_strcmpSeq
+##### mln_strcmpseq
 
 String comparison.
 
 ```
-@mln_strcmpSeq(s1, s2);
+@mln_strcmpseq(s1, s2);
 ```
 
 Input:
@@ -490,7 +490,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_strcmpSeq('drinking', 'drink'));
+@mln_print(@mln_strcmpseq('drinking', 'drink'));
 ```
 
 Output:
@@ -501,12 +501,12 @@ Output:
 
 
 
-##### mln_regEqual
+##### mln_reg_equal
 
 Match string by a regular expression.
 
 ```
-@mln_regEqual(exp, text);
+@mln_reg_equal(exp, text);
 ```
 
 Input:
@@ -521,8 +521,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_regEqual('.*', 'test'));
-@mln_print(@mln_regEqual('.*ed', 'test'));
+@mln_print(@mln_reg_equal('.*', 'test'));
+@mln_print(@mln_reg_equal('.*ed', 'test'));
 ```
 
 Output:
@@ -534,12 +534,12 @@ false
 
 
 
-##### mln_regMatch
+##### mln_reg_match
 
 Match string by a regular expression and get matched string pieces.
 
 ```
-@mln_regMatch(exp, text);
+@mln_reg_match(exp, text);
 ```
 
 Input:
@@ -554,7 +554,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_regMatch('((this )*i(s)).*', 'this is a reg exp test.'));
+@mln_print(@mln_reg_match('((this )*i(s)).*', 'this is a reg exp test.'));
 ```
 
 Output:

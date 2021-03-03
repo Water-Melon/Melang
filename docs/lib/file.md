@@ -1,9 +1,9 @@
 ### File
 
-File is implemented as a Set named MFile.
+File is implemented as a Set named File.
 
 ```
-MFile {
+File {
   fd;
   errno;
   open(path, op, prio);
@@ -152,7 +152,7 @@ $ echo "hello" > tempfile
 Execute Melang program:
 
 ```
-f = $MFile;
+f = $File;
 if (f.open('tempfile', 'rw+') != false) { //read and write file and file content won't be ereased
   f.lseek(1, 'begin');
   f.write('i all');

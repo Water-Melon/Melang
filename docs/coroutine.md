@@ -76,9 +76,9 @@ Each TCP connection will be handled in an individual coroutine.
 
 ```
 /* filename: server.mln */
-listenfd = @mln_tcpListen('127.0.0.1', '80');
+listenfd = @mln_tcp_listen('127.0.0.1', '80');
 while (1) {
-    fd = @mln_tcpAccept(listenfd);
+    fd = @mln_tcp_accept(listenfd);
     @mln_print(fd);
     @mln_eval('processor.mln', fd);
 }
@@ -87,11 +87,11 @@ while (1) {
 ```
 /* filename: processor.mln */
 fd = EVAL_DATA;
-ret = @mln_tcpRecv(fd);
+ret = @mln_tcp_recv(fd);
 if (ret) {
-    @mln_tcpSend(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
+    @mln_tcp_send(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
 }fi
-@mln_tcpClose(fd);
+@mln_tcp_close(fd);
 @mln_print('quit');
 ```
 
@@ -107,13 +107,13 @@ Each TCP will be delivered to a coroutine which is in coroutine pool to be handl
 
 ```
 /* filename: server.mln */
-listenfd = @mln_tcpListen('127.0.0.1', '80');
+listenfd = @mln_tcp_listen('127.0.0.1', '80');
 for (i = 0; i < 100; ++i) {
     @mln_eval('processor.mln', i);
 }
 while (1) {
-    fd = @mln_tcpAccept(listenfd);
-    @mln_msgQueueSend('test', fd);
+    fd = @mln_tcp_accept(listenfd);
+    @mln_msg_queue_send('test', fd);
 }
 ```
 
@@ -121,11 +121,11 @@ while (1) {
 /* filename: processor.mln */
 @mln_print(EVAL_DATA);
 while (1) {
-    fd = @mln_msgQueueRecv('test');
-    ret = @mln_tcpRecv(fd);
+    fd = @mln_msg_queue_recv('test');
+    ret = @mln_tcp_recv(fd);
     if (ret) {
-        @mln_tcpSend(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
+        @mln_tcp_send(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
     }fi
-    @mln_tcpClose(fd);
+    @mln_tcp_close(fd);
 }
 ```

@@ -10,7 +10,7 @@
 
 Input:
 
-- data - a string or an opened MFile object.
+- data - a string or an opened File object.
 
 Return value:
 
@@ -30,7 +30,7 @@ Error:
 
 Input:
 
-- data - a string or an opened MFile object.
+- data - a string or an opened File object.
 
 Return value:
 
