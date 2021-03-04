@@ -136,7 +136,7 @@ It is possible because function definition is a statement. So we can define a fu
 
 #### Variable arguments
 
-In most programming languages, they all support variable arguments, so does in Melang.
+In most programming languages, they all support variable arguments. In melang, we have an alternative plan.
 
 ```
 @log()
