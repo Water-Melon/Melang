@@ -92,7 +92,9 @@ We change function parameter *data* to be *&data*.
 
 Operator *&* makes argument *a* to be a reference variable named *data* in function *foo*. Every modification on *data* will directly effect on *a*.
 
-> Note. & only can be used on the parameters of function definition.
+> Note:
+>   1. & only can be used on the parameters of function definition.
+>   2. array and object will be treated as reference all the time no matter & given or not.
 
 
 

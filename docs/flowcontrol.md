@@ -240,6 +240,40 @@ plus:
 
 *plus* is a label. The output of this code is 12 which means *i--;* is not executed.
 
+> `goto` in Melang is a simplified.
+
+```
+@foo()
+{
+  i = 0;
+  if (++i > 10) {
+l1:
+    @mln_print(i);
+  } fi
+  goto l1;
+}
+
+@foo();
+```
+
+The interpreter will throw an error that `l1` can not be found, because it is not in the outest statements in a function.
+
+```
+@foo()
+{
+  i = 0;
+li:
+  if (++i > 10) {
+    @mln_print(i);
+  } fi
+  goto l1;
+}
+
+@foo();
+```
+
+But this example is working correctlly.
+
 
 
 #### break
