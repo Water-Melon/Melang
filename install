@@ -8,38 +8,43 @@ mysql_header_path="/usr/include/mysql"
 mysql_lib_path="/usr/lib64/mysql"
 mysql_lib=""
 libPath=`echo "/usr/local/melon_for_melang"`
-if [ $os == 'Darwin' ]; then
-	installPath="/usr/local/bin/"
+cc="cc"
+if ! case $os in MINGW*) false;; esac; then
+    installPath="$HOME/melang-0.5.0"
+    cc="gcc"
+    libPath="$HOME/libmelon"
+elif [ $os == 'Darwin' ]; then
+    installPath="/usr/local/bin/"
 else
-	installPath="/usr/bin/"
+    installPath="/usr/bin/"
 fi
 
 for param in $@
 do
-	if [ $param == "--help" ]; then
-		echo -e "\nMelang installation help."
-		echo "Copyright (C) Niklaus F.Schen."
-		echo "Options:"
-		echo -e "\t--prefix=INSTALL_PATH"
-		echo -e "\t--libprefix=LIB_INSTALL_PATH"
-		echo -e "\t--mysql_header_path=MYSQL_CLIENT_HREADER_PATH"
-		echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
-		exit 0
-	fi
-	param_prefix=`echo $param|cut -d '=' -f 1`
-	param_suffix=`echo $param|cut -d '=' -f 2`
-	if [ $param_prefix == "--prefix" ]; then
-		installPath=$param_suffix
-	fi
-	if [ $param_prefix == "--libprefix" ]; then
-		libPath=$param_suffix
-	fi
-	if [ $param_prefix == "--mysql_header_path" ]; then
-		mysql_header_path=$param_suffix
-	fi
-	if [ $param_prefix == "--mysql_lib_path" ]; then
-		mysql_lib_path=$param_suffix
-	fi
+    if [ $param == "--help" ]; then
+        echo -e "\nMelang installation help."
+        echo "Copyright (C) Niklaus F.Schen."
+        echo "Options:"
+        echo -e "\t--prefix=INSTALL_PATH"
+        echo -e "\t--libprefix=LIB_INSTALL_PATH"
+        echo -e "\t--mysql_header_path=MYSQL_CLIENT_HREADER_PATH"
+        echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
+        exit 0
+    fi
+    param_prefix=`echo $param|cut -d '=' -f 1`
+    param_suffix=`echo $param|cut -d '=' -f 2`
+    if [ $param_prefix == "--prefix" ]; then
+        installPath=$param_suffix
+    fi
+    if [ $param_prefix == "--libprefix" ]; then
+        libPath=$param_suffix
+    fi
+    if [ $param_prefix == "--mysql_header_path" ]; then
+        mysql_header_path=$param_suffix
+    fi
+    if [ $param_prefix == "--mysql_lib_path" ]; then
+        mysql_lib_path=$param_suffix
+    fi
 done
 
 #test MySQL Asynchronous----------#
@@ -47,12 +52,12 @@ echo -e "#include <stdio.h>\n#include <mysql.h>" > mysql_test.c
 echo "int main(void){MYSQL *mysql_local = mysql_init(NULL);mysql_real_connect_nonblocking(mysql_local, NULL, NULL, NULL, NULL, 3306, NULL, 0);return 0;}" >> mysql_test.c
 cc -o mysql_test mysql_test.c -I/usr/include/mysql/ -L/usr/lib64/mysql/ -lmysqlclient 2>/dev/null
 if [ "$?" == "0" ]; then
-	mysql=1
-	mysql_lib="-I $mysql_header_path -L $mysql_lib_path -lmysqlclient"
-	echo "MySQL Asynchronous	[support]"
+    mysql=1
+    mysql_lib="-I $mysql_header_path -L $mysql_lib_path -lmysqlclient"
+    echo -e "MySQL Asynchronous\t[support]"
 else
-	mysql=0
-	echo "MySQL Asynchronous	[not support]"
+    mysql=0
+    echo -e "MySQL Asynchronous\t[not support]"
 fi
 rm -fr mysql_test mysql_test.c
 #test MySQL Asynchronous end------#
@@ -65,8 +70,11 @@ make
 make install
 cd ..
 
-rm -fr $libPath/lib/libmelon.so
-cc -o melang melang.c -O3 -I $libPath/include -L $libPath/lib -lmelon -lpthread $mysql_lib
+if ! case $os in MINGW*) false;; esac; then
+    $cc -o melang melang.c -static -O3 -I $libPath/include -L $libPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32
+else
+    $cc -o melang melang.c -static -O3 -I $libPath/include -L $libPath/lib -lmelon -lpthread $mysql_lib
+fi
 
 test -d $installPath || mkdir -p $installPath
 cp melang $installPath/
