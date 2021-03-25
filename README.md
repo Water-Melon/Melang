@@ -14,7 +14,9 @@ Melang is a script Language of preemptive scheduling coroutine in single thread.
 
 ### Installation
 
-At first, you should confirm that your device can visit GitHub. Then execute these shell commands below:
+If you want to install Melang on Windows, please download `mingw` and `git bash` at first.
+
+Execute these following shell commands:
 
 ```
 git clone https://github.com/Water-Melon/Melang.git
