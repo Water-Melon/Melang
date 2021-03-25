@@ -20,6 +20,14 @@ static void taskChecker(mln_event_t *ev, void *data);
 
 int main(int argc, char *argv[])
 {
+#if defined(WINNT)
+    WSADATA wsaData = {0};
+    int rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (rc < 0) {
+        fprintf(stderr, "WSAStartup faiiled. %d\n", WSAGetLastError());
+    return -1;
+    }
+#endif
     mln_params_check(argc, argv);
 
     struct mln_core_attr cattr;
@@ -34,6 +42,9 @@ int main(int argc, char *argv[])
 
     mln_run_all(argc, argv);
 
+#if defined(WINNT)
+    WSACleanup();
+#endif
     return 0;
 }
 
@@ -133,12 +144,12 @@ static void mln_run_all(int argc, char *argv[])
     }
     mln_event_t *ev = mln_event_init(1);
     if (ev == NULL) {
-	mln_log(error, "ev init failed.\n");
+        mln_log(error, "ev init failed.\n");
         exit(1);
     }
     mln_lang_t *lang = mln_lang_new(pool, ev);
     if (lang == NULL) {
-	mln_log(error, "lang init failed.\n");
+        mln_log(error, "lang init failed.\n");
         exit(1);
     }
     mln_lang_setCache(lang);
