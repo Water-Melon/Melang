@@ -467,12 +467,12 @@ true
 
 
 
-##### mln_strcmpseq
+##### mln_strseqcmp
 
 String comparison.
 
 ```
-@mln_strcmpseq(s1, s2);
+@mln_strseqcmp(s1, s2);
 ```
 
 Input:
@@ -490,7 +490,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_strcmpseq('drinking', 'drink'));
+@mln_print(@mln_strseqcmp('drinking', 'drink'));
 ```
 
 Output:
