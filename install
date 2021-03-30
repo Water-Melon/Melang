@@ -72,6 +72,9 @@ cd ..
 
 if ! case $os in MINGW*) false;; esac; then
     $cc -o melang melang.c -static -O3 -I $libPath/include -L $libPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32
+elif [ $os == 'Darwin' ]; then
+    rm -fr $libPath/lib/*.so
+    $cc -o melang melang.c -O3 -I $libPath/include -L $libPath/lib -lmelon -lpthread $mysql_lib
 else
     $cc -o melang melang.c -static -O3 -I $libPath/include -L $libPath/lib -lmelon -lpthread $mysql_lib
 fi
