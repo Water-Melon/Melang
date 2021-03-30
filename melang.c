@@ -152,7 +152,7 @@ static void mln_run_all(int argc, char *argv[])
         mln_log(error, "lang init failed.\n");
         exit(1);
     }
-    mln_lang_setCache(lang);
+    mln_lang_cache_set(lang);
     mln_string_t path;
     int i;
     for (i = 1; i < argc; ++i) {
