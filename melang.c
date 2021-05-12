@@ -13,7 +13,6 @@
 #include "mln_log.h"
 #include "mln_conf.h"
 
-static int mln_global_init(void);
 static void mln_params_check(int argc, char *argv[]);
 static void mln_run_all(int argc, char *argv[]);
 static void taskChecker(mln_event_t *ev, void *data);
@@ -33,7 +32,7 @@ int main(int argc, char *argv[])
     struct mln_core_attr cattr;
     cattr.argc = argc;
     cattr.argv = argv;
-    cattr.global_init = mln_global_init;
+    cattr.global_init = NULL;
     cattr.worker_process = NULL;
     if (mln_core_init(&cattr) < 0) {
         fprintf(stderr, "init failed.\n");
@@ -45,69 +44,6 @@ int main(int argc, char *argv[])
 #if defined(WINNT)
     WSACleanup();
 #endif
-    return 0;
-}
-
-static int mln_global_init(void)
-{
-    mln_string_t path = mln_string("/tmp/.melang.log");
-    mln_conf_t *cf = mln_get_conf();
-    mln_conf_domain_t *cd = cf->search(cf, "main");
-    mln_conf_cmd_t *cc;
-    mln_conf_item_t *ci;
-
-    cc = cd->search(cd, "daemon");
-    if (cc == NULL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci = cc->search(cc, 1);
-    if (ci == NULL || ci->type != CONF_BOOL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci->val.b = 0;
-
-    cc = cd->search(cd, "framework");
-    if (cc == NULL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci = cc->search(cc, 1);
-    if (ci == NULL || ci->type != CONF_BOOL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci->val.b = 0;
-
-    cc = cd->search(cd, "worker_proc");
-    if (cc == NULL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci = cc->search(cc, 1);
-    if (ci == NULL || ci->type != CONF_INT) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci->val.i = 1;
-
-    cc = cd->search(cd, "log_path");
-    if (cc == NULL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci = cc->search(cc, 1);
-    if (ci == NULL || ci->type != CONF_STR) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    mln_string_free(ci->val.s);
-    if ((ci->val.s = mln_string_dup(&path)) == NULL) {
-        fprintf(stderr, "No memory.\n");
-        return -1;
-    }
-
     return 0;
 }
 
