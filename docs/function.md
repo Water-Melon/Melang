@@ -164,3 +164,82 @@ The key point is variable *args*. It's a internal variable in Melang function.
 It is an array to record every arguments passed to this function.
 
 > Function *mln_size* returns the number of array elements.
+
+
+
+#### Closure
+
+Let us see an example at first.
+
+```
+@foo()
+{
+  a = 1;
+  @bar()
+  {
+    @mln_print(a);
+  }
+  return bar;
+}
+
+b = @foo();
+b();
+```
+
+In this example, I want to output the value of `a` which is defined in function `foo` in function `bar`. Obviously, the output is `nil`, because `a` can not be found in function `bar`.
+
+But there is a way to get `a` in `bar`.
+
+```
+@foo()
+{
+  a = 1;
+  @bar() $(a)
+  {
+    @mln_print(a);
+  }
+  return bar;
+}
+
+b = @foo();
+b();
+```
+
+Now, the output is `1`.
+
+Let us modify this example again:
+
+```
+@foo()
+{
+  a = 1;
+  @bar() $(a)
+  {
+    @mln_print(a);
+  }
+  a = 100; //change to another value
+  return bar;
+}
+
+b = @foo();
+b();
+```
+
+Now, the output still be `1`. How can I do if I want the value `a` in function `bar` is the modified value (`100`)?
+
+```
+@foo()
+{
+  a = 1;
+  @bar() $(&a) //to become a reference
+  {
+    @mln_print(a);
+  }
+  a = 100; //change to another value
+  return bar;
+}
+
+b = @foo();
+b();
+```
+
