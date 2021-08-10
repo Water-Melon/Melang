@@ -842,3 +842,91 @@ Output:
 true
 ```
 
+
+
+##### mln_lsdir
+
+List all files and directories under the specified path.
+
+```
+@mln_lsdir(path);
+```
+
+Input:
+
+- path - file or directory path.
+
+Return value:
+
+- an array contained all files and directories under the `path`.
+
+Example:
+
+```
+@mln_print(@mln_path('/'));
+```
+
+Output:
+
+```
+[tmp, run, etc, lib64, home, sbin, proc, sys, ., usr, lost+found, root, boot, media, .., dev, bin, opt, lib, mnt, var, srv, ]
+```
+
+
+
+##### mln_isdir
+
+Check the given path is directory or not.
+
+```
+@mln_isdir(path);
+```
+
+Input:
+
+- path - file or directory path.
+
+Return value:
+
+- *true* if is directory, otherwise *false*.
+
+Example:
+
+```
+@mln_print(@mln_exist('/'));
+```
+
+Output:
+
+```
+true
+```
+
+
+
+##### mln_time
+
+Get the current time seconds.
+
+```
+@mln_time();
+```
+
+Input: -
+
+Return value:
+
+- an integer that is the current time seconds.
+
+Example:
+
+```
+@mln_print(@mln_time());
+```
+
+Output:
+
+```
+1628567103
+```
+
