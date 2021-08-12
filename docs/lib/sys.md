@@ -995,3 +995,34 @@ Output:
 [1, 3, ]
 ```
 
+
+
+##### mln_key_diff
+
+Compute the difference of arrays by keys.
+
+```
+@mln_key_diff(&array1, &array2);
+```
+
+Input:
+
+- `array1` - the array to compare from.
+- `array2` - the array to compare against
+
+Return value:
+
+- Returns an array containing all the entries whose key is from `array1` but not in `array2`. Keys in the `array1` are preserved.
+
+Example:
+
+```
+@mln_print(@mln_key_diff(['aaa':1,2,'ccc':3,'ddd':4, 5], ['aaa':1,2,3]););
+```
+
+Output:
+
+```
+[3, 4, ]
+```
+
