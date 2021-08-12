@@ -563,3 +563,34 @@ Output:
 [this , s, this is, this is a reg exp test., ]
 ```
 
+
+
+##### mln_replace
+
+Replace all occurrences of the search string with the replacement string.
+
+```
+@mln_replace(&dict, &str);
+```
+
+Input:
+
+- `dict` - the dictionary contains search strings and replacement strings.
+- `str` - the content string.
+
+Return value:
+
+- a string with the replaced values.
+
+Example:
+
+```
+@mln_print(@mln_replace(['aaa':'123', 'bbb': 'Hello'], 'aaabbbcccaaa'));
+```
+
+Output:
+
+```
+123Helloccc123
+```
+

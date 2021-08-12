@@ -964,3 +964,34 @@ Output:
 1628676822
 ```
 
+
+
+##### mln_diff
+
+Compute the difference of arrays.
+
+```
+@mln_diff(&array1, &array2);
+```
+
+Input:
+
+- `array1` - the array to compare from.
+- `array2` - the array to compare against
+
+Return value:
+
+- Returns an array containing all the entries from `array1` that are not present in `array2`. Keys in the `array1` are preserved.
+
+Example:
+
+```
+@mln_print(@mln_diff([1,2,3,4,5], [2,4,5]));
+```
+
+Output:
+
+```
+[1, 3, ]
+```
+
