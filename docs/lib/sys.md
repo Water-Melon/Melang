@@ -1044,7 +1044,7 @@ Input:
 Return value:
 
 - `false` if failed.
-- `true` on succeed.
+- The command output on succeed.
 
 Example:
 
