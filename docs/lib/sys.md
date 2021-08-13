@@ -1026,3 +1026,39 @@ Output:
 [3, 4, ]
 ```
 
+
+
+##### mln_exec
+
+Execute shell command in Melang.
+
+```
+@mln_exec(cmd, bufsize);
+```
+
+Input:
+
+- `cmd` - shell command string.
+- `bufsize` - the limit size of the command output. if `<0` or omitted, it means no limitation.
+
+Return value:
+
+- `false` if failed.
+- `true` on succeed.
+
+Example:
+
+```
+@mln_exec('ls /');
+```
+
+Output:
+
+```
+bin
+boot
+dev
+etc
+...
+```
+
