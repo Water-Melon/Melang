@@ -106,7 +106,7 @@ Operator *&* makes argument *a* to be a reference variable named *data* in funct
   _mln_print(data);
 }
 
-@foo();
+foo();
 ```
 
 This program will not report error. Because interperter will set *nil* to *data* automatically.
