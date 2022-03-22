@@ -7,7 +7,7 @@ This is a library function for AES encryption and decryption.
 #### mln_aes
 
 ```
-@mln_aes(data, key, bits, op);
+mln_aes(data, key, bits, op);
 ```
 
 Input:
@@ -30,12 +30,12 @@ Example:
 
 ```
 text = 'This is an aes test, note length';
-@mln_print('text length: '+@mln_strlen(text));
+mln_print('text length: '+mln_strlen(text));
 key = 'this is a secret';
-cipher = @mln_aes(text, key, 128, 'encode');
-@mln_print(cipher);
-text = @mln_aes(cipher, key, 128, 'decode');
-@mln_print(text);
+cipher = mln_aes(text, key, 128, 'encode');
+mln_print(cipher);
+text = mln_aes(cipher, key, 128, 'decode');
+mln_print(text);
 ```
 
 The output is:

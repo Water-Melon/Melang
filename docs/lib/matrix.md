@@ -7,7 +7,7 @@
 Matrix multiplication.
 
 ```
-@mln_matrix_mul(array1, array2);
+mln_matrix_mul(array1, array2);
 ```
 
 Input:
@@ -47,10 +47,10 @@ Example:
 ```
 array1 = ['row': 3, 'col': 2, 'data':[1,0,0,1,1,1]];
 array2 = ['row': 2, 'col': 2, 'data':[1,2,3,4]];
-res_array = @mln_matrix_mul(array1, array2);
-@mln_print(res_array['row']);
-@mln_print(res_array['col']);
-@mln_print(res_array['data']);
+res_array = mln_matrix_mul(array1, array2);
+mln_print(res_array['row']);
+mln_print(res_array['col']);
+mln_print(res_array['data']);
 ```
 
 The output is:
@@ -68,7 +68,7 @@ The output is:
 Matrix inversion.
 
 ```
-@mln_matrix_inv(array);
+mln_matrix_inv(array);
 ```
 
 Input:
@@ -87,10 +87,10 @@ Example:
 
 ```
 array = ['row': 2, 'col': 2, 'data':[1,0,1,1]];
-res_array = @mln_matrix_inv(array);
-@mln_print(res_array['row']);
-@mln_print(res_array['col']);
-@mln_print(res_array['data']);
+res_array = mln_matrix_inv(array);
+mln_print(res_array['row']);
+mln_print(res_array['col']);
+mln_print(res_array['data']);
 ```
 
 The output is:

@@ -67,11 +67,11 @@ Example:
 ```
 @__int_cand_operator__(left, right)
 {
-    @mln_print(left);
-    @mln_print(right);
+    _mln_print(left);
+    _mln_print(right);
     return true;
 }
-@mln_print((1 & 2));
+mln_print((1 & 2));
 ```
 
 This example will overload `int` operator  `&` . The output is:
@@ -89,11 +89,11 @@ Let's change something:
 ```
 @__int_cand_operator__(left, right)
 {
-    @mln_print(left);
-    @mln_print(right);
+    _mln_print(left);
+    _mln_print(right);
     return left & right;
 }
-@mln_print((1 & 2));
+mln_print((1 & 2));
 ```
 
 Now, the output is:
@@ -117,15 +117,15 @@ S {
   attr;
   @__obj_cand_operator__(&left, &right)
   {
-      @mln_print(left);
-      @mln_print(right);
+      _mln_print(left);
+      _mln_print(right);
       return true;
   }
 }
 
 a = $S;
 b = $S;
-@mln_print((a & b));
+mln_print((a & b));
 ```
 
 The output is:
@@ -147,16 +147,16 @@ S {
   attr;
   @__obj_cand_operator__(&left, &right)
   {
-      @mln_print(left);
-      @mln_print(right);
+      _mln_print(left);
+      _mln_print(right);
       return true;
   }
 }
 
 @__obj_cand_operator__(left, right)
 {
-    @mln_print(left);
-    @mln_print(right);
+    _mln_print(left);
+    _mln_print(right);
     return false;
 }
 O {
@@ -167,8 +167,8 @@ a = $S;
 b = $S;
 c = $O;
 d = $O;
-@mln_print((a & b));
-@mln_print((c & d));
+mln_print((a & b));
+mln_print((c & d));
 ```
 
 The output is:

@@ -31,9 +31,9 @@ e.g.
 ```
 a = 1;
 @foo() { //function definition
-  @mln_print(a); //output a's value
+  _mln_print(a); //output a's value
 }
-@foo(); //call function foo
+foo(); //call function foo
 ```
 
 The result is:
@@ -49,9 +49,9 @@ But if we need a's value in foo, how to do?
 ```
 a = 1;
 @foo() {
-  @mln_print(_a); //_a instead of a
+  _mln_print(_a); //_a instead of a
 }
-@foo();
+foo();
 ```
 
 Result is:
@@ -73,9 +73,9 @@ a = 1;
 b = 2;
 @foo() {
   a = 10;
-  @mln_print(a); //will output 10
-  @mln_print(_a); //also 10
-  @mln_print(b); //will output nil
-  @mln_print(_b); //will output 2
+  _mln_print(a); //will output 10
+  _mln_print(_a); //also 10
+  _mln_print(b); //will output nil
+  _mln_print(_b); //will output 2
 }
 ```

@@ -7,7 +7,7 @@
 Get array length.
 
 ```
-@mln_size(&array);
+mln_size(&array);
 ```
 
 Input:
@@ -21,7 +21,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_size([1, 2, 3]));
+mln_print(mln_size([1, 2, 3]));
 ```
 
 Output:
@@ -37,7 +37,7 @@ Output:
 Find whether the type of a variable is integer.
 
 ```
-@mln_is_int(var);
+mln_is_int(var);
 ```
 
 Input:
@@ -51,8 +51,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_is_int(1));
-@mln_print(@mln_is_int('1'));
+mln_print(mln_is_int(1));
+mln_print(mln_is_int('1'));
 ```
 
 Output:
@@ -69,7 +69,7 @@ false
 Find whether the type of a variable is real.
 
 ```
-@mln_is_real(var);
+mln_is_real(var);
 ```
 
 Input:
@@ -83,8 +83,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_is_real(1));
-@mln_print(@mln_is_real(1.0));
+mln_print(mln_is_real(1));
+mln_print(mln_is_real(1.0));
 ```
 
 Output:
@@ -101,7 +101,7 @@ true
 Find whether the type of a variable is string.
 
 ```
-@mln_is_str(var);
+mln_is_str(var);
 ```
 
 Input:
@@ -115,7 +115,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_is_str('123'));
+mln_print(mln_is_str('123'));
 ```
 
 Output:
@@ -131,7 +131,7 @@ true
 Find whether the type of a variable is nil.
 
 ```
-@mln_is_nil(var);
+mln_is_nil(var);
 ```
 
 Input:
@@ -145,8 +145,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_is_nil(0));
-@mln_print(@mln_is_nil(nil));
+mln_print(mln_is_nil(0));
+mln_print(mln_is_nil(nil));
 ```
 
 Output:
@@ -163,7 +163,7 @@ true
 Find whether the type of a variable is bool.
 
 ```
-@mln_is_bool(var);
+mln_is_bool(var);
 ```
 
 Input:
@@ -177,8 +177,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_is_bool(0));
-@mln_print(@mln_is_bool(false));
+mln_print(mln_is_bool(0));
+mln_print(mln_is_bool(false));
 ```
 
 Output:
@@ -195,7 +195,7 @@ true
 Find whether the type of a variable is object.
 
 ```
-@mln_is_obj(var);
+mln_is_obj(var);
 ```
 
 Input:
@@ -211,7 +211,7 @@ Example:
 ```
 set {}
 o = $set;
-@mln_print(@mln_is_obj(o));
+mln_print(mln_is_obj(o));
 ```
 
 Output:
@@ -227,7 +227,7 @@ true
 Find whether the type of a variable is function.
 
 ```
-@mln_is_func(var);
+mln_is_func(var);
 ```
 
 Input:
@@ -242,7 +242,7 @@ Example:
 
 ```
 @foo() {}
-@mln_print(@mln_is_func(foo));
+mln_print(mln_is_func(foo));
 ```
 
 Output:
@@ -258,7 +258,7 @@ true
 Find whether the type of a variable is array.
 
 ```
-@mln_is_array(var);
+mln_is_array(var);
 ```
 
 Input:
@@ -272,8 +272,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_is_array([1, 2]));
-@mln_print(@mln_is_array(['key1': 1, 'key2':2]));
+mln_print(mln_is_array([1, 2]));
+mln_print(mln_is_array(['key1': 1, 'key2':2]));
 ```
 
 Output:
@@ -290,7 +290,7 @@ true
 Get int value of a variable.
 
 ```
-@mln_int(var);
+mln_int(var);
 ```
 
 Input:
@@ -304,8 +304,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_int(1.2));
-@mln_print(@mln_int('1'));
+mln_print(mln_int(1.2));
+mln_print(mln_int('1'));
 ```
 
 Output:
@@ -322,7 +322,7 @@ Output:
 Get bool value of a variable.
 
 ```
-@mln_bool(var);
+mln_bool(var);
 ```
 
 Input:
@@ -336,11 +336,11 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_bool(1.2));
-@mln_print(@mln_bool(0));
-@mln_print(@mln_bool(nil));
-@mln_print(@mln_bool([]));
-@mln_print(@mln_bool(''));
+mln_print(mln_bool(1.2));
+mln_print(mln_bool(0));
+mln_print(mln_bool(nil));
+mln_print(mln_bool([]));
+mln_print(mln_bool(''));
 ```
 
 Output:
@@ -360,7 +360,7 @@ false
 Get real value of a variable.
 
 ```
-@mln_real(var);
+mln_real(var);
 ```
 
 Input:
@@ -374,8 +374,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_real(1));
-@mln_print(@mln_real('1.2'));
+mln_print(mln_real(1));
+mln_print(mln_real('1.2'));
 ```
 
 Output:
@@ -392,7 +392,7 @@ Output:
 Get string value of a variable.
 
 ```
-@mln_str(var);
+mln_str(var);
 ```
 
 Input:
@@ -406,8 +406,8 @@ Return value:
 Example:
 
 ```
-@mln_dump(@mln_str(1));
-@mln_dump(@mln_str(1.2));
+mln_dump(mln_str(1));
+mln_dump(mln_str(1.2));
 ```
 
 Output:
@@ -426,7 +426,7 @@ Output:
 Get object value of a variable.
 
 ```
-@mln_obj(var);
+mln_obj(var);
 ```
 
 Input:
@@ -440,8 +440,8 @@ Return value:
 Example:
 
 ```
-@mln_dump(@mln_obj([1, 2]));
-@mln_dump(@mln_obj(['name': 'Tom', 'age': 18]));
+mln_dump(mln_obj([1, 2]));
+mln_dump(mln_obj(['name': 'Tom', 'age': 18]));
 ```
 
 Output:
@@ -466,7 +466,7 @@ As we can see in output, common array will not generate any properties in object
 Get array value of a variable.
 
 ```
-@mln_array(var);
+mln_array(var);
 ```
 
 Input:
@@ -487,9 +487,9 @@ Human {
 o = $Human;
 o.name = 'Tom';
 o.age = 18;
-arr = @mln_array(o);
-@mln_print(arr);
-@mln_print(arr['name']);
+arr = mln_array(o);
+mln_print(arr);
+mln_print(arr['name']);
 ```
 
 Output:
@@ -506,7 +506,7 @@ Tom
 Return all the keys or a subset of the keys of an array.
 
 ```
-@mln_keys(&array);
+mln_keys(&array);
 ```
 
 Input:
@@ -521,7 +521,7 @@ Example:
 
 ```
 a = ['name': 'Tom', 'age': 18];
-@mln_print(@mln_keys(a));
+mln_print(mln_keys(a));
 ```
 
 Output:
@@ -537,7 +537,7 @@ Output:
 Merge two arrays
 
 ```
-@mln_merge(array1, array2);
+mln_merge(array1, array2);
 ```
 
 Input:
@@ -556,11 +556,11 @@ a = ['name': 'Tom', 'age': 18];
 b = ['name': 'Sam', 'age': 19];
 c = [1, 2, 3];
 d = [2, 3, 4];
-@mln_print(@mln_merge(a, b));
-@mln_print(@mln_merge(c, d));
-ret = @mln_merge(b, c);
-@mln_print(ret);
-@mln_print(ret['name']);
+mln_print(mln_merge(a, b));
+mln_print(mln_merge(c, d));
+ret = mln_merge(b, c);
+mln_print(ret);
+mln_print(ret['name']);
 ```
 
 Output:
@@ -579,7 +579,7 @@ Sam
 Checks if a key or property exists in an array or object.
 
 ```
-@mln_has(owner, thing);
+mln_has(owner, thing);
 ```
 
 Input:
@@ -595,7 +595,7 @@ Example:
 
 ```
 a = ['name': 'Tom', 'age': 18];
-@mln_print(@mln_has(a, 'name'));
+mln_print(mln_has(a, 'name'));
 ```
 
 Output:
@@ -611,7 +611,7 @@ true
 Get the type of input argument.
 
 ```
-@mln_type(var);
+mln_type(var);
 ```
 
 Input:
@@ -629,13 +629,13 @@ a = ['name': 'Tom', 'age': 18];
 SetA {}
 @foo () {}
 
-@mln_print(@mln_type(1));
-@mln_print(@mln_type(1.2));
-@mln_print(@mln_type('abc'));
-@mln_print(@mln_type([1, 2]));
-@mln_print(@mln_type($SetA));
-@mln_print(@mln_type(foo));
-@mln_print(@mln_type(@mln_obj(a)));
+mln_print(mln_type(1));
+mln_print(mln_type(1.2));
+mln_print(mln_type('abc'));
+mln_print(mln_type([1, 2]));
+mln_print(mln_type($SetA));
+mln_print(mln_type(foo));
+mln_print(mln_type(mln_obj(a)));
 ```
 
 Output:
@@ -657,7 +657,7 @@ object
 Get property value from an object.
 
 ```
-@mln_get_property(&obj, prop);
+mln_get_property(&obj, prop);
 ```
 
 Input:
@@ -677,7 +677,7 @@ Human {
 }
 o = $Human;
 o.name = 'Tom';
-@mln_print(@mln_get_property(o, 'name'));
+mln_print(mln_get_property(o, 'name'));
 ```
 
 Output:
@@ -693,7 +693,7 @@ Tom
 Set a property with its value in an object.
 
 ```
-@mln_set_property(&obj, prop, &val);
+mln_set_property(&obj, prop, &val);
 ```
 
 Input:
@@ -714,8 +714,8 @@ Human {
 }
 o = $Human;
 o.name = 'Tom';
-@mln_print(@mln_set_property(o, 'age', 18));
-@mln_print(@mln_get_property(o, 'age'));
+mln_print(mln_set_property(o, 'age', 18));
+mln_print(mln_get_property(o, 'age'));
 ```
 
 Output:
@@ -732,7 +732,7 @@ Output:
 Create a new coroutine and execute.
 
 ```
-@mln_eval(val, data, in_string);
+mln_eval(val, data, in_string);
 ```
 
 Input:
@@ -754,7 +754,7 @@ Example: visit [Coroutine Section](https://water-melon.github.io/Melang/coroutin
 Create a directory.
 
 ```
-@mln_mkdir(path, mode);
+mln_mkdir(path, mode);
 ```
 
 Input:
@@ -769,7 +769,7 @@ Return value:
 Example:
 
 ```
-@mln_mkdir('/tmp/aaa');
+mln_mkdir('/tmp/aaa');
 ```
 
 ```shell
@@ -789,7 +789,7 @@ Output:
 Remove directory from file system.
 
 ```
-@mln_remove(path);
+mln_remove(path);
 ```
 
 Input:
@@ -803,7 +803,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_remove('/tmp/aaa'));
+mln_print(mln_remove('/tmp/aaa'));
 ```
 
 Output:
@@ -819,7 +819,7 @@ true
 Check if the file or directory exists.
 
 ```
-@mln_exist(path);
+mln_exist(path);
 ```
 
 Input:
@@ -833,7 +833,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_exist('/tmp'));
+mln_print(mln_exist('/tmp'));
 ```
 
 Output:
@@ -849,7 +849,7 @@ true
 List all files and directories under the specified path.
 
 ```
-@mln_lsdir(path);
+mln_lsdir(path);
 ```
 
 Input:
@@ -863,7 +863,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_path('/'));
+mln_print(mln_path('/'));
 ```
 
 Output:
@@ -879,7 +879,7 @@ Output:
 Check the given path is directory or not.
 
 ```
-@mln_isdir(path);
+mln_isdir(path);
 ```
 
 Input:
@@ -893,7 +893,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_exist('/'));
+mln_print(mln_exist('/'));
 ```
 
 Output:
@@ -909,7 +909,7 @@ true
 Get the current time seconds.
 
 ```
-@mln_time();
+mln_time();
 ```
 
 Input: -
@@ -921,7 +921,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_time());
+mln_print(mln_time());
 ```
 
 Output:
@@ -937,7 +937,7 @@ Output:
 Parse cron format expression and get the next allowed timestamp.
 
 ```
-@mln_cron(exp, timestamp);
+mln_cron(exp, timestamp);
 ```
 
 Input:
@@ -952,9 +952,9 @@ Return value:
 Example:
 
 ```
-tm = @mln_time();
-@mln_print(tm);
-@mln_print(@mln_cron('* * * * *', tm));
+tm = mln_time();
+mln_print(tm);
+mln_print(mln_cron('* * * * *', tm));
 ```
 
 Output:
@@ -971,7 +971,7 @@ Output:
 Compute the difference of arrays.
 
 ```
-@mln_diff(&array1, &array2);
+mln_diff(&array1, &array2);
 ```
 
 Input:
@@ -986,7 +986,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_diff([1,2,3,4,5], [2,4,5]));
+mln_print(mln_diff([1,2,3,4,5], [2,4,5]));
 ```
 
 Output:
@@ -1002,7 +1002,7 @@ Output:
 Compute the difference of arrays by keys.
 
 ```
-@mln_key_diff(&array1, &array2);
+mln_key_diff(&array1, &array2);
 ```
 
 Input:
@@ -1017,7 +1017,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_key_diff(['aaa':1,2,'ccc':3,'ddd':4, 5], ['aaa':1,2,3]););
+mln_print(mln_key_diff(['aaa':1,2,'ccc':3,'ddd':4, 5], ['aaa':1,2,3]););
 ```
 
 Output:
@@ -1033,7 +1033,7 @@ Output:
 Execute shell command in Melang.
 
 ```
-@mln_exec(cmd, bufsize);
+mln_exec(cmd, bufsize);
 ```
 
 Input:
@@ -1049,7 +1049,7 @@ Return value:
 Example:
 
 ```
-@mln_exec('ls /');
+mln_exec('ls /');
 ```
 
 Output:

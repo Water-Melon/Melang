@@ -5,7 +5,7 @@
 ##### mln_json_encode
 
 ```
-@mln_json_encode(array);
+mln_json_encode(array);
 ```
 
 Input:
@@ -25,7 +25,7 @@ Error:
 ##### mln_json_decode
 
 ```
-@mln_json_decode(s);
+mln_json_decode(s);
 ```
 
 Input:
@@ -46,9 +46,9 @@ Error:
 
 ```
 a = ['name': 'Tom', 'age': 18, 'gender': 'male'];
-json = @mln_json_encode(a);
-@mln_print(json);
-@mln_print(@mln_json_decode(json));
+json = mln_json_encode(a);
+mln_print(json);
+mln_print(mln_json_decode(json));
 ```
 
 The output is:

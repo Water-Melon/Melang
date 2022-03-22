@@ -137,7 +137,7 @@ e.g.
 ```
 array = [1, 2, 3, 4];
 for (i = 0; i < 4; i++)
-  @mln_print(array[i]);
+  mln_print(array[i]);
 ```
 
 
@@ -235,7 +235,7 @@ e.g.
   i--;
 plus:
   i += 2;
-  @mln_print(i);
+  mln_print(i);
 ```
 
 *plus* is a label. The output of this code is 12 which means *i--;* is not executed.
@@ -248,12 +248,12 @@ plus:
   i = 0;
   if (++i > 10) {
 l1:
-    @mln_print(i);
+    _mln_print(i);
   } fi
   goto l1;
 }
 
-@foo();
+foo();
 ```
 
 The interpreter will throw an error that `l1` can not be found, because it is not in the outest statements in a function.
@@ -264,12 +264,12 @@ The interpreter will throw an error that `l1` can not be found, because it is no
   i = 0;
 li:
   if (++i > 10) {
-    @mln_print(i);
+    _mln_print(i);
   } fi
   goto l1;
 }
 
-@foo();
+foo();
 ```
 
 But this example is working correctlly.
@@ -288,10 +288,10 @@ for (i = 0; i < 1000; i++) {
     break;
   fi
 }
-@mln_print(i);
+mln_print(i);
 ```
 
-The output is 11, because when *i* greater than 10, *if* condition is matched. Then *break* statement makes *for* loop stop and go to execute next statement (*@mln_print(i);*).
+The output is 11, because when *i* greater than 10, *if* condition is matched. Then *break* statement makes *for* loop stop and go to execute next statement (*mln_print(i);*).
 
 
 

@@ -16,7 +16,7 @@ $ ./melang a.mln b.mln ...
 Besides this way, there is a function named *mln_eval* to start a new script task in the current thread to execute a piece of code.
 
 ```
-@mln_eval(val, data, in_string);
+mln_eval(val, data, in_string);
 ```
 
 If *in_string* is true, *val* is the script code, otherwise *val* is the script file path.
@@ -34,9 +34,9 @@ If *in_string* is true, *val* is the script code, otherwise *val* is the script 
 e.g.
 
 ```
-@mln_eval('while (1) {@mln_print(EVAL_DATA);}', 'bbb', true);
+mln_eval('while (1) {mln_print(EVAL_DATA);}', 'bbb', true);
 while (1) {
-  @mln_print('aaa');
+  mln_print('aaa');
 }
 ```
 
@@ -76,23 +76,23 @@ Each TCP connection will be handled in an individual coroutine.
 
 ```
 /* filename: server.mln */
-listenfd = @mln_tcp_listen('127.0.0.1', '80');
+listenfd = mln_tcp_listen('127.0.0.1', '80');
 while (1) {
-    fd = @mln_tcp_accept(listenfd);
-    @mln_print(fd);
-    @mln_eval('processor.mln', fd);
+    fd = mln_tcp_accept(listenfd);
+    mln_print(fd);
+    mln_eval('processor.mln', fd);
 }
 ```
 
 ```
 /* filename: processor.mln */
 fd = EVAL_DATA;
-ret = @mln_tcp_recv(fd);
+ret = mln_tcp_recv(fd);
 if (ret) {
-    @mln_tcp_send(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
+    mln_tcp_send(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
 }fi
-@mln_tcp_close(fd);
-@mln_print('quit');
+mln_tcp_close(fd);
+mln_print('quit');
 ```
 
 Now, you can use *ab (apache bench)* to test.
@@ -107,25 +107,25 @@ Each TCP will be delivered to a coroutine which is in coroutine pool to be handl
 
 ```
 /* filename: server.mln */
-listenfd = @mln_tcp_listen('127.0.0.1', '80');
+listenfd = mln_tcp_listen('127.0.0.1', '80');
 for (i = 0; i < 100; ++i) {
-    @mln_eval('processor.mln', i);
+    mln_eval('processor.mln', i);
 }
 while (1) {
-    fd = @mln_tcp_accept(listenfd);
-    @mln_msg_queue_send('test', fd);
+    fd = mln_tcp_accept(listenfd);
+    mln_msg_queue_send('test', fd);
 }
 ```
 
 ```
 /* filename: processor.mln */
-@mln_print(EVAL_DATA);
+mln_print(EVAL_DATA);
 while (1) {
-    fd = @mln_msg_queue_recv('test');
-    ret = @mln_tcp_recv(fd);
+    fd = mln_msg_queue_recv('test');
+    ret = mln_tcp_recv(fd);
     if (ret) {
-        @mln_tcp_send(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
+        mln_tcp_send(fd, "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\na\r\n\r\n");
     }fi
-    @mln_tcp_close(fd);
+    mln_tcp_close(fd);
 }
 ```

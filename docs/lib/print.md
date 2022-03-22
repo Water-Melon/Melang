@@ -7,7 +7,7 @@
 Print argument.
 
 ```
-@mln_print(var);
+mln_print(var);
 ```
 
 Input:
@@ -28,7 +28,7 @@ Return value:
 Output detail of the given argument.
 
 ```
-@mln_dump(var);
+mln_dump(var);
 ```
 
 Input:
@@ -46,8 +46,8 @@ Return value:
 
 ```
 a = [1, 2, 3];
-@mln_print(a);
-@mln_dump(a);
+mln_print(a);
+mln_dump(a);
 ```
 
 The output is:

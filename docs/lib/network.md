@@ -9,7 +9,7 @@ This document introduces a set of functions about TCP and UDP in Melang.
 create a TCP connection to server.
 
 ```
-@mln_tcp_connect(host, service, timeout);
+mln_tcp_connect(host, service, timeout);
 ```
 
 Input:
@@ -31,7 +31,7 @@ Return value:
 Set up a TCP listen socket.
 
 ```
-@mln_tcp_listen(host, service);
+mln_tcp_listen(host, service);
 ```
 
 Input:
@@ -50,7 +50,7 @@ Return value:
 Accept a TCP connection.
 
 ```
-@mln_tcp_accept(listenfd, timeout);
+mln_tcp_accept(listenfd, timeout);
 ```
 
 Input:
@@ -71,7 +71,7 @@ Return value:
 Send 'data' via TCP.
 
 ```
-@mln_tcp_send(sockfd, data);
+mln_tcp_send(sockfd, data);
 ```
 
 Input:
@@ -90,7 +90,7 @@ Return value:
 Receive data from TCP.
 
 ```
-@mln_tcp_recv(sockfd, timeout);
+mln_tcp_recv(sockfd, timeout);
 ```
 
 Input:
@@ -112,7 +112,7 @@ Return value:
 Close a TCP connection.
 
 ```
-@mln_tcp_close(sockfd);
+mln_tcp_close(sockfd);
 ```
 
 Input:
@@ -130,7 +130,7 @@ Return value:
 Shutdown TCP connection.
 
 ```
-@mln_tcp_shutdown(sockfd, mode);
+mln_tcp_shutdown(sockfd, mode);
 ```
 
 Input:
@@ -149,7 +149,7 @@ Return value:
 Create an UDP socket.
 
 ```
-@mln_udp_create(host, service);
+mln_udp_create(host, service);
 ```
 
 Input:
@@ -168,7 +168,7 @@ Return value:
 Close an UDP socket.
 
 ```
-@mln_udp_close(fd);
+mln_udp_close(fd);
 ```
 
 Input:
@@ -186,7 +186,7 @@ Return value:
 Send data via UDP.
 
 ```
-@mln_udp_send(fd, data, host, service);
+mln_udp_send(fd, data, host, service);
 ```
 
 Input:
@@ -207,7 +207,7 @@ Return value:
 Receive data from UDP.
 
 ```
-@mln_udp_recv(fd, bufsize, &ip, &port, timeout);
+mln_udp_recv(fd, bufsize, &ip, &port, timeout);
 ```
 
 Input:
@@ -230,20 +230,20 @@ Return value:
 
 ```
 //client.mln
-fd = @mln_tcp_connect('127.0.0.1', '1234');
-@mln_print(fd);
-@mln_tcp_send(fd, 'Hello');
-@mln_print(@mln_tcp_recv(fd));
-@mln_tcp_close(fd);
+fd = mln_tcp_connect('127.0.0.1', '1234');
+mln_print(fd);
+mln_tcp_send(fd, 'Hello');
+mln_print(mln_tcp_recv(fd));
+mln_tcp_close(fd);
 ```
 
 ```
 //server.mln
-listenfd = @mln_tcp_listen('127.0.0.1', '1234');
-connfd = @mln_tcp_accept(listenfd);
-@mln_print(@mln_tcp_recv(connfd));
-@mln_tcp_send(connfd, 'Hi');
-@mln_tcp_close(connfd);
+listenfd = mln_tcp_listen('127.0.0.1', '1234');
+connfd = mln_tcp_accept(listenfd);
+mln_print(mln_tcp_recv(connfd));
+mln_tcp_send(connfd, 'Hi');
+mln_tcp_close(connfd);
 ```
 
 ```

@@ -157,7 +157,7 @@ if (f.open('tempfile', 'rw+') != false) { //read and write file and file content
   f.lseek(1, 'begin');
   f.write('i all');
   f.lseek(0, 'begin');
-  @mln_print(f.read(f.size()));
+  mln_print(f.read(f.size()));
 } fi
 ```
 

@@ -7,7 +7,7 @@
 This function is used to calculate MD5 digest.
 
 ```
-@mln_md5(data);
+mln_md5(data);
 ```
 
 Input:
@@ -25,7 +25,7 @@ Error:
 Example:
 
 ```
-@mln_print(@mln_md5('md5 test'));
+mln_print(mln_md5('md5 test'));
 ```
 
 The output is:

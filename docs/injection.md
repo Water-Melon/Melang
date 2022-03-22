@@ -14,7 +14,7 @@ So as a human, *someone* must has age. Let's add for it.
 
 ```
 someone.age = 20;
-@mln_print(someone.age);
+mln_print(someone.age);
 ```
 
 OK, done. Now *20* will be printed on terminal.
@@ -24,7 +24,7 @@ Let's add a method for *someone*.
 ```
 @printAge()
 {
-  @mln_print(this.age);
+  _mln_print(this.age);
 }
 
 someone.print = printAge;
@@ -40,7 +40,7 @@ There is another way to inject properties and methods.
 ##### mln_set_property
 
 ```
-@mln_set_property(object, name, value);
+mln_set_property(object, name, value);
 ```
 
 use *mln_set_property* to inject property or method into an object. Its return value is the same as argument *value*.
@@ -48,9 +48,9 @@ use *mln_set_property* to inject property or method into an object. Its return v
 Let's add a *name* in *someone*.
 
 ```
-ret = @mln_set_property(someone, 'name', 'Jason');
-@mln_print(ret);
-@mln_print(someone.name);
+ret = mln_set_property(someone, 'name', 'Jason');
+mln_print(ret);
+mln_print(someone.name);
 ```
 
 The output of this piece of code is:
@@ -65,9 +65,9 @@ Let's add a method in *someone* to print name.
 ```
 @printName()
 {
-  @mln_print(this.name);
+  _mln_print(this.name);
 }
-@mln_set_property(someone, 'showName', printName);
+mln_set_property(someone, 'showName', printName);
 someone.showName();
 ```
 
@@ -78,13 +78,13 @@ Since there is a function for setting property, there will be a function for get
 ##### mln_get_property
 
 ```
-@mln_get_property(object, name);
+mln_get_property(object, name);
 ```
 
 e.g.
 
 ```
-@mln_print(@mln_get_property(someone, 'name'));
+mln_print(mln_get_property(someone, 'name'));
 ```
 
 The output is:

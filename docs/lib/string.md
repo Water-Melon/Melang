@@ -7,7 +7,7 @@
 Binary bytes string to hex string.
 
 ```
-@mln_bin2hex(bin);
+mln_bin2hex(bin);
 ```
 
 Input:
@@ -21,7 +21,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_bin2hex(@mln_rc4('HI', 'key')));
+mln_print(mln_bin2hex(mln_rc4('HI', 'key')));
 ```
 
 Output:
@@ -37,7 +37,7 @@ Output:
 Hex string to binary bytes.
 
 ```
-@mln_hex2bin(hex);
+mln_hex2bin(hex);
 ```
 
 Input:
@@ -51,7 +51,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_hex2bin('4849'));
+mln_print(mln_hex2bin('4849'));
 ```
 
 Output:
@@ -67,7 +67,7 @@ HI
 Binary bytes to an integer.
 
 ```
-@mln_bin2int(bin);
+mln_bin2int(bin);
 ```
 
 Input:
@@ -81,7 +81,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_bin2int('HI'));
+mln_print(mln_bin2int('HI'));
 ```
 
 Output:
@@ -97,7 +97,7 @@ Output:
 Integer to binary bytes.
 
 ```
-@mln_int2bin(i);
+mln_int2bin(i);
 ```
 
 Input:
@@ -111,7 +111,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_int2bin(18505));
+mln_print(mln_int2bin(18505));
 ```
 
 Output:
@@ -127,7 +127,7 @@ HI
 Binary bytes to real number.
 
 ```
-@mln_bin2real(bin);
+mln_bin2real(bin);
 ```
 
 Input:
@@ -141,7 +141,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_bin2real('HI'));
+mln_print(mln_bin2real('HI'));
 ```
 
 Output:
@@ -157,7 +157,7 @@ Output:
 Real number to binary bytes.
 
 ```
-@mln_real2bin(r);
+mln_real2bin(r);
 ```
 
 Input:
@@ -171,7 +171,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_real2bin(1070435769529469910793714477087121352287059968.000000));
+mln_print(mln_real2bin(1070435769529469910793714477087121352287059968.000000));
 ```
 
 Output:
@@ -187,7 +187,7 @@ HI
 Copy binary bytes into a string.
 
 ```
-@mln_b2s(bin);
+mln_b2s(bin);
 ```
 
 Input:
@@ -204,7 +204,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_b2s(100));
+mln_print(mln_b2s(100));
 ```
 
 Output:
@@ -220,7 +220,7 @@ d
 String to a given type value.
 
 ```
-@mln_s2b(s, type);
+mln_s2b(s, type);
 ```
 
 Input:
@@ -238,7 +238,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_s2b('d', 'int'));
+mln_print(mln_s2b('d', 'int'));
 ```
 
 Output:
@@ -254,7 +254,7 @@ Output:
 Calculate string length.
 
 ```
-@mln_strlen(s);
+mln_strlen(s);
 ```
 
 Input:
@@ -268,7 +268,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_strlen('this is a test'));
+mln_print(mln_strlen('this is a test'));
 ```
 
 Output:
@@ -284,7 +284,7 @@ Output:
 Return part of a string.
 
 ```
-@mln_split(s, offset, len);
+mln_split(s, offset, len);
 ```
 
 Input:
@@ -300,7 +300,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_split('this is a test', -10));
+mln_print(mln_split('this is a test', -10));
 ```
 
 Output:
@@ -316,7 +316,7 @@ Output:
 Split a string by a set of characters.
 
 ```
-@mln_slice(s, seps);
+mln_slice(s, seps);
 ```
 
 Input:
@@ -331,7 +331,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_slice('this is a test', ' s'));
+mln_print(mln_slice('this is a test', ' s'));
 ```
 
 Output:
@@ -347,7 +347,7 @@ Output:
 Find the first occurrence of a string by KMP algorithm.
 
 ```
-@mln_kmp(s, pattern);
+mln_kmp(s, pattern);
 ```
 
 Input:
@@ -362,7 +362,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_kmp('this is a test', 'is'));
+mln_print(mln_kmp('this is a test', 'is'));
 ```
 
 Output:
@@ -378,7 +378,7 @@ Output:
 Find the first occurrence of a string
 
 ```
-@mln_strstr(s, pattern);
+mln_strstr(s, pattern);
 ```
 
 Input:
@@ -393,7 +393,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_strstr('this is a test', 'is'));
+mln_print(mln_strstr('this is a test', 'is'));
 ```
 
 Output:
@@ -409,7 +409,7 @@ Output:
 String comparison of the first n characters.
 
 ```
-@mln_strncmp(s1, s2, n);
+mln_strncmp(s1, s2, n);
 ```
 
 Input:
@@ -425,7 +425,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_strncmp('this is a test', 'is', 2));
+mln_print(mln_strncmp('this is a test', 'is', 2));
 ```
 
 Output:
@@ -441,7 +441,7 @@ false
 String comparison.
 
 ```
-@mln_strcmp(s1, s2);
+mln_strcmp(s1, s2);
 ```
 
 Input:
@@ -456,7 +456,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_strcmp('drink', 'drink'));
+mln_print(mln_strcmp('drink', 'drink'));
 ```
 
 Output:
@@ -472,7 +472,7 @@ true
 String comparison.
 
 ```
-@mln_strseqcmp(s1, s2);
+mln_strseqcmp(s1, s2);
 ```
 
 Input:
@@ -490,7 +490,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_strseqcmp('drinking', 'drink'));
+mln_print(mln_strseqcmp('drinking', 'drink'));
 ```
 
 Output:
@@ -506,7 +506,7 @@ Output:
 Match string by a regular expression.
 
 ```
-@mln_reg_equal(exp, text);
+mln_reg_equal(exp, text);
 ```
 
 Input:
@@ -521,8 +521,8 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_reg_equal('.*', 'test'));
-@mln_print(@mln_reg_equal('.*ed', 'test'));
+mln_print(mln_reg_equal('.*', 'test'));
+mln_print(mln_reg_equal('.*ed', 'test'));
 ```
 
 Output:
@@ -539,7 +539,7 @@ false
 Match string by a regular expression and get matched string pieces.
 
 ```
-@mln_reg_match(exp, text);
+mln_reg_match(exp, text);
 ```
 
 Input:
@@ -554,7 +554,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_reg_match('((this )*i(s)).*', 'this is a reg exp test.'));
+mln_print(mln_reg_match('((this )*i(s)).*', 'this is a reg exp test.'));
 ```
 
 Output:
@@ -570,7 +570,7 @@ Output:
 Replace all occurrences of the search string with the replacement string.
 
 ```
-@mln_replace(&dict, &str);
+mln_replace(&dict, &str);
 ```
 
 Input:
@@ -585,7 +585,7 @@ Return value:
 Example:
 
 ```
-@mln_print(@mln_replace(['aaa':'123', 'bbb': 'Hello'], 'aaabbbcccaaa'));
+mln_print(mln_replace(['aaa':'123', 'bbb': 'Hello'], 'aaabbbcccaaa'));
 ```
 
 Output:

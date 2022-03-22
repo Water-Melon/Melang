@@ -43,7 +43,7 @@ Here is a function named *plus*. It has two parameters named *a* and *b*. And it
 Syntax:
 
 ```
-@funcname(arguments);
+funcname(arguments);
 ```
 
 *funcname* is the name of defined function.
@@ -53,7 +53,7 @@ Syntax:
 e.g.
 
 ```
-@plus(1, 2);
+plus(1, 2);
 ```
 
 *plus* is the *funcname*, and 1, 2 correspond to parameter *a* and *b*.
@@ -103,7 +103,7 @@ Operator *&* makes argument *a* to be a reference variable named *data* in funct
 ```
 @foo(data)
 {
-  @mln_print(data);
+  _mln_print(data);
 }
 
 @foo();
@@ -120,7 +120,7 @@ Let's see an example:
 ```
 @foo() {
   @bar() {
-    @mln_print('bar');
+    _mln_print('bar');
   }
   return bar;
 }
@@ -144,13 +144,13 @@ In most programming languages, they all support variable arguments. In melang, w
 @log()
 {
   s = 'argument list: ';
-  for (i = 0; i < @mln_size(args); ++i) {
+  for (i = 0; i < _mln_size(args); ++i) {
       s += args[i] + ' ';
   }
-  @mln_print(s);
+  _mln_print(s);
 }
 
-@log('this', 'is', 'a', 'variable', 'arguments', 'example');
+log('this', 'is', 'a', 'variable', 'arguments', 'example');
 ```
 
 The result of this program is:
@@ -177,12 +177,12 @@ Let us see an example at first.
   a = 1;
   @bar()
   {
-    @mln_print(a);
+    _mln_print(a);
   }
   return bar;
 }
 
-b = @foo();
+b = foo();
 b();
 ```
 
@@ -196,12 +196,12 @@ But there is a way to get `a` in `bar`.
   a = 1;
   @bar() $(a)
   {
-    @mln_print(a);
+    _mln_print(a);
   }
   return bar;
 }
 
-b = @foo();
+b = foo();
 b();
 ```
 
@@ -215,13 +215,13 @@ Let us modify this example again:
   a = 1;
   @bar() $(a)
   {
-    @mln_print(a);
+    _mln_print(a);
   }
   a = 100; //change to another value
   return bar;
 }
 
-b = @foo();
+b = foo();
 b();
 ```
 
@@ -233,13 +233,13 @@ Now, the output still be `1`. How can I do if I want the value `a` in function `
   a = 1;
   @bar() $(&a) //to become a reference
   {
-    @mln_print(a);
+    _mln_print(a);
   }
   a = 100; //change to another value
   return bar;
 }
 
-b = @foo();
+b = foo();
 b();
 ```
 

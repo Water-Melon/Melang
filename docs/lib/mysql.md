@@ -215,9 +215,9 @@ Our program:
 ```
 m = $Mysql;
 m.connect('127.0.0.1', 3306, 'test', 'root', '.../*password*/');
-@mln_print(m.execute('insert into `people` (name, age) values("Tom", 18)'));
+mln_print(m.execute('insert into `people` (name, age) values("Tom", 18)'));
 result = m.execute('select `name`, `age` from `people`');
-@mln_print(result);
+mln_print(result);
 m.close();
 ```
 

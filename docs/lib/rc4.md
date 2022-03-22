@@ -5,7 +5,7 @@
 ##### mln_rc4
 
 ```
-@mln_rc4(data, key);
+mln_rc4(data, key);
 ```
 
 Input:
@@ -24,9 +24,9 @@ Error:
 Example:
 
 ```
-cipher = @mln_rc4('This is a rc4 test', 'a key');
-@mln_print(cipher);
-@mln_print(@mln_rc4(cipher, 'a key'));
+cipher = mln_rc4('This is a rc4 test', 'a key');
+mln_print(cipher);
+mln_print(mln_rc4(cipher, 'a key'));
 ```
 
 The output is:

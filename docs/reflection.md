@@ -9,7 +9,7 @@ Reflection makes us call a specified function or set by a name string.
 ```
 @foo ()
 {
-  @mln_print('foo');
+  _mln_print('foo');
 }
 a = 'foo';
 a();
@@ -22,7 +22,7 @@ Let's see a more complex example:
 ```
 @foo ()
 {
-  @mln_print('foo');
+  _mln_print('foo');
 }
 a = 'foo';
 b = 'a';
@@ -42,7 +42,7 @@ human {
 }
 s = 'human';
 Tom = $s;
-@mln_print(Tom);
+mln_print(Tom);
 ```
 
 *s* is a string variable, and its value is a set name.
@@ -62,7 +62,7 @@ human {
   action;
   @run ()
   {
-    @mln_print('running');
+    _mln_print('running');
   }
 }
 s = 'human';

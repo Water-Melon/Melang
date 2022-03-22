@@ -5,7 +5,7 @@
 ##### mln_sha1
 
 ```
-@mln_sha1(data);
+mln_sha1(data);
 ```
 
 Input:
@@ -25,7 +25,7 @@ Error:
 ##### mln_sha256
 
 ```
-@mln_sha1(data);
+mln_sha1(data);
 ```
 
 Input:
@@ -45,8 +45,8 @@ Error:
 ##### Example
 
 ```
-@mln_print(@mln_sha1('sha test'));
-@mln_print(@mln_sha256('sha test'));
+mln_print(mln_sha1('sha test'));
+mln_print(mln_sha256('sha test'));
 ```
 
 The output is:

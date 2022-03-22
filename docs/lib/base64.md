@@ -5,7 +5,7 @@
 ##### mln_base64
 
 ```
-@mln_base64(data, op);
+mln_base64(data, op);
 ```
 
 Input:
@@ -25,9 +25,9 @@ Example:
 
 ```
 text = 'base64 test';
-encoded = @mln_base64(text, 'encode');
-@mln_print(encoded);
-@mln_print(@mln_base64(encoded, 'decode'));
+encoded = mln_base64(text, 'encode');
+mln_print(encoded);
+mln_print(mln_base64(encoded, 'decode'));
 ```
 
 The output is:

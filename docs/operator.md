@@ -27,7 +27,7 @@ Try to execute these statements, and guess their results.
 
 ```
 i = 1, 2, 3; //guess i = ?, you can use function mln_print to output on your terminal
-@mln_print(i);
+mln_print(i);
 
 i += 1; //increase 1
 

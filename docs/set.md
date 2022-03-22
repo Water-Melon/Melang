@@ -68,7 +68,7 @@ Now, we can visit *Tom*'s properties and methods.
 ```
 Tom.init('Tom Moore', 8, 'male');
 
-@mln_print(Tom.name);
+mln_print(Tom.name);
 ```
 
 The first line is calling method *init*, this method initiates object *Tom*'s properties.

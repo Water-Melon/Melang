@@ -7,7 +7,7 @@
 Generate a prime number greater than or equal to a given number.
 
 ```
-@mln_prime(base);
+mln_prime(base);
 ```
 
 Input:
@@ -25,7 +25,7 @@ Error:
 Example:
 
 ```
-@mln_print(@mln_prime(22));
+mln_print(mln_prime(22));
 ```
 
 The output is:
