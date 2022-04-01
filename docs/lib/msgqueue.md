@@ -80,7 +80,7 @@ Error:
 ##### mln_msg_queue_recv
 
 ```
-smln_msg_queue_recv(qname, timeout);
+mln_msg_queue_recv(qname, timeout);
 ```
 
 Input:
