@@ -7,6 +7,7 @@ os=`uname -s`
 mysql_header_path="/usr/include/mysql"
 mysql_lib_path="/usr/lib64/mysql"
 mysql_lib=""
+dl=""
 libPath=`echo "/usr/local/melon_for_melang"`
 cc="cc"
 if ! case $os in MINGW*) false;; esac; then
@@ -17,6 +18,10 @@ elif [ $os == 'Darwin' ]; then
     installPath="/usr/local/bin/"
 else
     installPath="/usr/bin/"
+fi
+
+if [ $os = 'Linux' ]; then
+    dl="-ldl"
 fi
 
 for param in $@
@@ -74,7 +79,7 @@ if ! case $os in MINGW*) false;; esac; then
     $cc -o melang melang.c -static -O3 -I $libPath/include -L $libPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32
 else
     rm -fr $libPath/lib/*.so
-    $cc -o melang melang.c -O3 -I $libPath/include -L $libPath/lib -lmelon -lpthread $mysql_lib
+    $cc -o melang melang.c -O3 -I $libPath/include -L $libPath/lib -lmelon -lpthread $mysql_lib $dl
 fi
 
 test -d $installPath || mkdir -p $installPath
