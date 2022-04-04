@@ -1062,3 +1062,48 @@ etc
 ...
 ```
 
+
+
+##### mln_import
+
+Import dynamic library extension into current scope. Dynamic library may contain functions, collections, variables, etc.
+
+```
+mln_import(name);
+```
+
+Input:
+
+- `name` - Dynamic library name (not include `.so` or `.dll`). `name` can be a relative path, an absolute path or just a name.
+           But if it is just a name, the library will be found in the following path:
+           1. current directory
+           2. Directories included in environment `MELANG_DYNAMIC_PATH`
+           3. `/usr/local/lib/melang_dynamic` (on UNIX) or `$HOME/lib/melang_dynamic` (on Windows)
+
+Return value:
+
+- `nil`
+
+Example:
+
+```
+mln_import('test');
+```
+
+```c
+//test.c -> test.so or test.dll in current directory
+#include <stdio.h>
+#include "mln_lang.h"
+int init(mln_lang_ctx_t *ctx)
+{
+    printf("%s\n", __FUNCTION__);
+    return 0;
+}
+```
+
+Output:
+
+```
+init
+```
+
