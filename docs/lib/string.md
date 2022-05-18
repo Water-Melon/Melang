@@ -594,3 +594,93 @@ Output:
 123Helloccc123
 ```
 
+
+
+##### mln_trim
+
+Strip whitespace (or other characters) from the beginning and end of a string.
+
+```
+mln_trim(s, mask);
+```
+
+Input:
+
+- `s` - the string that will be trimmed.
+- `mask` -  Optionally, the stripped characters can also be specified using the `mask` parameter. Simply list all characters that you want to be stripped.
+
+Return value:
+
+- the trimmed string.
+
+Example:
+
+```
+mln_print(mln_trim(" hello \t\n"));
+```
+
+Output:
+
+```
+hello
+```
+
+
+
+##### mln_upper
+
+Make character uppercase.
+
+```
+mln_upper(s);
+```
+
+Input:
+
+- `s` - the original string.
+
+Return value:
+
+- the string with uppercase.
+
+Example:
+
+```
+mln_print(mln_upper('hello'));
+```
+
+Output:
+
+```
+HELLO
+```
+
+
+
+##### mln_lower
+
+Make character lowercase.
+
+```
+mln_lower(s);
+```
+
+Input:
+
+- `s` - the original string.
+
+Return value:
+
+- the string with lowercase.
+
+Example:
+
+```
+mln_print(mln_lower('HELLO'));
+```
+
+Output:
+
+```
+hello
+```
