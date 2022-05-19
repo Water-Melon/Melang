@@ -684,3 +684,35 @@ Output:
 ```
 hello
 ```
+
+
+
+##### mln_join
+
+Join all elements in an array into a string, using a string as separator.
+
+```
+mln_join(glue, arr);
+```
+
+Input:
+
+- `glue` - the separator string.
+- `arr` - the input array.
+
+Return value:
+
+- returns a string containing a string representation of all the array elements, with the separator string between each element. **The order of elements does not depend on the index, but the order in which they are appended to the array**.
+
+Example:
+
+```
+mln_print(mln_join(',', [1, [1,2], 'asd']));
+```
+
+Output:
+
+```
+1,Array,asd
+```
+
