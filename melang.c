@@ -74,7 +74,7 @@ static void mln_params_check(int argc, char *argv[])
 
 static void mln_run_all(int argc, char *argv[])
 {
-    mln_alloc_t *pool = mln_alloc_init();
+    mln_alloc_t *pool = mln_alloc_init(NULL);
     if (pool == NULL) {
         mln_log(error, "Pool init failed.\n");
         exit(1);
