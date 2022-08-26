@@ -26,7 +26,5 @@ struct mln_sys_diff_s {
     mln_u32_t              key;
 };
 
-extern int mln_lang_sys(mln_lang_ctx_t *ctx);
-
 #endif
 
