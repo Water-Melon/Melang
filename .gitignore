@@ -2,3 +2,7 @@ Melon
 melang.conf
 melang
 melang.exe
+objs
+libs
+bin
+Makefile

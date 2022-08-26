@@ -1,0 +1,204 @@
+#!/bin/bash
+#
+# Copyright (C) Niklaus F.Schen.
+#
+
+os=`uname -s`
+mysql_header_path="/usr/include/mysql"
+mysql_lib_path="/usr/lib64/mysql"
+mysql_lib=""
+dl=""
+libmelonPath=`echo "/usr/local/melon_for_melang"`
+libPath=`echo "/usr/local/lib/melang_dynamic"`
+cc="cc"
+if ! case $os in MINGW*) false;; esac; then
+    installPath="$HOME/melang-0.5.0"
+    cc="gcc"
+    libmelonPath="$HOME/libmelon"
+elif [ $os == 'Darwin' ]; then
+    installPath="/usr/local/bin/"
+else
+    installPath="/usr/bin/"
+fi
+
+if [ $os = 'Linux' ]; then
+    dl="-ldl"
+fi
+
+for param in $@
+do
+    if [ $param == "--help" ]; then
+        echo -e "\nMelang installation help."
+        echo "Copyright (C) Niklaus F.Schen."
+        echo "Options:"
+        echo -e "\t--prefix=INSTALL_PATH"
+        echo -e "\t--melonprefix=LIBMELON_INSTALL_PATH"
+        echo -e "\t--libprefix=LIB_INSTALL_PATH"
+        echo -e "\t--mysql_header_path=MYSQL_CLIENT_HREADER_PATH"
+        echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
+        exit 0
+    fi
+    param_prefix=`echo $param|cut -d '=' -f 1`
+    param_suffix=`echo $param|cut -d '=' -f 2`
+    if [ $param_prefix == "--prefix" ]; then
+        installPath=$param_suffix
+    fi
+    if [ $param_prefix == "--melonprefix" ]; then
+        libmelonPath=$param_suffix
+    fi
+    if [ $param_prefix == "--libprefix" ]; then
+        libPath=$param_suffix
+    fi
+    if [ $param_prefix == "--mysql_header_path" ]; then
+        mysql_header_path=$param_suffix
+    fi
+    if [ $param_prefix == "--mysql_lib_path" ]; then
+        mysql_lib_path=$param_suffix
+    fi
+done
+
+#test MySQL Asynchronous----------#
+echo -e "#include <stdio.h>\n#include <mysql.h>" > mysql_test.c
+echo "int main(void){MYSQL *mysql_local = mysql_init(NULL);mysql_real_connect_nonblocking(mysql_local, NULL, NULL, NULL, NULL, 3306, NULL, 0);return 0;}" >> mysql_test.c
+cc -o mysql_test mysql_test.c -I/usr/include/mysql/ -L/usr/lib64/mysql/ -lmysqlclient 2>/dev/null
+if [ "$?" == "0" ]; then
+    mysql=1
+    mysql_lib="-I $mysql_header_path -L $mysql_lib_path -lmysqlclient"
+    echo -e "MySQL Asynchronous\t[support]"
+else
+    mysql=0
+    echo -e "MySQL Asynchronous\t[not support]"
+fi
+rm -fr mysql_test mysql_test.c
+#test MySQL Asynchronous end------#
+
+# Generate Makefile
+echo "#" > Makefile
+echo "# Copyright (C) Niklaus F.Schen." >> Makefile
+echo "#" >> Makefile
+echo "CC	= cc" >> Makefile
+echo "FLAGS           = -I$libmelonPath/include -c -Wall -ggdb -Werror -O3 -fPIC" >> Makefile
+echo "MELANG          = melang" >> Makefile
+echo "LIBAES		= aes.so" >> Makefile
+echo "LIBBASE64	= base64.so" >> Makefile
+echo "LIBDES		= des.so" >> Makefile
+echo "LIBFILE		= file.so" >> Makefile
+echo "LIBJSON		= json.so" >> Makefile
+echo "LIBMATRIX	= matrix.so" >> Makefile
+echo "LIBMD5		= md5.so" >> Makefile
+echo "LIBMQ		= mq.so" >> Makefile
+echo "LIBMYSQL	= mysql.so" >> Makefile
+echo "LIBNETWORK	= net.so" >> Makefile
+echo "LIBPRIME	= prime.so" >> Makefile
+echo "LIBRC		= rc.so" >> Makefile
+echo "LIBSHA		= sha.so" >> Makefile
+echo "LIBSTR		= str.so" >> Makefile
+echo "LIBSYS		= sys.so" >> Makefile
+echo "" >> Makefile
+echo "MELANGOBJS	= objs/melang.o" >> Makefile
+echo "LIBAESOBJS	= objs/mln_lang_aes.o" >> Makefile
+echo "LIBBASE64OBJS	= objs/mln_lang_base64.o" >> Makefile
+echo "LIBDESOBJS	= objs/mln_lang_des.o" >> Makefile
+echo "LIBFILEOBJS	= objs/mln_lang_file.o" >> Makefile
+echo "LIBJSONOBJS	= objs/mln_lang_json.o" >> Makefile
+echo "LIBMATRIXOBJS	= objs/mln_lang_matrix.o" >> Makefile
+echo "LIBMD5OBJS	= objs/mln_lang_md5.o" >> Makefile
+echo "LIBMQOBJS	= objs/mln_lang_msgqueue.o" >> Makefile
+echo "LIBMYSQLOBJS	= objs/mln_lang_mysql.o" >> Makefile
+echo "LIBNETWORKOBJS	= objs/mln_lang_network.o" >> Makefile
+echo "LIBPRIMEOBJS	= objs/mln_lang_prime.o" >> Makefile
+echo "LIBRCOBJS	= objs/mln_lang_rc.o" >> Makefile
+echo "LIBSHAOBJS	= objs/mln_lang_sha.o" >> Makefile
+echo "LIBSTROBJS	= objs/mln_lang_string.o" >> Makefile
+echo "LIBSYSOBJS	= objs/mln_lang_sys.o" >> Makefile
+echo "" >> Makefile
+echo ".PHONY :	compile install clean" >> Makefile
+echo "compile: MKDIR \$(MELANGOBJS) \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
+echo "         \$(LIBMATRIXOBJS) \$(LIBMD5OBJS) \$(LIBMQOBJS) \$(LIBMYSQLOBJS) \$(LIBNETWORKOBJS) \$(LIBPRIMEOBJS) \\" >> Makefile
+echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \\" >> Makefile
+echo "         \$(MELANG) \$(LIBAES) \$(LIBBASE64) \$(LIBDES) \$(LIBFILE) \$(LIBJSON) \$(LIBMATRIX) \$(LIBMD5) \\" >> Makefile
+echo "         \$(LIBMQ) \$(LIBMYSQL) \$(LIBNETWORK) \$(LIBPRIME) \$(LIBRC) \$(LIBSHA) \$(LIBSTR) \$(LIBSYS)" >> Makefile
+echo "clean:" >> Makefile
+echo "	rm -fr objs libs bin Makefile" >> Makefile
+echo "MKDIR :" >> Makefile
+echo "	test -d objs || mkdir objs" >> Makefile
+echo "	test -d libs || mkdir libs" >> Makefile
+echo "	test -d bin || mkdir bin" >> Makefile
+echo "\$(MELANG) : \$(MELANGOBJS)" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o bin/\$@ \$^ -static -O3 -L$libmelonPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32" >> Makefile
+else
+	echo "	cp -f $libmelonPath/lib/libmelon.a ." >> Makefile
+	echo "	\$(CC) -o bin/\$@ \$^ -O3 -L$libmelonPath/lib -lmelon -ldl -lpthread $mysql_lib" >> Makefile
+	echo "	rm -f libmelon.a" >> Makefile
+fi
+echo "\$(LIBAES) : \$(LIBAESOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBBASE64) : \$(LIBBASE64OBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBDES) : \$(LIBDESOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBFILE) : \$(LIBFILEOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBJSON) : \$(LIBJSONOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBMATRIX) : \$(LIBMATRIXOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBMD5) : \$(LIBMD5OBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBMQ) : \$(LIBMQOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBMYSQL) : \$(LIBMYSQLOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBNETWORK) : \$(LIBNETWORKOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBPRIME) : \$(LIBPRIMEOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBRC) : \$(LIBRCOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBSHA) : \$(LIBSHAOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBSTR) : \$(LIBSTROBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "\$(LIBSYS) : \$(LIBSYSOBJS)" >> Makefile
+echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+echo "install:" >> Makefile
+echo "	test -d $libPath || mkdir -p $libPath" >> Makefile
+echo "	test -d $installPath || mkdir -p $installPath" >> Makefile
+echo "	cp -fr libs/* $libPath/" >> Makefile
+echo "	cp -fr bin/melang $installPath/" >> Makefile
+echo "" >> Makefile
+echo "objs/melang.o : melang.c" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_aes.o : lib_src/aes/mln_lang_aes.c lib_src/aes/mln_lang_aes.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_base64.o : lib_src/base64/mln_lang_base64.c lib_src/base64/mln_lang_base64.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_des.o : lib_src/des/mln_lang_des.c lib_src/des/mln_lang_des.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_file.o : lib_src/file/mln_lang_file.c lib_src/file/mln_lang_file.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_json.o : lib_src/json/mln_lang_json.c lib_src/json/mln_lang_json.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_matrix.o : lib_src/matrix/mln_lang_matrix.c lib_src/matrix/mln_lang_matrix.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_md5.o : lib_src/md5/mln_lang_md5.c lib_src/md5/mln_lang_md5.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_msgqueue.o : lib_src/msgqueue/mln_lang_msgqueue.c lib_src/msgqueue/mln_lang_msgqueue.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_mysql.o : lib_src/mysql/mln_lang_mysql.c lib_src/mysql/mln_lang_mysql.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_network.o : lib_src/network/mln_lang_network.c lib_src/network/mln_lang_network.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_prime.o : lib_src/prime/mln_lang_prime.c lib_src/prime/mln_lang_prime.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_rc.o : lib_src/rc/mln_lang_rc.c lib_src/rc/mln_lang_rc.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_sha.o : lib_src/sha/mln_lang_sha.c lib_src/sha/mln_lang_sha.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_string.o : lib_src/string/mln_lang_string.c lib_src/string/mln_lang_string.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_sys.o : lib_src/sys/mln_lang_sys.c lib_src/sys/mln_lang_sys.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+
+echo "Complete!"
