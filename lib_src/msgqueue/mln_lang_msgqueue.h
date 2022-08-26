@@ -54,6 +54,4 @@ typedef struct mln_lang_ctx_mq_topic_s {
     mln_lang_mq_msg_t             *msg_tail;
 } mln_lang_ctx_mq_topic_t;
 
-extern int mln_lang_msgqueue(mln_lang_ctx_t *ctx);
-
 #endif

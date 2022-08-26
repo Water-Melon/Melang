@@ -7,7 +7,5 @@
 
 #include "mln_lang.h"
 
-extern int mln_lang_md5(mln_lang_ctx_t *ctx);
-
 #endif
 

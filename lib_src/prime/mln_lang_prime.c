@@ -13,14 +13,29 @@
 #define ASSERT(x);
 #endif
 
+static int mln_lang_prime(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_prime_process(mln_lang_ctx_t *ctx);
 
-int mln_lang_prime(mln_lang_ctx_t *ctx)
+mln_lang_var_t *init(mln_lang_ctx_t *ctx)
+{
+    mln_lang_var_t *obj = mln_lang_var_create_obj(ctx, NULL, NULL);
+    if (obj == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    if (mln_lang_prime(ctx, mln_lang_var_val_get(obj)->data.obj) < 0) {
+        mln_lang_var_free(obj);
+        return NULL;
+    }
+    return obj;
+}
+
+static int mln_lang_prime(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
-    mln_string_t funcname = mln_string("mln_prime");
+    mln_string_t funcname = mln_string("prime");
     mln_string_t v = mln_string("base");
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_prime_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -49,7 +64,7 @@ int mln_lang_prime(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;

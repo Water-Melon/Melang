@@ -17,6 +17,7 @@
 #define ASSERT(x);
 #endif
 
+static int mln_lang_file(mln_lang_ctx_t *ctx);
 static inline void mln_lang_file_open_get_prio(mln_s64_t prio, mode_t *mode);
 static int mln_lang_file_open_get_op(mln_string_t *op);
 static int mln_lang_file_add_fd(mln_lang_ctx_t *ctx, mln_lang_set_detail_t *set);
@@ -38,27 +39,44 @@ static mln_lang_var_t *mln_lang_size_process(mln_lang_ctx_t *ctx);
 static int mln_lang_file_set_errno(mln_lang_ctx_t *ctx, int err);
 static int mln_lang_file_fd_cmp(int fd1, int fd2);
 
-int mln_lang_file(mln_lang_ctx_t *ctx)
+mln_lang_var_t *init(mln_lang_ctx_t *ctx)
+{
+    mln_string_t s = mln_string("File");
+    mln_lang_var_t *ret_var = mln_lang_var_create_string(ctx, &s, NULL);
+    if (ret_var == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    if (mln_lang_file(ctx) < 0) {
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
+    return ret_var;
+}
+
+static int mln_lang_file(mln_lang_ctx_t *ctx)
 {
     mln_string_t setname = mln_string("File");
     mln_lang_set_detail_t *set;
     mln_rbtree_t *tree;
     struct mln_rbtree_attr rbattr;
 
-    rbattr.pool = ctx->pool;
-    rbattr.pool_alloc = (rbtree_pool_alloc_handler)mln_alloc_m;
-    rbattr.pool_free = (rbtree_pool_free_handler)mln_alloc_free;
-    rbattr.cmp = (rbtree_cmp)mln_lang_file_fd_cmp;
-    rbattr.data_free = (rbtree_free_data)close;
-    rbattr.cache = 0;
-    if ((tree = mln_rbtree_init(&rbattr)) == NULL) {
-        mln_lang_errmsg(ctx, "No memory.");
-        return -1;
-    }
-    if (mln_lang_ctx_resource_register(ctx, "file_fd", tree, (mln_lang_resource_free)mln_rbtree_destroy) < 0) {
-        mln_lang_errmsg(ctx, "No memory.");
-        mln_rbtree_destroy(tree);
-        return -1;
+    if ((tree = mln_lang_ctx_resource_fetch(ctx, "file_fd")) == NULL) {
+        rbattr.pool = ctx->pool;
+        rbattr.pool_alloc = (rbtree_pool_alloc_handler)mln_alloc_m;
+        rbattr.pool_free = (rbtree_pool_free_handler)mln_alloc_free;
+        rbattr.cmp = (rbtree_cmp)mln_lang_file_fd_cmp;
+        rbattr.data_free = (rbtree_free_data)close;
+        rbattr.cache = 0;
+        if ((tree = mln_rbtree_init(&rbattr)) == NULL) {
+            mln_lang_errmsg(ctx, "No memory.");
+            return -1;
+        }
+        if (mln_lang_ctx_resource_register(ctx, "file_fd", tree, (mln_lang_resource_free)mln_rbtree_destroy) < 0) {
+            mln_lang_errmsg(ctx, "No memory.");
+            mln_rbtree_destroy(tree);
+            return -1;
+        }
     }
 
     if ((set = mln_lang_set_detail_new(ctx->pool, &setname)) == NULL) {
@@ -66,7 +84,7 @@ int mln_lang_file(mln_lang_ctx_t *ctx)
         return -1;
     }
     ++(set->ref);
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_SET, set) < 0) {
+    if (mln_lang_symbol_node_upper_join(ctx, M_LANG_SYMBOL_SET, set) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_set_detail_self_free(set);
         return -1;

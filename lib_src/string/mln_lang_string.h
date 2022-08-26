@@ -22,7 +22,5 @@ struct mln_lang_string_replace_s {
     mln_lang_string_pos_t        *tail;
 };
 
-extern int mln_lang_string(mln_lang_ctx_t *ctx);
-
 #endif
 

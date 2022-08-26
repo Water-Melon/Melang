@@ -14,21 +14,22 @@
 #define ASSERT(x);
 #endif
 
+int mln_lang_msgqueue(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_msgqueue_resource_register(mln_lang_ctx_t *ctx);
 static void mln_lang_msgqueue_resource_cancel(mln_lang_ctx_t *ctx);
-static int mln_lang_msgqueue_mq_send(mln_lang_ctx_t *ctx);
+static int mln_lang_msgqueue_mq_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_msgqueue_mq_send_process(mln_lang_ctx_t *ctx);
 static int mln_lang_mq_msg_broadcast_ctx(mln_lang_ctx_t *ctx, mln_string_t *qname, int type, void *data);
-static int mln_lang_msgqueue_mq_recv(mln_lang_ctx_t *ctx);
+static int mln_lang_msgqueue_mq_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_msgqueue_mq_recv_process(mln_lang_ctx_t *ctx);
 static mln_lang_var_t *mln_lang_mq_msg_get(mln_lang_ctx_t *ctx, mln_string_t *qname, mln_s64_t timeout);
 static int mln_lang_mq_msg_subscribe_get(mln_lang_ctx_t *ctx, mln_string_t *qname, mln_lang_var_t **ret_var);
 static void mln_lang_msgqueue_timeout_handler(mln_event_t *ev, void *data);
 static mln_lang_var_t *mln_lang_mq_msg_set(mln_lang_ctx_t *ctx, mln_string_t *qname, int type, void *data);
 static mln_lang_var_t *mln_lang_mq_msg_broadcast(mln_lang_ctx_t *ctx, mln_string_t *qname, int type, void *data);
-static int mln_lang_msgqueue_topic_subscribe(mln_lang_ctx_t *ctx);
+static int mln_lang_msgqueue_topic_subscribe(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_msgqueue_topic_subscribe_process(mln_lang_ctx_t *ctx);
-static int mln_lang_msgqueue_topic_unsubscribe(mln_lang_ctx_t *ctx);
+static int mln_lang_msgqueue_topic_unsubscribe(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_msgqueue_topic_unsubscribe_process(mln_lang_ctx_t *ctx);
 /*components*/
 MLN_CHAIN_FUNC_DECLARE(mln_lang_mq_msg, mln_lang_mq_msg_t, static inline void,);
@@ -55,24 +56,38 @@ mln_lang_mq_wait_t mq_wait_min = {
     NULL, NULL, NULL, 0, 0, 0, NULL, NULL
 };
 
-int mln_lang_msgqueue(mln_lang_ctx_t *ctx)
+mln_lang_var_t *init(mln_lang_ctx_t *ctx)
+{
+    mln_lang_var_t *obj = mln_lang_var_create_obj(ctx, NULL, NULL);
+    if (obj == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    if (mln_lang_msgqueue(ctx, mln_lang_var_val_get(obj)->data.obj) < 0) {
+        mln_lang_var_free(obj);
+        return NULL;
+    }
+    return obj;
+}
+
+int mln_lang_msgqueue(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     if (mln_lang_msgqueue_resource_register(ctx) < 0) {
         return -1;
     }
-    if (mln_lang_msgqueue_mq_send(ctx) < 0) {
+    if (mln_lang_msgqueue_mq_send(ctx, obj) < 0) {
         mln_lang_msgqueue_resource_cancel(ctx);
         return -1;
     }
-    if (mln_lang_msgqueue_mq_recv(ctx) < 0) {
+    if (mln_lang_msgqueue_mq_recv(ctx, obj) < 0) {
         mln_lang_msgqueue_resource_cancel(ctx);
         return -1;
     }
-    if (mln_lang_msgqueue_topic_subscribe(ctx) < 0) {
+    if (mln_lang_msgqueue_topic_subscribe(ctx, obj) < 0) {
         mln_lang_msgqueue_resource_cancel(ctx);
         return -1;
     }
-    if (mln_lang_msgqueue_topic_unsubscribe(ctx) < 0) {
+    if (mln_lang_msgqueue_topic_unsubscribe(ctx, obj) < 0) {
         mln_lang_msgqueue_resource_cancel(ctx);
         return -1;
     }
@@ -123,14 +138,16 @@ static int mln_lang_msgqueue_resource_register(mln_lang_ctx_t *ctx)
     }
 
     mln_lang_ctx_mq_t *lcm;
-    if ((lcm = mln_lang_ctx_mq_new(ctx)) == NULL) {
-        mln_lang_errmsg(ctx, "No memory.");
-        return -1;
-    }
-    if (mln_lang_ctx_resource_register(ctx, "mq", lcm, (mln_lang_resource_free)mln_lang_ctx_mq_free) < 0) {
-        mln_lang_errmsg(ctx, "No memory.");
-        mln_lang_ctx_mq_free(lcm);
-        return -1;
+    if ((lcm = mln_lang_ctx_resource_fetch(ctx, "mq")) == NULL) {
+        if ((lcm = mln_lang_ctx_mq_new(ctx)) == NULL) {
+            mln_lang_errmsg(ctx, "No memory.");
+            return -1;
+        }
+        if (mln_lang_ctx_resource_register(ctx, "mq", lcm, (mln_lang_resource_free)mln_lang_ctx_mq_free) < 0) {
+            mln_lang_errmsg(ctx, "No memory.");
+            mln_lang_ctx_mq_free(lcm);
+            return -1;
+        }
     }
     return 0;
 }
@@ -153,13 +170,13 @@ static void mln_lang_msgqueue_resource_cancel(mln_lang_ctx_t *ctx)
     }
 }
 
-static int mln_lang_msgqueue_mq_send(mln_lang_ctx_t *ctx)
+static int mln_lang_msgqueue_mq_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("qname"), v2 = mln_string("msg"), v3 = mln_string("asTopic");
-    mln_string_t funcname = mln_string("mln_msg_queue_send");
+    mln_string_t funcname = mln_string("send");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_msgqueue_mq_send_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -215,7 +232,7 @@ static int mln_lang_msgqueue_mq_send(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -315,13 +332,13 @@ static mln_lang_var_t *mln_lang_msgqueue_mq_send_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_msgqueue_mq_recv(mln_lang_ctx_t *ctx)
+static int mln_lang_msgqueue_mq_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("qname"), v2 = mln_string("timeout");
-    mln_string_t funcname = mln_string("mln_msg_queue_recv");
+    mln_string_t funcname = mln_string("recv");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_msgqueue_mq_recv_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -364,7 +381,7 @@ static int mln_lang_msgqueue_mq_recv(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -768,13 +785,13 @@ static mln_lang_var_t *mln_lang_mq_msg_set(mln_lang_ctx_t *ctx, mln_string_t *qn
     return ret_var;
 }
 
-static int mln_lang_msgqueue_topic_subscribe(mln_lang_ctx_t *ctx)
+static int mln_lang_msgqueue_topic_subscribe(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("qname");
-    mln_string_t funcname = mln_string("mln_msg_topic_subscribe");
+    mln_string_t funcname = mln_string("subscribe");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_msgqueue_topic_subscribe_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -804,7 +821,7 @@ static int mln_lang_msgqueue_topic_subscribe(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -860,13 +877,13 @@ static mln_lang_var_t *mln_lang_msgqueue_topic_subscribe_process(mln_lang_ctx_t 
     return ret_var;
 }
 
-static int mln_lang_msgqueue_topic_unsubscribe(mln_lang_ctx_t *ctx)
+static int mln_lang_msgqueue_topic_unsubscribe(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("qname");
-    mln_string_t funcname = mln_string("mln_msg_topic_unsubscribe");
+    mln_string_t funcname = mln_string("unsubscribe");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_msgqueue_topic_unsubscribe_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -896,7 +913,7 @@ static int mln_lang_msgqueue_topic_unsubscribe(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;

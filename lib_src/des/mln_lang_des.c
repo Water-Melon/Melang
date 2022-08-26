@@ -13,24 +13,39 @@
 #define ASSERT(x);
 #endif
 
-static int mln_lang_des_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_3des_handler(mln_lang_ctx_t *ctx);
+static int mln_lang_des(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_des_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_3des_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_des_process(mln_lang_ctx_t *ctx);
 static mln_lang_var_t *mln_lang_3des_process(mln_lang_ctx_t *ctx);
 
-int mln_lang_des(mln_lang_ctx_t *ctx)
+mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
-    if (mln_lang_des_handler(ctx) < 0) return -1;
-    if (mln_lang_3des_handler(ctx) < 0) return -1;
+    mln_lang_var_t *obj = mln_lang_var_create_obj(ctx, NULL, NULL);
+    if (obj == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    if (mln_lang_des(ctx, mln_lang_var_val_get(obj)->data.obj) < 0) {
+        mln_lang_var_free(obj);
+        return NULL;
+    }
+    return obj;
+}
+
+static int mln_lang_des(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
+{
+    if (mln_lang_des_handler(ctx, obj) < 0) return -1;
+    if (mln_lang_3des_handler(ctx, obj) < 0) return -1;
     return 0;
 }
 
-static int mln_lang_des_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_des_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
-    mln_string_t funcname = mln_string("mln_des");
+    mln_string_t funcname = mln_string("des");
     mln_string_t v1 = mln_string("data");
     mln_string_t v2 = mln_string("key");
     mln_string_t v3 = mln_string("op");
@@ -87,7 +102,7 @@ static int mln_lang_des_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -181,12 +196,12 @@ static mln_lang_var_t *mln_lang_des_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_3des_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_3des_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
-    mln_string_t funcname = mln_string("mln_3des");
+    mln_string_t funcname = mln_string("des3");
     mln_string_t v1 = mln_string("data");
     mln_string_t v2 = mln_string("key1");
     mln_string_t v3 = mln_string("key2");
@@ -257,7 +272,7 @@ static int mln_lang_3des_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;

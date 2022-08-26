@@ -38,6 +38,4 @@ typedef struct mln_lang_mysql_timeout_s {
 
 #endif
 
-extern int mln_lang_mysql(mln_lang_ctx_t *ctx);
-
 #endif

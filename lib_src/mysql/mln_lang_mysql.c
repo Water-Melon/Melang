@@ -1235,18 +1235,21 @@ static int mln_lang_mysql_add_autocommit(mln_lang_ctx_t *ctx, mln_lang_set_detai
 
 #endif
 
-int mln_lang_mysql(mln_lang_ctx_t *ctx)
+static int mln_lang_mysql(mln_lang_ctx_t *ctx)
 {
 #ifdef MLN_MYSQL
-    mln_lang_mysql_timeout_t *lmt = mln_lang_mysql_timeout_new(ctx);
-    if (lmt == NULL) {
-        mln_lang_errmsg(ctx, "No memory.");
-        return -1;
-    }
-    if (mln_lang_ctx_resource_register(ctx, "mysql", lmt, (mln_lang_resource_free)mln_lang_mysql_timeout_free) < 0) {
-        mln_lang_errmsg(ctx, "No memory.");
-        mln_lang_mysql_timeout_free(lmt);
-        return -1;
+    mln_lang_mysql_timeout_t *lmt;
+    if ((lmt = mln_lang_ctx_resource_fetch(ctx, "mysql")) == NULL) {
+        lmt = mln_lang_mysql_timeout_new(ctx);
+        if (lmt == NULL) {
+            mln_lang_errmsg(ctx, "No memory.");
+            return -1;
+        }
+        if (mln_lang_ctx_resource_register(ctx, "mysql", lmt, (mln_lang_resource_free)mln_lang_mysql_timeout_free) < 0) {
+            mln_lang_errmsg(ctx, "No memory.");
+            mln_lang_mysql_timeout_free(lmt);
+            return -1;
+        }
     }
 
     mln_lang_set_detail_t *set;
@@ -1256,7 +1259,7 @@ int mln_lang_mysql(mln_lang_ctx_t *ctx)
         return -1;
     }
     ++(set->ref);
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_SET, set) < 0) {
+    if (mln_lang_symbol_node_upper_join(ctx, M_LANG_SYMBOL_SET, set) < 0) {
         mln_lang_set_detail_self_free(set);
         return -1;
     }
@@ -1290,5 +1293,20 @@ int mln_lang_mysql(mln_lang_ctx_t *ctx)
     }
 #endif
     return 0;
+}
+
+mln_lang_var_t *init(mln_lang_ctx_t *ctx)
+{
+    mln_string_t s = mln_string("Mysql");
+    mln_lang_var_t *ret_var = mln_lang_var_create_string(ctx, &s, NULL);
+    if (ret_var == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    if (mln_lang_mysql(ctx) < 0) {
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
+    return ret_var;
 }
 

@@ -19,18 +19,19 @@ struct mln_lang_string_join_s {
     mln_string_t *res;
 };
 
-static int mln_lang_string_real2bin_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_int2bin_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_bin2real_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_bin2int_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_bin2hex_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_hex2bin_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_b2s_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_s2b_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_strlen_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_split_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_strncmp_handler(mln_lang_ctx_t *ctx);
-static int mln_lang_string_replace_handler(mln_lang_ctx_t *ctx);
+static int mln_lang_string(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_real2bin_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_int2bin_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_bin2real_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_bin2int_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_bin2hex_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_hex2bin_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_b2s_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_s2b_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_strlen_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_split_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_strncmp_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static int mln_lang_string_replace_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_strseqcmp_process(mln_lang_ctx_t *ctx);
 static mln_lang_var_t *mln_strcmp_process(mln_lang_ctx_t *ctx);
 static mln_lang_var_t *mln_strncmp_process(mln_lang_ctx_t *ctx);
@@ -55,15 +56,29 @@ static int mln_replace_do_scanner(mln_rbtree_node_t *node, void *rn_data, void *
 static inline mln_lang_string_pos_t *mln_lang_string_pos_new(mln_lang_ctx_t *ctx, mln_lang_array_elem_t *elem, mln_s64_t off);
 static inline void mln_lang_string_pos_free_all(struct mln_lang_string_replace_s *udata);
 static mln_lang_var_t *mln_trim_process(mln_lang_ctx_t *ctx);
-static int mln_lang_string_upper_handler(mln_lang_ctx_t *ctx);
+static int mln_lang_string_upper_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_string_upper_process(mln_lang_ctx_t *ctx);
-static int mln_lang_string_lower_handler(mln_lang_ctx_t *ctx);
+static int mln_lang_string_lower_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_string_lower_process(mln_lang_ctx_t *ctx);
-static int mln_lang_string_join_handler(mln_lang_ctx_t *ctx);
+static int mln_lang_string_join_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_string_join_process(mln_lang_ctx_t *ctx);
 static int mln_lang_string_join_process_scan(mln_rbtree_node_t *node, mln_lang_array_elem_t *elem, struct mln_lang_string_join_s *lsj);
 
-int mln_lang_string(mln_lang_ctx_t *ctx)
+mln_lang_var_t *init(mln_lang_ctx_t *ctx)
+{
+    mln_lang_var_t *obj = mln_lang_var_create_obj(ctx, NULL, NULL);
+    if (obj == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    if (mln_lang_string(ctx, mln_lang_var_val_get(obj)->data.obj) < 0) {
+        mln_lang_var_free(obj);
+        return NULL;
+    }
+    return obj;
+}
+
+static int mln_lang_string(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
@@ -71,14 +86,14 @@ int mln_lang_string(mln_lang_ctx_t *ctx)
     mln_string_t v1 = mln_string("s1"), v2 = mln_string("s2");
     mln_string_t funcname;
     mln_s8ptr_t funcs[] = {
-        "mln_strseqcmp",
-        "mln_strcmp",
-        "mln_strstr",
-        "mln_kmp",
-        "mln_slice",
-        "mln_reg_equal",
-        "mln_reg_match",
-        "mln_trim"
+        "strseqcmp",
+        "strcmp",
+        "strstr",
+        "kmp",
+        "slice",
+        "reg_equal",
+        "reg_match",
+        "trim"
     };
     mln_lang_internal handlers[] = {
         mln_strseqcmp_process,
@@ -136,56 +151,56 @@ int mln_lang_string(mln_lang_ctx_t *ctx)
             mln_lang_val_free(val);
             return -1;
         }
-        if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+        if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
             mln_lang_errmsg(ctx, "No memory.");
             mln_lang_var_free(var);
             return -1;
         }
     }
 
-    if (mln_lang_string_strncmp_handler(ctx) < 0) {
+    if (mln_lang_string_strncmp_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_split_handler(ctx) < 0) {
+    if (mln_lang_string_split_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_strlen_handler(ctx) < 0) {
+    if (mln_lang_string_strlen_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_b2s_handler(ctx) < 0) {
+    if (mln_lang_string_b2s_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_s2b_handler(ctx) < 0) {
+    if (mln_lang_string_s2b_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_hex2bin_handler(ctx) < 0) {
+    if (mln_lang_string_hex2bin_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_bin2hex_handler(ctx) < 0) {
+    if (mln_lang_string_bin2hex_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_bin2int_handler(ctx) < 0) {
+    if (mln_lang_string_bin2int_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_int2bin_handler(ctx) < 0) {
+    if (mln_lang_string_int2bin_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_bin2real_handler(ctx) < 0) {
+    if (mln_lang_string_bin2real_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_real2bin_handler(ctx) < 0) {
+    if (mln_lang_string_real2bin_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_replace_handler(ctx) < 0) {
+    if (mln_lang_string_replace_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_upper_handler(ctx) < 0) {
+    if (mln_lang_string_upper_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_lower_handler(ctx) < 0) {
+    if (mln_lang_string_lower_handler(ctx, obj) < 0) {
         return -1;
     }
-    if (mln_lang_string_join_handler(ctx) < 0) {
+    if (mln_lang_string_join_handler(ctx, obj) < 0) {
         return -1;
     }
     return 0;
@@ -362,13 +377,13 @@ static mln_lang_var_t *mln_strncmp_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_strncmp_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_strncmp_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("s1"), v2 = mln_string("s2"), v3 = mln_string("n");
-    mln_string_t funcname = mln_string("mln_strncmp");
+    mln_string_t funcname = mln_string("strncmp");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_strncmp_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -424,7 +439,7 @@ static int mln_lang_string_strncmp_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -533,13 +548,13 @@ static mln_lang_var_t *mln_kmp_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_split_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_split_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("s"), v2 = mln_string("offset"), v3 = mln_string("len");
-    mln_string_t funcname = mln_string("mln_split");
+    mln_string_t funcname = mln_string("split");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_split_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -596,7 +611,7 @@ static int mln_lang_string_split_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -877,13 +892,13 @@ static mln_lang_var_t *mln_slice_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_strlen_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_strlen_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("s");
-    mln_string_t funcname = mln_string("mln_strlen");
+    mln_string_t funcname = mln_string("strlen");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_strlen_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -913,7 +928,7 @@ static int mln_lang_string_strlen_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -951,13 +966,13 @@ static mln_lang_var_t *mln_strlen_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_b2s_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_b2s_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("bin");
-    mln_string_t funcname = mln_string("mln_b2s");
+    mln_string_t funcname = mln_string("b2s");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_b2s_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -987,7 +1002,7 @@ static int mln_lang_string_b2s_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -1033,13 +1048,13 @@ static mln_lang_var_t *mln_b2s_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_s2b_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_s2b_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("s"), v2 = mln_string("type");
-    mln_string_t funcname = mln_string("mln_s2b");
+    mln_string_t funcname = mln_string("s2b");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_s2b_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1083,7 +1098,7 @@ static int mln_lang_string_s2b_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -1153,13 +1168,13 @@ static mln_lang_var_t *mln_s2b_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_hex2bin_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_hex2bin_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("hex");
-    mln_string_t funcname = mln_string("mln_hex2bin");
+    mln_string_t funcname = mln_string("hex2bin");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_hex2bin_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1189,7 +1204,7 @@ static int mln_lang_string_hex2bin_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -1257,13 +1272,13 @@ static mln_lang_var_t *mln_hex2bin_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_bin2hex_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_bin2hex_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("bin");
-    mln_string_t funcname = mln_string("mln_bin2hex");
+    mln_string_t funcname = mln_string("bin2hex");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_bin2hex_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1356,13 +1371,13 @@ static mln_lang_var_t *mln_bin2hex_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_bin2int_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_bin2int_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("bin");
-    mln_string_t funcname = mln_string("mln_bin2int");
+    mln_string_t funcname = mln_string("bin2int");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_bin2int_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1392,7 +1407,7 @@ static int mln_lang_string_bin2int_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -1438,13 +1453,13 @@ static mln_lang_var_t *mln_bin2int_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_int2bin_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_int2bin_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("i");
-    mln_string_t funcname = mln_string("mln_int2bin");
+    mln_string_t funcname = mln_string("int2bin");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_int2bin_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1474,7 +1489,7 @@ static int mln_lang_string_int2bin_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -1516,13 +1531,13 @@ static mln_lang_var_t *mln_int2bin_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_bin2real_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_bin2real_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("bin");
-    mln_string_t funcname = mln_string("mln_bin2real");
+    mln_string_t funcname = mln_string("bin2real");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_bin2real_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1552,7 +1567,7 @@ static int mln_lang_string_bin2real_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -1600,13 +1615,13 @@ static mln_lang_var_t *mln_bin2real_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_real2bin_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_real2bin_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("r");
-    mln_string_t funcname = mln_string("mln_real2bin");
+    mln_string_t funcname = mln_string("real2bin");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_real2bin_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1636,7 +1651,7 @@ static int mln_lang_string_real2bin_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -1676,13 +1691,13 @@ static mln_lang_var_t *mln_real2bin_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_replace_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_replace_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("dict"), v2 = mln_string("str");
-    mln_string_t funcname = mln_string("mln_replace");
+    mln_string_t funcname = mln_string("replace");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_replace_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1725,7 +1740,7 @@ static int mln_lang_string_replace_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -1943,13 +1958,13 @@ static mln_lang_var_t *mln_trim_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_upper_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_upper_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("s");
-    mln_string_t funcname = mln_string("mln_upper");
+    mln_string_t funcname = mln_string("upper");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_string_upper_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1979,7 +1994,7 @@ static int mln_lang_string_upper_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -2021,13 +2036,13 @@ static mln_lang_var_t *mln_lang_string_upper_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_lower_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_lower_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("s");
-    mln_string_t funcname = mln_string("mln_lower");
+    mln_string_t funcname = mln_string("lower");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_string_lower_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2057,7 +2072,7 @@ static int mln_lang_string_lower_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;
@@ -2099,13 +2114,13 @@ static mln_lang_var_t *mln_lang_string_lower_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_join_handler(mln_lang_ctx_t *ctx)
+static int mln_lang_string_join_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
     mln_string_t v1 = mln_string("glue"), v2 = mln_string("arr");
-    mln_string_t funcname = mln_string("mln_join");
+    mln_string_t funcname = mln_string("join");
 
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_string_join_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2148,7 +2163,7 @@ static int mln_lang_string_join_handler(mln_lang_ctx_t *ctx)
         mln_lang_val_free(val);
         return -1;
     }
-    if (mln_lang_symbol_node_join(ctx, M_LANG_SYMBOL_VAR, var) < 0) {
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(var);
         return -1;

@@ -32,7 +32,7 @@ do
         echo "Copyright (C) Niklaus F.Schen."
         echo "Options:"
         echo -e "\t--prefix=INSTALL_PATH"
-        echo -e "\t--melonprefix=LIBMELON_INSTALL_PATH"
+        echo -e "\t--melon-path=LIBMELON_INSTALL_PATH"
         echo -e "\t--libprefix=LIB_INSTALL_PATH"
         echo -e "\t--mysql_header_path=MYSQL_CLIENT_HREADER_PATH"
         echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
@@ -43,7 +43,7 @@ do
     if [ $param_prefix == "--prefix" ]; then
         installPath=$param_suffix
     fi
-    if [ $param_prefix == "--melonprefix" ]; then
+    if [ $param_prefix == "--melon-path" ]; then
         libmelonPath=$param_suffix
     fi
     if [ $param_prefix == "--libprefix" ]; then

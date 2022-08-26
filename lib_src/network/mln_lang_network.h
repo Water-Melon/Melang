@@ -60,6 +60,4 @@ typedef struct mln_lang_ctx_udp_s {
     mln_lang_udp_t        *tail;
 } mln_lang_ctx_udp_t;
 
-extern int mln_lang_network(mln_lang_ctx_t *ctx);
-
 #endif
