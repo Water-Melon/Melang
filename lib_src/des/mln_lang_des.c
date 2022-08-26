@@ -3,7 +3,7 @@
  * Copyright (C) Niklaus F.Schen.
  */
 #include <stdlib.h>
-#include "des/mln_lang_des.h"
+#include "mln_lang_des.h"
 #include "mln_des.h"
 
 #ifdef __DEBUG__

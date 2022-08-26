@@ -2,7 +2,7 @@
 /*
  * Copyright (C) Niklaus F.Schen.
  */
-#include "mysql/mln_lang_mysql.h"
+#include "mln_lang_mysql.h"
 
 #ifdef MLN_MYSQL
 

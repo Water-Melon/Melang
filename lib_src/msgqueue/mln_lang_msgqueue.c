@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include "msgqueue/mln_lang_msgqueue.h"
+#include "mln_lang_msgqueue.h"
 
 #ifdef __DEBUG__
 #include <assert.h>

@@ -15,7 +15,7 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
-#include "network/mln_lang_network.h"
+#include "mln_lang_network.h"
 
 #ifdef __DEBUG__
 #include <assert.h>

@@ -2,7 +2,7 @@
 /*
  * Copyright (C) Niklaus F.Schen.
  */
-#include "json/mln_lang_json.h"
+#include "mln_lang_json.h"
 #include "mln_json.h"
 
 #ifdef __DEBUG__

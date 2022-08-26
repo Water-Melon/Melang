@@ -2,7 +2,7 @@
 /*
  * Copyright (C) Niklaus F.Schen.
  */
-#include "sha/mln_lang_sha.h"
+#include "mln_lang_sha.h"
 #include "mln_sha.h"
 
 #ifdef __DEBUG__

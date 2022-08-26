@@ -2,7 +2,7 @@
 /*
  * Copyright (C) Niklaus F.Schen.
  */
-#include "matrix/mln_lang_matrix.h"
+#include "mln_lang_matrix.h"
 #include "mln_matrix.h"
 #include <stdlib.h>
 #include <stdio.h>

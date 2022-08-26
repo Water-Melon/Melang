@@ -3,7 +3,7 @@
  * Copyright (C) Niklaus F.Schen.
  */
 
-#include "print/mln_lang_print.h"
+#include "mln_lang_print.h"
 #include "mln_log.h"
 
 #ifdef __DEBUG__

@@ -2,7 +2,7 @@
 /*
  * Copyright (C) Niklaus F.Schen.
  */
-#include "string/mln_lang_string.h"
+#include "mln_lang_string.h"
 #include <stdio.h>
 #include <stdlib.h>
 

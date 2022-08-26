@@ -3,7 +3,7 @@
  * Copyright (C) Niklaus F.Schen.
  */
 
-#include "prime/mln_lang_prime.h"
+#include "mln_lang_prime.h"
 #include "mln_prime_generator.h"
 
 #ifdef __DEBUG__

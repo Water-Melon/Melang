@@ -2,7 +2,7 @@
 /*
  * Copyright (C) Niklaus F.Schen.
  */
-#include "sys/mln_lang_sys.h"
+#include "mln_lang_sys.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>

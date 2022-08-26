@@ -2,7 +2,7 @@
 /*
  * Copyright (C) Niklaus F.Schen.
  */
-#include "md5/mln_lang_md5.h"
+#include "mln_lang_md5.h"
 #include "mln_md5.h"
 
 #ifdef __DEBUG__

@@ -113,55 +113,125 @@ echo "LIBSTROBJS	= objs/mln_lang_string.o" >> Makefile
 echo "LIBSYSOBJS	= objs/mln_lang_sys.o" >> Makefile
 echo "" >> Makefile
 echo ".PHONY :	compile install clean" >> Makefile
-echo "compile: MKDIR \$(MELANGOBJS) \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
+echo "compile: PREPARE \$(MELANGOBJS) \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
 echo "         \$(LIBMATRIXOBJS) \$(LIBMD5OBJS) \$(LIBMQOBJS) \$(LIBMYSQLOBJS) \$(LIBNETWORKOBJS) \$(LIBPRIMEOBJS) \\" >> Makefile
 echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \\" >> Makefile
 echo "         \$(MELANG) \$(LIBAES) \$(LIBBASE64) \$(LIBDES) \$(LIBFILE) \$(LIBJSON) \$(LIBMATRIX) \$(LIBMD5) \\" >> Makefile
-echo "         \$(LIBMQ) \$(LIBMYSQL) \$(LIBNETWORK) \$(LIBPRIME) \$(LIBRC) \$(LIBSHA) \$(LIBSTR) \$(LIBSYS)" >> Makefile
+echo "         \$(LIBMQ) \$(LIBMYSQL) \$(LIBNETWORK) \$(LIBPRIME) \$(LIBRC) \$(LIBSHA) \$(LIBSTR) \$(LIBSYS) \\" >> Makefile
+echo "         COMPILECLEAN" >> Makefile
 echo "clean:" >> Makefile
 echo "	rm -fr objs libs bin Makefile" >> Makefile
-echo "MKDIR :" >> Makefile
+echo "PREPARE :" >> Makefile
 echo "	test -d objs || mkdir objs" >> Makefile
 echo "	test -d libs || mkdir libs" >> Makefile
 echo "	test -d bin || mkdir bin" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo -en " \b"
+else
+	echo "	cp -f $libmelonPath/lib/libmelon.a ." >> Makefile
+fi
+echo "COMPILECLEAN :" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo -en " \b"
+else
+	echo "	rm -f libmelon.a" >> Makefile
+fi
 echo "\$(MELANG) : \$(MELANGOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
 	echo "	\$(CC) -o bin/\$@ \$^ -static -O3 -L$libmelonPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32" >> Makefile
 else
-	echo "	cp -f $libmelonPath/lib/libmelon.a ." >> Makefile
-	echo "	\$(CC) -o bin/\$@ \$^ -O3 -L$libmelonPath/lib -lmelon -ldl -lpthread $mysql_lib" >> Makefile
-	echo "	rm -f libmelon.a" >> Makefile
+	echo "	\$(CC) -o bin/\$@ \$^ -O3 -L. -lmelon -ldl -lpthread $mysql_lib" >> Makefile
 fi
 echo "\$(LIBAES) : \$(LIBAESOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBBASE64) : \$(LIBBASE64OBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBDES) : \$(LIBDESOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBFILE) : \$(LIBFILEOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBJSON) : \$(LIBJSONOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBMATRIX) : \$(LIBMATRIXOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBMD5) : \$(LIBMD5OBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBMQ) : \$(LIBMQOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBMYSQL) : \$(LIBMYSQLOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBNETWORK) : \$(LIBNETWORKOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBPRIME) : \$(LIBPRIMEOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBRC) : \$(LIBRCOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBSHA) : \$(LIBSHAOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBSTR) : \$(LIBSTROBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "\$(LIBSYS) : \$(LIBSYSOBJS)" >> Makefile
-echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -lmelon" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lc -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
 echo "install:" >> Makefile
 echo "	test -d $libPath || mkdir -p $libPath" >> Makefile
 echo "	test -d $installPath || mkdir -p $installPath" >> Makefile

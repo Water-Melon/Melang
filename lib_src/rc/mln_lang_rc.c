@@ -2,7 +2,7 @@
 /*
  * Copyright (C) Niklaus F.Schen.
  */
-#include "rc/mln_lang_rc.h"
+#include "mln_lang_rc.h"
 #include "mln_rc.h"
 
 #ifdef __DEBUG__
