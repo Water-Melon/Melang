@@ -76,7 +76,7 @@ rm -fr mysql_test mysql_test.c
 echo "#" > Makefile
 echo "# Copyright (C) Niklaus F.Schen." >> Makefile
 echo "#" >> Makefile
-echo "CC	= cc" >> Makefile
+echo "CC	= $cc" >> Makefile
 echo "FLAGS           = -I$libmelonPath/include -c -Wall -ggdb -Werror -O3 -fPIC" >> Makefile
 echo "MELANG          = melang" >> Makefile
 if ! case $sysname in MINGW*) false;; esac; then
