@@ -8,7 +8,7 @@ mysql_header_path="/usr/include/mysql"
 mysql_lib_path="/usr/lib64/mysql"
 mysql_lib=""
 dl=""
-libmelonPath=`echo "/usr/local/melon_for_melang"`
+libmelonPath=`echo "/usr/local/melon"`
 libPath=`echo "/usr/local/lib/melang_dynamic"`
 cc="cc"
 if ! case $os in MINGW*) false;; esac; then

@@ -34,7 +34,7 @@ static int mln_lang_aes(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
     mln_lang_val_t *val;
     mln_lang_var_t *var;
     mln_lang_func_detail_t *func;
-    mln_string_t funcname = mln_string("mln_aes");
+    mln_string_t funcname = mln_string("aes");
     mln_string_t v1 = mln_string("data");
     mln_string_t v2 = mln_string("key");
     mln_string_t v3 = mln_string("bits");
