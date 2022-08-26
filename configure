@@ -79,6 +79,23 @@ echo "#" >> Makefile
 echo "CC	= cc" >> Makefile
 echo "FLAGS           = -I$libmelonPath/include -c -Wall -ggdb -Werror -O3 -fPIC" >> Makefile
 echo "MELANG          = melang" >> Makefile
+if ! case $sysname in MINGW*) false;; esac; then
+echo "LIBAES		= aes.dll" >> Makefile
+echo "LIBBASE64	= base64.dll" >> Makefile
+echo "LIBDES		= des.dll" >> Makefile
+echo "LIBFILE		= file.dll" >> Makefile
+echo "LIBJSON		= json.dll" >> Makefile
+echo "LIBMATRIX	= matrix.dll" >> Makefile
+echo "LIBMD5		= md5.dll" >> Makefile
+echo "LIBMQ		= mq.dll" >> Makefile
+echo "LIBMYSQL	= mysql.dll" >> Makefile
+echo "LIBNETWORK	= net.dll" >> Makefile
+echo "LIBPRIME	= prime.dll" >> Makefile
+echo "LIBRC		= rc.dll" >> Makefile
+echo "LIBSHA		= sha.dll" >> Makefile
+echo "LIBSTR		= str.dll" >> Makefile
+echo "LIBSYS		= sys.dll" >> Makefile
+else
 echo "LIBAES		= aes.so" >> Makefile
 echo "LIBBASE64	= base64.so" >> Makefile
 echo "LIBDES		= des.so" >> Makefile
@@ -94,6 +111,7 @@ echo "LIBRC		= rc.so" >> Makefile
 echo "LIBSHA		= sha.so" >> Makefile
 echo "LIBSTR		= str.so" >> Makefile
 echo "LIBSYS		= sys.so" >> Makefile
+fi
 echo "" >> Makefile
 echo "MELANGOBJS	= objs/melang.o" >> Makefile
 echo "LIBAESOBJS	= objs/mln_lang_aes.o" >> Makefile
