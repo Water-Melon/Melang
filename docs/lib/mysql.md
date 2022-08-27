@@ -4,6 +4,16 @@ Melang only support MySQL 8.0, because that version supports asynchronous functi
 
 If you want to activate MySQL APIs, you should install MySQL library and header files before Melang installation.
 
+
+
+### Import
+
+```
+mysql = import('mysql');
+```
+
+
+
 Here is the Set *Mysql*:
 
 ```
@@ -213,11 +223,14 @@ CREATE TABLE `people` (
 Our program:
 
 ```
-m = $Mysql;
+mysql = import('mysql');
+sys = import('sys');
+
+m = $mysql; // or m = $Mysql; both are the same. the value of mysql is 'Mysql'.
 m.connect('127.0.0.1', 3306, 'test', 'root', '.../*password*/');
-mln_print(m.execute('insert into `people` (name, age) values("Tom", 18)'));
+sys.print(m.execute('insert into `people` (name, age) values("Tom", 18)'));
 result = m.execute('select `name`, `age` from `people`');
-mln_print(result);
+sys.print(result);
 m.close();
 ```
 

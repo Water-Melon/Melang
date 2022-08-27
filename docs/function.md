@@ -103,7 +103,7 @@ Operator *&* makes argument *a* to be a reference variable named *data* in funct
 ```
 @foo(data)
 {
-  _mln_print(data);
+  dump(data);
 }
 
 foo();
@@ -120,7 +120,8 @@ Let's see an example:
 ```
 @foo() {
   @bar() {
-    _mln_print('bar');
+    sys = _import('sys');
+    sys.print('bar');
   }
   return bar;
 }
@@ -143,11 +144,13 @@ In most programming languages, they all support variable arguments. In melang, w
 ```
 @log()
 {
+  sys = _import('sys');
+
   s = 'argument list: ';
-  for (i = 0; i < _mln_size(args); ++i) {
+  for (i = 0; i < sys.size(args); ++i) {
       s += args[i] + ' ';
   }
-  _mln_print(s);
+  sys.print(s);
 }
 
 log('this', 'is', 'a', 'variable', 'arguments', 'example');
@@ -163,7 +166,7 @@ The key point is variable *args*. It's a internal variable in Melang function.
 
 It is an array to record every arguments passed to this function.
 
-> Function *mln_size* returns the number of array elements.
+> Function *sys.size* returns the number of array elements.
 
 
 
@@ -177,7 +180,9 @@ Let us see an example at first.
   a = 1;
   @bar()
   {
-    _mln_print(a);
+    sys = _import('sys');
+
+    sys.print(a);
   }
   return bar;
 }
@@ -196,7 +201,8 @@ But there is a way to get `a` in `bar`.
   a = 1;
   @bar() $(a)
   {
-    _mln_print(a);
+    sys = _import('sys');
+    sys.print(a);
   }
   return bar;
 }
@@ -215,7 +221,8 @@ Let us modify this example again:
   a = 1;
   @bar() $(a)
   {
-    _mln_print(a);
+    sys = _import('sys');
+    sys.print(a);
   }
   a = 100; //change to another value
   return bar;
@@ -233,7 +240,8 @@ Now, the output still be `1`. How can I do if I want the value `a` in function `
   a = 1;
   @bar() $(&a) //to become a reference
   {
-    _mln_print(a);
+    sys = _import('sys');
+    sys.print(a);
   }
   a = 100; //change to another value
   return bar;

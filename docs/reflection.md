@@ -9,7 +9,8 @@ Reflection makes us call a specified function or set by a name string.
 ```
 @foo ()
 {
-  _mln_print('foo');
+  sys = import('sys');
+  sys.print('foo');
 }
 a = 'foo';
 a();
@@ -22,7 +23,8 @@ Let's see a more complex example:
 ```
 @foo ()
 {
-  _mln_print('foo');
+  sys = import('sys');
+  sys.print('foo');
 }
 a = 'foo';
 b = 'a';
@@ -36,13 +38,15 @@ This example will output 'foo' on terminal either.
 ##### Set reflection
 
 ```
+sys = import('sys');
+
 human {
   name;
   age;
 }
 s = 'human';
 Tom = $s;
-mln_print(Tom);
+sys.print(Tom);
 ```
 
 *s* is a string variable, and its value is a set name.
@@ -62,7 +66,8 @@ human {
   action;
   @run ()
   {
-    _mln_print('running');
+    sys = import('sys');
+    sys.print('running');
   }
 }
 s = 'human';

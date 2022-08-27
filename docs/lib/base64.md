@@ -2,10 +2,18 @@
 
 
 
-##### mln_base64
+### Import
 
 ```
-mln_base64(data, op);
+b = import('base64');
+```
+
+
+
+##### base64
+
+```
+b.base64(data, op);
 ```
 
 Input:
@@ -24,10 +32,13 @@ Error:
 Example:
 
 ```
+b = import('base64');
+sys = import('sys');
+
 text = 'base64 test';
-encoded = mln_base64(text, 'encode');
-mln_print(encoded);
-mln_print(mln_base64(encoded, 'decode'));
+encoded = b.base64(text, 'encode');
+sys.print(encoded);
+sys.print(b.base64(encoded, 'decode'));
 ```
 
 The output is:

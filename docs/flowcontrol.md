@@ -135,9 +135,11 @@ Interpreter will follow these steps to execute:
 e.g.
 
 ```
+sys = import('sys');
+
 array = [1, 2, 3, 4];
 for (i = 0; i < 4; i++)
-  mln_print(array[i]);
+  sys.print(array[i]);
 ```
 
 
@@ -230,12 +232,14 @@ goto label;
 e.g.
 
 ```
+sys = import('sys');
+
   i = 10;
   goto plus;
   i--;
 plus:
   i += 2;
-  mln_print(i);
+  sys.print(i);
 ```
 
 *plus* is a label. The output of this code is 12 which means *i--;* is not executed.
@@ -245,10 +249,12 @@ plus:
 ```
 @foo()
 {
+  sys = _import('sys');
+
   i = 0;
   if (++i > 10) {
 l1:
-    _mln_print(i);
+    sys.print(i);
   } fi
   goto l1;
 }
@@ -261,10 +267,12 @@ The interpreter will throw an error that `l1` can not be found, because it is no
 ```
 @foo()
 {
+  sys = _import('sys');
+
   i = 0;
 li:
   if (++i > 10) {
-    _mln_print(i);
+    sys.print(i);
   } fi
   goto l1;
 }
@@ -283,15 +291,17 @@ But this example is working correctlly.
 e.g.
 
 ```
+sys = import('sys');
+
 for (i = 0; i < 1000; i++) {
   if (i > 10)
     break;
   fi
 }
-mln_print(i);
+sys.print(i);
 ```
 
-The output is 11, because when *i* greater than 10, *if* condition is matched. Then *break* statement makes *for* loop stop and go to execute next statement (*mln_print(i);*).
+The output is 11, because when *i* greater than 10, *if* condition is matched. Then *break* statement makes *for* loop stop and go to execute next statement (*sys.print(i);*).
 
 
 
@@ -346,5 +356,3 @@ return; //task finished here
 
 a = 1; //never be executed.
 ```
-
-#### 

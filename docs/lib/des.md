@@ -4,10 +4,18 @@ This document includes DES and 3DES functions.
 
 
 
-##### mln_des
+### Import
 
 ```
-mln_des(data, key, op);
+d = import('des');
+```
+
+
+
+##### des
+
+```
+d.des(data, key, op);
 ```
 
 Input:
@@ -27,10 +35,13 @@ Error:
 Example:
 
 ```
+d = import('des');
+sys = import('sys');
+
 text = 'DES test'; //length is 8
-cipher = mln_des(text, 100, 'encode');
-mln_print(cipher);
-mln_print(mln_des(cipher, 100, 'decode'));
+cipher = d.des(text, 100, 'encode');
+sys.print(cipher);
+sys.print(d.des(cipher, 100, 'decode'));
 ```
 
 The output is:
@@ -42,10 +53,10 @@ DES test
 
 
 
-##### mln_3des
+##### des3
 
 ```
-mln_3des(data, key1, key2, op);
+des3(data, key1, key2, op);
 ```
 
 Input:
@@ -65,10 +76,13 @@ Error:
 Example:
 
 ```
+d = import('des');
+sys = import('sys');
+
 text = 'DES test'; //length is 8
-cipher = mln_3des(text, 100, 99, 'encode');
-mln_print(cipher);
-mln_print(mln_3des(cipher, 100, 99, 'decode'));
+cipher = d.des3(text, 100, 99, 'encode');
+sys.print(cipher);
+sys.print(d.des3(cipher, 100, 99, 'decode'));
 ```
 
 The output is:

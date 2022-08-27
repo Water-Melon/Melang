@@ -31,7 +31,8 @@ e.g.
 ```
 a = 1;
 @foo() { //function definition
-  _mln_print(a); //output a's value
+  sys = import('sys');
+  sys.print(a); //output a's value
 }
 foo(); //call function foo
 ```
@@ -49,7 +50,8 @@ But if we need a's value in foo, how to do?
 ```
 a = 1;
 @foo() {
-  _mln_print(_a); //_a instead of a
+  sys = import('sys');
+  sys.print(_a); //_a instead of a
 }
 foo();
 ```
@@ -72,10 +74,12 @@ Let's see another example:
 a = 1;
 b = 2;
 @foo() {
+  sys = import('sys');
+
   a = 10;
-  _mln_print(a); //will output 10
-  _mln_print(_a); //also 10
-  _mln_print(b); //will output nil
-  _mln_print(_b); //will output 2
+  sys.print(a); //will output 10
+  sys.print(_a); //also 10
+  sys.print(b); //will output nil
+  sys.print(_b); //will output 2
 }
 ```

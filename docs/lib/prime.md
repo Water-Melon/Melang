@@ -2,12 +2,20 @@
 
 
 
-##### mln_prime
+### Import
+
+```
+p = import('prime');
+```
+
+
+
+##### prime
 
 Generate a prime number greater than or equal to a given number.
 
 ```
-mln_prime(base);
+p.prime(base);
 ```
 
 Input:
@@ -25,7 +33,10 @@ Error:
 Example:
 
 ```
-mln_print(mln_prime(22));
+p = import('prime');
+sys = import('sys');
+
+sys.print(p.prime(22));
 ```
 
 The output is:

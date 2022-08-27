@@ -16,12 +16,15 @@ Melang is a script Language of preemptive scheduling coroutine in single thread.
 
 If you want to install Melang on Windows, please download `mingw` and `git bash` at first.
 
-Execute these following shell commands:
+Please install [Melon](https://github.com/Water-Melon/Melon) at first. It is the core library that Melang depends on.
 
-```
-git clone https://github.com/Water-Melon/Melang.git
-cd Melang
-sudo ./install [--prefix=INSTALL_PATH] [--libprefix=Lib_INSTALL_PATH]
+Then execute these following shell commands:
+
+```shell
+$ git clone https://github.com/Water-Melon/Melang.git
+$ cd Melang
+$ ./configure [some options, --help will list them all]
+$ make && make install
 ```
 
 *prefix* is the path where melang will be placed after shell *install* executed. Default is */usr/bin/*.

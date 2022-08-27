@@ -1,5 +1,15 @@
 ### File
 
+
+
+### import
+
+```
+f = import('file');
+```
+
+
+
 File is implemented as a Set named File.
 
 ```
@@ -152,7 +162,8 @@ $ echo "hello" > tempfile
 Execute Melang program:
 
 ```
-f = $File;
+F = import('file');
+f = $F; // or f = $File; both are the same.
 if (f.open('tempfile', 'rw+') != false) { //read and write file and file content won't be ereased
   f.lseek(1, 'begin');
   f.write('i all');

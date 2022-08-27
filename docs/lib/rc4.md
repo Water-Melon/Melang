@@ -2,10 +2,18 @@
 
 
 
-##### mln_rc4
+### Import
 
 ```
-mln_rc4(data, key);
+rc = import('rc');
+```
+
+
+
+##### rc4
+
+```
+rc.rc4(data, key);
 ```
 
 Input:
@@ -24,9 +32,12 @@ Error:
 Example:
 
 ```
-cipher = mln_rc4('This is a rc4 test', 'a key');
-mln_print(cipher);
-mln_print(mln_rc4(cipher, 'a key'));
+rc = import('rc');
+sys = import('sys');
+
+cipher = rc.rc4('This is a rc4 test', 'a key');
+sys.print(cipher);
+sys.print(rc.rc4(cipher, 'a key'));
 ```
 
 The output is:

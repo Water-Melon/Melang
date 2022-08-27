@@ -66,9 +66,11 @@ That's done. Now, we have a variable named *Tom*, and that is an object of set *
 Now, we can visit *Tom*'s properties and methods.
 
 ```
+sys = import('sys');
+
 Tom.init('Tom Moore', 8, 'male');
 
-mln_print(Tom.name);
+sys.print(Tom.name);
 ```
 
 The first line is calling method *init*, this method initiates object *Tom*'s properties.

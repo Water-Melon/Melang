@@ -2,12 +2,97 @@
 
 
 
-##### mln_size
+### Import
+
+```
+sys = import('sys');
+```
+
+
+
+##### print
+
+Print argument.
+
+```
+sys.print(var);
+```
+
+Input:
+
+- var - any type can be accepted.
+  - if *var* is array, array values will be printed.
+  - if *var* is function or object, only a string *function* or *object* will be printed.
+  - otherwise *var*'s value will be printed.
+
+Return value:
+
+- Always *true*.
+
+
+
+##### dump
+
+Output detail of the given argument.
+
+This is an internal function, not implemented in dynamic library.
+
+```
+dump(var);
+```
+
+Input:
+
+- var - any type can be accepted.
+  - array - output all array values and array keys and more other details.
+  - object - output all properties detail information.
+  - other type - output detail information of *var*.
+
+Return value:
+
+
+
+##### Example
+
+```
+sys = import('sys');
+
+a = [1, 2, 3];
+sys.print(a);
+dump(a);
+```
+
+The output is:
+
+```
+[1, 2, 3, ]
+  var <Var>    Refer  Alias name: var  valueRef: 2, udata <0x0>, func <0x0>, notModify: false
+    <ARRAY>
+    ALL ELEMENTS:
+      Index: 0
+      Value:
+        Normal  valueRef: 1, udata <0x0>, func <0x0>, notModify: false
+        <INT> 1
+      Index: 1
+      Value:
+        Normal  valueRef: 1, udata <0x0>, func <0x0>, notModify: false
+        <INT> 2
+      Index: 2
+      Value:
+        Normal  valueRef: 1, udata <0x0>, func <0x0>, notModify: false
+        <INT> 3
+    KEY ELEMENTS:
+    Refs: 2
+```
+
+
+
+##### size
 
 Get array length.
 
 ```
-mln_size(&array);
+sys.size(&array);
 ```
 
 Input:
@@ -21,7 +106,9 @@ Return value:
 Example:
 
 ```
-mln_print(mln_size([1, 2, 3]));
+sys = import('sys');
+
+sys.print(sys.size([1, 2, 3]));
 ```
 
 Output:
@@ -32,12 +119,12 @@ Output:
 
 
 
-##### mln_is_int
+##### is_int
 
 Find whether the type of a variable is integer.
 
 ```
-mln_is_int(var);
+sys.is_int(var);
 ```
 
 Input:
@@ -51,8 +138,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_is_int(1));
-mln_print(mln_is_int('1'));
+sys = import('sys');
+
+sys.print(sys.is_int(1));
+sys.print(sys.is_int('1'));
 ```
 
 Output:
@@ -64,12 +153,12 @@ false
 
 
 
-##### mln_is_real
+##### is_real
 
 Find whether the type of a variable is real.
 
 ```
-mln_is_real(var);
+sys.is_real(var);
 ```
 
 Input:
@@ -83,8 +172,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_is_real(1));
-mln_print(mln_is_real(1.0));
+sys = import('sys');
+
+sys.print(sys.is_real(1));
+sys.print(sys.is_real(1.0));
 ```
 
 Output:
@@ -96,12 +187,12 @@ true
 
 
 
-##### mln_is_str
+##### is_str
 
 Find whether the type of a variable is string.
 
 ```
-mln_is_str(var);
+sys.is_str(var);
 ```
 
 Input:
@@ -115,7 +206,7 @@ Return value:
 Example:
 
 ```
-mln_print(mln_is_str('123'));
+sys.print(sys.is_str('123'));
 ```
 
 Output:
@@ -126,12 +217,12 @@ true
 
 
 
-##### mln_is_nil
+##### is_nil
 
 Find whether the type of a variable is nil.
 
 ```
-mln_is_nil(var);
+sys.is_nil(var);
 ```
 
 Input:
@@ -145,8 +236,8 @@ Return value:
 Example:
 
 ```
-mln_print(mln_is_nil(0));
-mln_print(mln_is_nil(nil));
+sys.print(sys.is_nil(0));
+sys.print(sys.is_nil(nil));
 ```
 
 Output:
@@ -158,12 +249,12 @@ true
 
 
 
-##### mln_is_bool
+##### is_bool
 
 Find whether the type of a variable is bool.
 
 ```
-mln_is_bool(var);
+sys.is_bool(var);
 ```
 
 Input:
@@ -177,8 +268,8 @@ Return value:
 Example:
 
 ```
-mln_print(mln_is_bool(0));
-mln_print(mln_is_bool(false));
+sys.print(sys.is_bool(0));
+sys.print(sys.is_bool(false));
 ```
 
 Output:
@@ -190,12 +281,12 @@ true
 
 
 
-##### mln_is_obj
+##### is_obj
 
 Find whether the type of a variable is object.
 
 ```
-mln_is_obj(var);
+is_obj(var);
 ```
 
 Input:
@@ -209,9 +300,11 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 set {}
 o = $set;
-mln_print(mln_is_obj(o));
+sys.print(sys.is_obj(o));
 ```
 
 Output:
@@ -222,12 +315,12 @@ true
 
 
 
-##### mln_is_func
+##### is_func
 
 Find whether the type of a variable is function.
 
 ```
-mln_is_func(var);
+sys.is_func(var);
 ```
 
 Input:
@@ -241,8 +334,10 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 @foo() {}
-mln_print(mln_is_func(foo));
+sys.print(sys.is_func(foo));
 ```
 
 Output:
@@ -253,12 +348,12 @@ true
 
 
 
-##### mln_is_array
+##### is_array
 
 Find whether the type of a variable is array.
 
 ```
-mln_is_array(var);
+sys.is_array(var);
 ```
 
 Input:
@@ -272,8 +367,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_is_array([1, 2]));
-mln_print(mln_is_array(['key1': 1, 'key2':2]));
+sys = import('sys');
+
+sys.print(sys.is_array([1, 2]));
+sys.print(sys.is_array(['key1': 1, 'key2':2]));
 ```
 
 Output:
@@ -285,12 +382,12 @@ true
 
 
 
-##### mln_int
+##### int
 
 Get int value of a variable.
 
 ```
-mln_int(var);
+sys.int(var);
 ```
 
 Input:
@@ -304,8 +401,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_int(1.2));
-mln_print(mln_int('1'));
+sys = import('sys');
+
+sys.print(sys.int(1.2));
+sys.print(sys.int('1'));
 ```
 
 Output:
@@ -317,12 +416,12 @@ Output:
 
 
 
-##### mln_bool
+##### bool
 
 Get bool value of a variable.
 
 ```
-mln_bool(var);
+sys.bool(var);
 ```
 
 Input:
@@ -336,11 +435,13 @@ Return value:
 Example:
 
 ```
-mln_print(mln_bool(1.2));
-mln_print(mln_bool(0));
-mln_print(mln_bool(nil));
-mln_print(mln_bool([]));
-mln_print(mln_bool(''));
+sys = import('sys');
+
+sys.print(sys.bool(1.2));
+sys.print(sys.bool(0));
+sys.print(sys.bool(nil));
+sys.print(sys.bool([]));
+sys.print(sys.bool(''));
 ```
 
 Output:
@@ -355,12 +456,12 @@ false
 
 
 
-##### mln_real
+##### real
 
 Get real value of a variable.
 
 ```
-mln_real(var);
+sys.real(var);
 ```
 
 Input:
@@ -374,8 +475,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_real(1));
-mln_print(mln_real('1.2'));
+sys = import('sys');
+
+sys.print(sys.real(1));
+sys.print(sys.real('1.2'));
 ```
 
 Output:
@@ -387,12 +490,12 @@ Output:
 
 
 
-##### mln_str
+##### str
 
 Get string value of a variable.
 
 ```
-mln_str(var);
+sys.str(var);
 ```
 
 Input:
@@ -406,8 +509,10 @@ Return value:
 Example:
 
 ```
-mln_dump(mln_str(1));
-mln_dump(mln_str(1.2));
+sys = import('sys');
+
+dump(sys.str(1));
+dump(sys.str(1.2));
 ```
 
 Output:
@@ -421,12 +526,12 @@ Output:
 
 
 
-##### mln_obj
+##### obj
 
 Get object value of a variable.
 
 ```
-mln_obj(var);
+sys.obj(var);
 ```
 
 Input:
@@ -440,8 +545,8 @@ Return value:
 Example:
 
 ```
-mln_dump(mln_obj([1, 2]));
-mln_dump(mln_obj(['name': 'Tom', 'age': 18]));
+dump(sys.obj([1, 2]));
+dump(sys.obj(['name': 'Tom', 'age': 18]));
 ```
 
 Output:
@@ -461,12 +566,12 @@ As we can see in output, common array will not generate any properties in object
 
 
 
-##### mln_array
+##### array
 
 Get array value of a variable.
 
 ```
-mln_array(var);
+sys.array(var);
 ```
 
 Input:
@@ -480,6 +585,8 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 Human {
   name;
   age;
@@ -487,9 +594,9 @@ Human {
 o = $Human;
 o.name = 'Tom';
 o.age = 18;
-arr = mln_array(o);
-mln_print(arr);
-mln_print(arr['name']);
+arr = sys.array(o);
+sys.print(arr);
+sys.print(arr['name']);
 ```
 
 Output:
@@ -501,12 +608,12 @@ Tom
 
 
 
-##### mln_keys
+##### keys
 
 Return all the keys or a subset of the keys of an array.
 
 ```
-mln_keys(&array);
+sys.keys(&array);
 ```
 
 Input:
@@ -520,8 +627,10 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 a = ['name': 'Tom', 'age': 18];
-mln_print(mln_keys(a));
+sys.print(sys.keys(a));
 ```
 
 Output:
@@ -532,12 +641,12 @@ Output:
 
 
 
-##### mln_merge
+##### merge
 
 Merge two arrays
 
 ```
-mln_merge(array1, array2);
+sys.merge(array1, array2);
 ```
 
 Input:
@@ -552,15 +661,17 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 a = ['name': 'Tom', 'age': 18];
 b = ['name': 'Sam', 'age': 19];
 c = [1, 2, 3];
 d = [2, 3, 4];
-mln_print(mln_merge(a, b));
-mln_print(mln_merge(c, d));
-ret = mln_merge(b, c);
-mln_print(ret);
-mln_print(ret['name']);
+sys.print(sys.merge(a, b));
+sys.print(sys.merge(c, d));
+ret = sys.merge(b, c);
+sys.print(ret);
+sys.print(ret['name']);
 ```
 
 Output:
@@ -574,12 +685,12 @@ Sam
 
 
 
-##### mln_has
+##### has
 
 Checks if a key or property exists in an array or object.
 
 ```
-mln_has(owner, thing);
+sys.has(owner, thing);
 ```
 
 Input:
@@ -594,8 +705,10 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 a = ['name': 'Tom', 'age': 18];
-mln_print(mln_has(a, 'name'));
+sys.print(sys.has(a, 'name'));
 ```
 
 Output:
@@ -606,12 +719,12 @@ true
 
 
 
-##### mln_type
+##### type
 
 Get the type of input argument.
 
 ```
-mln_type(var);
+sys.type(var);
 ```
 
 Input:
@@ -625,17 +738,19 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 a = ['name': 'Tom', 'age': 18];
 SetA {}
 @foo () {}
 
-mln_print(mln_type(1));
-mln_print(mln_type(1.2));
-mln_print(mln_type('abc'));
-mln_print(mln_type([1, 2]));
-mln_print(mln_type($SetA));
-mln_print(mln_type(foo));
-mln_print(mln_type(mln_obj(a)));
+sys.print(sys.type(1));
+sys.print(sys.type(1.2));
+sys.print(sys.type('abc'));
+sys.print(sys.type([1, 2]));
+sys.print(sys.type($SetA));
+sys.print(sys.type(foo));
+sys.print(sys.type(sys.obj(a)));
 ```
 
 Output:
@@ -652,12 +767,12 @@ object
 
 
 
-##### mln_get_property
+##### getter
 
 Get property value from an object.
 
 ```
-mln_get_property(&obj, prop);
+sys.getter(&obj, prop);
 ```
 
 Input:
@@ -672,12 +787,14 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 Human {
   name;
 }
 o = $Human;
 o.name = 'Tom';
-mln_print(mln_get_property(o, 'name'));
+sys.print(sys.getter(o, 'name'));
 ```
 
 Output:
@@ -688,12 +805,12 @@ Tom
 
 
 
-##### mln_set_property
+##### setter
 
 Set a property with its value in an object.
 
 ```
-mln_set_property(&obj, prop, &val);
+sys.setter(&obj, prop, &val);
 ```
 
 Input:
@@ -709,13 +826,15 @@ Return value:
 Example:
 
 ```
+sys = import('sys');
+
 Human {
   name;
 }
 o = $Human;
 o.name = 'Tom';
-mln_print(mln_set_property(o, 'age', 18));
-mln_print(mln_get_property(o, 'age'));
+sys.print(sys.setter(o, 'age', 18));
+sys.print(sys.setter(o, 'age'));
 ```
 
 Output:
@@ -727,12 +846,12 @@ Output:
 
 
 
-##### mln_eval
+##### eval
 
 Create a new coroutine and execute.
 
 ```
-mln_eval(val, data, in_string);
+sys.eval(val, data, in_string);
 ```
 
 Input:
@@ -749,12 +868,12 @@ Example: visit [Coroutine Section](https://water-melon.github.io/Melang/coroutin
 
 
 
-##### mln_mkdir
+##### mkdir
 
 Create a directory.
 
 ```
-mln_mkdir(path, mode);
+sys.mkdir(path, mode);
 ```
 
 Input:
@@ -769,7 +888,9 @@ Return value:
 Example:
 
 ```
-mln_mkdir('/tmp/aaa');
+sys = import('sys');
+
+sys.mkdir('/tmp/aaa');
 ```
 
 ```shell
@@ -784,12 +905,12 @@ Output:
 
 
 
-##### mln_remove
+##### remove
 
 Remove directory from file system.
 
 ```
-mln_remove(path);
+sys.remove(path);
 ```
 
 Input:
@@ -803,7 +924,9 @@ Return value:
 Example:
 
 ```
-mln_print(mln_remove('/tmp/aaa'));
+sys = import('sys');
+
+sys.print(sys.remove('/tmp/aaa'));
 ```
 
 Output:
@@ -814,12 +937,12 @@ true
 
 
 
-##### mln_exist
+##### exist
 
 Check if the file or directory exists.
 
 ```
-mln_exist(path);
+sys.exist(path);
 ```
 
 Input:
@@ -833,7 +956,9 @@ Return value:
 Example:
 
 ```
-mln_print(mln_exist('/tmp'));
+sys = import('sys');
+
+sys.print(sys.exist('/tmp'));
 ```
 
 Output:
@@ -844,12 +969,12 @@ true
 
 
 
-##### mln_lsdir
+##### lsdir
 
 List all files and directories under the specified path.
 
 ```
-mln_lsdir(path);
+sys.lsdir(path);
 ```
 
 Input:
@@ -863,7 +988,9 @@ Return value:
 Example:
 
 ```
-mln_print(mln_path('/'));
+sys = import('sys');
+
+sys.print(sys.path('/'));
 ```
 
 Output:
@@ -874,12 +1001,12 @@ Output:
 
 
 
-##### mln_isdir
+##### isdir
 
 Check the given path is directory or not.
 
 ```
-mln_isdir(path);
+sys.isdir(path);
 ```
 
 Input:
@@ -893,7 +1020,9 @@ Return value:
 Example:
 
 ```
-mln_print(mln_exist('/'));
+sys = import('sys');
+
+sys.print(sys.exist('/'));
 ```
 
 Output:
@@ -904,12 +1033,12 @@ true
 
 
 
-##### mln_time
+##### time
 
 Get the current time seconds.
 
 ```
-mln_time();
+sys.time();
 ```
 
 Input: -
@@ -921,7 +1050,7 @@ Return value:
 Example:
 
 ```
-mln_print(mln_time());
+sys.print(sys.time());
 ```
 
 Output:
@@ -932,12 +1061,12 @@ Output:
 
 
 
-##### mln_cron
+##### cron
 
 Parse cron format expression and get the next allowed timestamp.
 
 ```
-mln_cron(exp, timestamp);
+sys.cron(exp, timestamp);
 ```
 
 Input:
@@ -952,9 +1081,11 @@ Return value:
 Example:
 
 ```
-tm = mln_time();
-mln_print(tm);
-mln_print(mln_cron('* * * * *', tm));
+sys = import('sys');
+
+tm = sys.time();
+sys.print(tm);
+sys.print(sys.cron('* * * * *', tm));
 ```
 
 Output:
@@ -966,12 +1097,12 @@ Output:
 
 
 
-##### mln_diff
+##### diff
 
 Compute the difference of arrays.
 
 ```
-mln_diff(&array1, &array2);
+sys.diff(&array1, &array2);
 ```
 
 Input:
@@ -986,7 +1117,9 @@ Return value:
 Example:
 
 ```
-mln_print(mln_diff([1,2,3,4,5], [2,4,5]));
+sys = import('sys');
+
+sys.print(sys.diff([1,2,3,4,5], [2,4,5]));
 ```
 
 Output:
@@ -997,12 +1130,12 @@ Output:
 
 
 
-##### mln_key_diff
+##### key_diff
 
 Compute the difference of arrays by keys.
 
 ```
-mln_key_diff(&array1, &array2);
+sys.key_diff(&array1, &array2);
 ```
 
 Input:
@@ -1017,7 +1150,9 @@ Return value:
 Example:
 
 ```
-mln_print(mln_key_diff(['aaa':1,2,'ccc':3,'ddd':4, 5], ['aaa':1,2,3]););
+sys = import('sys');
+
+sys.print(sys.key_diff(['aaa':1,2,'ccc':3,'ddd':4, 5], ['aaa':1,2,3]););
 ```
 
 Output:
@@ -1028,12 +1163,12 @@ Output:
 
 
 
-##### mln_exec
+##### exec
 
 Execute shell command in Melang.
 
 ```
-mln_exec(cmd, bufsize);
+sys.exec(cmd, bufsize);
 ```
 
 Input:
@@ -1049,7 +1184,9 @@ Return value:
 Example:
 
 ```
-mln_exec('ls /');
+sys = import('sys');
+
+sys.exec('ls /');
 ```
 
 Output:
@@ -1064,12 +1201,14 @@ etc
 
 
 
-##### mln_import
+##### import
 
 Import dynamic library extension into current scope. Dynamic library may contain functions, collections, variables, etc.
 
+This is an internal function.
+
 ```
-mln_import(name);
+import(name);
 ```
 
 Input:
@@ -1087,7 +1226,7 @@ Return value:
 Example:
 
 ```
-mln_import('test');
+import('test');
 ```
 
 ```c

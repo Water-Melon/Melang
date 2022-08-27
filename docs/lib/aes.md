@@ -4,10 +4,20 @@ This is a library function for AES encryption and decryption.
 
 
 
-#### mln_aes
+### Import
 
 ```
-mln_aes(data, key, bits, op);
+aes = import('aes');
+```
+
+
+
+### Functions
+
+#### aes
+
+```
+aes.aes(data, key, bits, op);
 ```
 
 Input:
@@ -29,13 +39,17 @@ Error:
 Example:
 
 ```
+aes = import('aes');
+sys = import('sys');
+str = import('str');
+
 text = 'This is an aes test, note length';
-mln_print('text length: '+mln_strlen(text));
+sys.print('text length: '+str.strlen(text));
 key = 'this is a secret';
-cipher = mln_aes(text, key, 128, 'encode');
-mln_print(cipher);
-text = mln_aes(cipher, key, 128, 'decode');
-mln_print(text);
+cipher = aes.aes(text, key, 128, 'encode');
+sys.print(cipher);
+text = aes.aes(cipher, key, 128, 'decode');
+sys.print(text);
 ```
 
 The output is:

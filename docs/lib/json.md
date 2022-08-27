@@ -2,10 +2,18 @@
 
 
 
-##### mln_json_encode
+### Import
 
 ```
-mln_json_encode(array);
+j = import('json');
+```
+
+
+
+##### encode
+
+```
+j.encode(array);
 ```
 
 Input:
@@ -22,10 +30,10 @@ Error:
 
 
 
-##### mln_json_decode
+##### decode
 
 ```
-mln_json_decode(s);
+j.decode(s);
 ```
 
 Input:
@@ -45,10 +53,13 @@ Error:
 ##### Example
 
 ```
+j = import('json');
+sys = import('sys');
+
 a = ['name': 'Tom', 'age': 18, 'gender': 'male'];
-json = mln_json_encode(a);
-mln_print(json);
-mln_print(mln_json_decode(json));
+json = j.encode(a);
+sys.print(json);
+sys.print(j.decode(json));
 ```
 
 The output is:

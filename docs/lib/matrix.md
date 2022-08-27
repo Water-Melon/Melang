@@ -2,12 +2,20 @@
 
 
 
-##### mln_matrix_mul
+### Import
+
+```
+m = import('matrix');
+```
+
+
+
+##### mul
 
 Matrix multiplication.
 
 ```
-mln_matrix_mul(array1, array2);
+m.mul(array1, array2);
 ```
 
 Input:
@@ -45,12 +53,15 @@ Error:
 Example:
 
 ```
+m = import('matrix');
+sys = import('sys');
+
 array1 = ['row': 3, 'col': 2, 'data':[1,0,0,1,1,1]];
 array2 = ['row': 2, 'col': 2, 'data':[1,2,3,4]];
-res_array = mln_matrix_mul(array1, array2);
-mln_print(res_array['row']);
-mln_print(res_array['col']);
-mln_print(res_array['data']);
+res_array = m.mul(array1, array2);
+sys.print(res_array['row']);
+sys.print(res_array['col']);
+sys.print(res_array['data']);
 ```
 
 The output is:
@@ -63,12 +74,12 @@ The output is:
 
 
 
-##### mln_matrix_inv
+##### inv
 
 Matrix inversion.
 
 ```
-mln_matrix_inv(array);
+m.inv(array);
 ```
 
 Input:
@@ -86,11 +97,14 @@ Error:
 Example:
 
 ```
+m = import('matrix');
+sys = import('sys');
+
 array = ['row': 2, 'col': 2, 'data':[1,0,1,1]];
-res_array = mln_matrix_inv(array);
-mln_print(res_array['row']);
-mln_print(res_array['col']);
-mln_print(res_array['data']);
+res_array = m.inv(array);
+sys.print(res_array['row']);
+sys.print(res_array['col']);
+sys.print(res_array['data']);
 ```
 
 The output is:

@@ -2,12 +2,20 @@
 
 
 
-##### mln_bin2hex
+### Import
+
+```
+str = import('str');
+```
+
+
+
+##### bin2hex
 
 Binary bytes string to hex string.
 
 ```
-mln_bin2hex(bin);
+str.bin2hex(bin);
 ```
 
 Input:
@@ -21,7 +29,11 @@ Return value:
 Example:
 
 ```
-mln_print(mln_bin2hex(mln_rc4('HI', 'key')));
+str = import('str');
+sys = import('sys');
+rc = import('rc');
+
+sys.print(str.bin2hex(rc.rc4('HI', 'key')));
 ```
 
 Output:
@@ -32,12 +44,12 @@ Output:
 
 
 
-##### mln_hex2bin
+##### hex2bin
 
 Hex string to binary bytes.
 
 ```
-mln_hex2bin(hex);
+str.hex2bin(hex);
 ```
 
 Input:
@@ -51,7 +63,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_hex2bin('4849'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.hex2bin('4849'));
 ```
 
 Output:
@@ -62,12 +77,12 @@ HI
 
 
 
-##### mln_bin2int
+##### bin2int
 
 Binary bytes to an integer.
 
 ```
-mln_bin2int(bin);
+str.bin2int(bin);
 ```
 
 Input:
@@ -81,7 +96,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_bin2int('HI'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.bin2int('HI'));
 ```
 
 Output:
@@ -92,12 +110,12 @@ Output:
 
 
 
-##### mln_int2bin
+##### int2bin
 
 Integer to binary bytes.
 
 ```
-mln_int2bin(i);
+str.int2bin(i);
 ```
 
 Input:
@@ -111,7 +129,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_int2bin(18505));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.int2bin(18505));
 ```
 
 Output:
@@ -122,12 +143,12 @@ HI
 
 
 
-##### mln_bin2real
+##### bin2real
 
 Binary bytes to real number.
 
 ```
-mln_bin2real(bin);
+str.bin2real(bin);
 ```
 
 Input:
@@ -141,7 +162,7 @@ Return value:
 Example:
 
 ```
-mln_print(mln_bin2real('HI'));
+sys.print(str.bin2real('HI'));
 ```
 
 Output:
@@ -152,12 +173,12 @@ Output:
 
 
 
-##### mln_real2bin
+##### real2bin
 
 Real number to binary bytes.
 
 ```
-mln_real2bin(r);
+str.real2bin(r);
 ```
 
 Input:
@@ -171,7 +192,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_real2bin(1070435769529469910793714477087121352287059968.000000));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.real2bin(1070435769529469910793714477087121352287059968.000000));
 ```
 
 Output:
@@ -182,12 +206,12 @@ HI
 
 
 
-##### mln_b2s
+##### b2s
 
 Copy binary bytes into a string.
 
 ```
-mln_b2s(bin);
+str.b2s(bin);
 ```
 
 Input:
@@ -204,7 +228,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_b2s(100));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.b2s(100));
 ```
 
 Output:
@@ -215,12 +242,12 @@ d
 
 
 
-##### mln_s2b
+##### s2b
 
 String to a given type value.
 
 ```
-mln_s2b(s, type);
+str.s2b(s, type);
 ```
 
 Input:
@@ -238,7 +265,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_s2b('d', 'int'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.s2b('d', 'int'));
 ```
 
 Output:
@@ -249,12 +279,12 @@ Output:
 
 
 
-##### mln_strlen
+##### strlen
 
 Calculate string length.
 
 ```
-mln_strlen(s);
+str.strlen(s);
 ```
 
 Input:
@@ -268,7 +298,7 @@ Return value:
 Example:
 
 ```
-mln_print(mln_strlen('this is a test'));
+sys.print(str.strlen('this is a test'));
 ```
 
 Output:
@@ -279,12 +309,12 @@ Output:
 
 
 
-##### mln_split
+##### split
 
 Return part of a string.
 
 ```
-mln_split(s, offset, len);
+str.split(s, offset, len);
 ```
 
 Input:
@@ -300,7 +330,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_split('this is a test', -10));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.split('this is a test', -10));
 ```
 
 Output:
@@ -311,12 +344,12 @@ Output:
 
 
 
-##### mln_slice
+##### slice
 
 Split a string by a set of characters.
 
 ```
-mln_slice(s, seps);
+str.slice(s, seps);
 ```
 
 Input:
@@ -331,7 +364,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_slice('this is a test', ' s'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.slice('this is a test', ' s'));
 ```
 
 Output:
@@ -342,12 +378,12 @@ Output:
 
 
 
-##### mln_kmp
+##### kmp
 
 Find the first occurrence of a string by KMP algorithm.
 
 ```
-mln_kmp(s, pattern);
+kmp(s, pattern);
 ```
 
 Input:
@@ -362,7 +398,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_kmp('this is a test', 'is'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.kmp('this is a test', 'is'));
 ```
 
 Output:
@@ -373,12 +412,12 @@ Output:
 
 
 
-##### mln_strstr
+##### strstr
 
 Find the first occurrence of a string
 
 ```
-mln_strstr(s, pattern);
+str.strstr(s, pattern);
 ```
 
 Input:
@@ -393,7 +432,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_strstr('this is a test', 'is'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.strstr('this is a test', 'is'));
 ```
 
 Output:
@@ -404,12 +446,12 @@ Output:
 
 
 
-##### mln_strncmp
+##### strncmp
 
 String comparison of the first n characters.
 
 ```
-mln_strncmp(s1, s2, n);
+str.strncmp(s1, s2, n);
 ```
 
 Input:
@@ -425,7 +467,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_strncmp('this is a test', 'is', 2));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.strncmp('this is a test', 'is', 2));
 ```
 
 Output:
@@ -436,12 +481,12 @@ false
 
 
 
-##### mln_strcmp
+##### strcmp
 
 String comparison.
 
 ```
-mln_strcmp(s1, s2);
+str.strcmp(s1, s2);
 ```
 
 Input:
@@ -456,7 +501,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_strcmp('drink', 'drink'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.strcmp('drink', 'drink'));
 ```
 
 Output:
@@ -467,12 +515,12 @@ true
 
 
 
-##### mln_strseqcmp
+##### strseqcmp
 
 String comparison.
 
 ```
-mln_strseqcmp(s1, s2);
+str.strseqcmp(s1, s2);
 ```
 
 Input:
@@ -490,7 +538,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_strseqcmp('drinking', 'drink'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.strseqcmp('drinking', 'drink'));
 ```
 
 Output:
@@ -501,12 +552,12 @@ Output:
 
 
 
-##### mln_reg_equal
+##### reg_equal
 
 Match string by a regular expression.
 
 ```
-mln_reg_equal(exp, text);
+str.reg_equal(exp, text);
 ```
 
 Input:
@@ -521,8 +572,11 @@ Return value:
 Example:
 
 ```
-mln_print(mln_reg_equal('.*', 'test'));
-mln_print(mln_reg_equal('.*ed', 'test'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.reg_equal('.*', 'test'));
+sys.print(str.reg_equal('.*ed', 'test'));
 ```
 
 Output:
@@ -534,12 +588,12 @@ false
 
 
 
-##### mln_reg_match
+##### reg_match
 
 Match string by a regular expression and get matched string pieces.
 
 ```
-mln_reg_match(exp, text);
+str.reg_match(exp, text);
 ```
 
 Input:
@@ -554,7 +608,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_reg_match('((this )*i(s)).*', 'this is a reg exp test.'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.reg_match('((this )*i(s)).*', 'this is a reg exp test.'));
 ```
 
 Output:
@@ -565,12 +622,12 @@ Output:
 
 
 
-##### mln_replace
+##### replace
 
 Replace all occurrences of the search string with the replacement string.
 
 ```
-mln_replace(&dict, &str);
+str.replace(&dict, &str);
 ```
 
 Input:
@@ -585,7 +642,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_replace(['aaa':'123', 'bbb': 'Hello'], 'aaabbbcccaaa'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.replace(['aaa':'123', 'bbb': 'Hello'], 'aaabbbcccaaa'));
 ```
 
 Output:
@@ -596,12 +656,12 @@ Output:
 
 
 
-##### mln_trim
+##### trim
 
 Strip whitespace (or other characters) from the beginning and end of a string.
 
 ```
-mln_trim(s, mask);
+str.trim(s, mask);
 ```
 
 Input:
@@ -616,7 +676,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_trim(" hello \t\n"));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.trim(" hello \t\n"));
 ```
 
 Output:
@@ -627,12 +690,12 @@ hello
 
 
 
-##### mln_upper
+##### upper
 
 Make character uppercase.
 
 ```
-mln_upper(s);
+str.upper(s);
 ```
 
 Input:
@@ -646,7 +709,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_upper('hello'));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.upper('hello'));
 ```
 
 Output:
@@ -657,12 +723,12 @@ HELLO
 
 
 
-##### mln_lower
+##### lower
 
 Make character lowercase.
 
 ```
-mln_lower(s);
+str.lower(s);
 ```
 
 Input:
@@ -676,7 +742,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_lower('HELLO'));
+str = import('str');
+sys = import('sys');
+
+str.print(sys.lower('HELLO'));
 ```
 
 Output:
@@ -687,12 +756,12 @@ hello
 
 
 
-##### mln_join
+##### join
 
 Join all elements in an array into a string, using a string as separator.
 
 ```
-mln_join(glue, arr);
+str.join(glue, arr);
 ```
 
 Input:
@@ -707,7 +776,10 @@ Return value:
 Example:
 
 ```
-mln_print(mln_join(',', [1, [1,2], 'asd']));
+str = import('str');
+sys = import('sys');
+
+sys.print(str.join(',', [1, [1,2], 'asd']));
 ```
 
 Output:

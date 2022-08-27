@@ -2,10 +2,18 @@
 
 
 
-##### mln_sha1
+### Import
 
 ```
-mln_sha1(data);
+sha = import('sha');
+```
+
+
+
+##### sha1
+
+```
+sha.sha1(data);
 ```
 
 Input:
@@ -22,10 +30,10 @@ Error:
 
 
 
-##### mln_sha256
+##### sha256
 
 ```
-mln_sha1(data);
+sha.sha1(data);
 ```
 
 Input:
@@ -45,8 +53,11 @@ Error:
 ##### Example
 
 ```
-mln_print(mln_sha1('sha test'));
-mln_print(mln_sha256('sha test'));
+sha = import('sha');
+sys = import('sys');
+
+sys.print(sha.sha1('sha test'));
+sys.print(sha.sha256('sha test'));
 ```
 
 The output is:

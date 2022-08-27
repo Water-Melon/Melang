@@ -65,13 +65,15 @@ __<type>_<optype>_operator__
 Example:
 
 ```
+sys = import('sys');
+
 @__int_cand_operator__(left, right)
 {
-    _mln_print(left);
-    _mln_print(right);
+    _sys.print(left);
+    _sys.print(right);
     return true;
 }
-mln_print((1 & 2));
+sys.print((1 & 2));
 ```
 
 This example will overload `int` operator  `&` . The output is:
@@ -87,13 +89,15 @@ Which means the expression value is the return value of `__int_cand_operator__`.
 Let's change something:
 
 ```
+sys = import('sys');
+
 @__int_cand_operator__(left, right)
 {
-    _mln_print(left);
-    _mln_print(right);
+    _sys.print(left);
+    _sys.print(right);
     return left & right;
 }
-mln_print((1 & 2));
+sys.print((1 & 2));
 ```
 
 Now, the output is:
@@ -113,19 +117,21 @@ Operator overloading on object is a little bit different. Besides the way that s
 Example:
 
 ```
+sys = import('sys');
+
 S {
   attr;
   @__obj_cand_operator__(&left, &right)
   {
-      _mln_print(left);
-      _mln_print(right);
+      _sys.print(left);
+      _sys.print(right);
       return true;
   }
 }
 
 a = $S;
 b = $S;
-mln_print((a & b));
+sys.print((a & b));
 ```
 
 The output is:
@@ -143,20 +149,22 @@ In this example, hook function `__obj_cand_operator__` is given in a Set definit
 Another Example:
 
 ```
+sys = import('sys');
+
 S {
   attr;
   @__obj_cand_operator__(&left, &right)
   {
-      _mln_print(left);
-      _mln_print(right);
+      _sys.print(left);
+      _sys.print(right);
       return true;
   }
 }
 
 @__obj_cand_operator__(left, right)
 {
-    _mln_print(left);
-    _mln_print(right);
+    _sys.print(left);
+    _sys.print(right);
     return false;
 }
 O {
@@ -167,8 +175,8 @@ a = $S;
 b = $S;
 c = $O;
 d = $O;
-mln_print((a & b));
-mln_print((c & d));
+sys.print((a & b));
+sys.print((c & d));
 ```
 
 The output is:

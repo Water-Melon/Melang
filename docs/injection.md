@@ -13,8 +13,9 @@ Now, we have a set *Human* without any property or method, and an object of *Hum
 So as a human, *someone* must has age. Let's add for it.
 
 ```
+sys = import('sys');
 someone.age = 20;
-mln_print(someone.age);
+sys.print(someone.age);
 ```
 
 OK, done. Now *20* will be printed on terminal.
@@ -24,7 +25,8 @@ Let's add a method for *someone*.
 ```
 @printAge()
 {
-  _mln_print(this.age);
+  sys = _import('sys');
+  sys.print(this.age);
 }
 
 someone.print = printAge;
@@ -37,20 +39,23 @@ someone.print();
 
 There is another way to inject properties and methods.
 
-##### mln_set_property
+##### setter
 
 ```
-mln_set_property(object, name, value);
+sys = import('sys');
+sys.setter(object, name, value);
 ```
 
-use *mln_set_property* to inject property or method into an object. Its return value is the same as argument *value*.
+use *sys.setter* to inject property or method into an object. Its return value is the same as argument *value*.
 
 Let's add a *name* in *someone*.
 
 ```
-ret = mln_set_property(someone, 'name', 'Jason');
-mln_print(ret);
-mln_print(someone.name);
+sys = import('sys');
+
+ret = sys.setter(someone, 'name', 'Jason');
+sys.print(ret);
+sys.print(someone.name);
 ```
 
 The output of this piece of code is:
@@ -63,11 +68,13 @@ Jason
 Let's add a method in *someone* to print name.
 
 ```
+sys = import('sys');
+
 @printName()
 {
-  _mln_print(this.name);
+  _sys.print(this.name);
 }
-mln_set_property(someone, 'showName', printName);
+sys.setter(someone, 'showName', printName);
 someone.showName();
 ```
 
@@ -75,16 +82,20 @@ someone.showName();
 
 Since there is a function for setting property, there will be a function for getting property.
 
-##### mln_get_property
+##### getter
 
 ```
-mln_get_property(object, name);
+sys = import('sys');
+
+sys.getter(object, name);
 ```
 
 e.g.
 
 ```
-mln_print(mln_get_property(someone, 'name'));
+sys = import('sys');
+
+sys.print(sys.getter(someone, 'name'));
 ```
 
 The output is:

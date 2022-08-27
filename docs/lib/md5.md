@@ -2,12 +2,20 @@
 
 
 
-##### mln_md5
+### Import
+
+```
+m = import('md5');
+```
+
+
+
+##### md5
 
 This function is used to calculate MD5 digest.
 
 ```
-mln_md5(data);
+m.md5(data);
 ```
 
 Input:
@@ -25,7 +33,10 @@ Error:
 Example:
 
 ```
-mln_print(mln_md5('md5 test'));
+m = import('md5');
+sys = import('sys');
+
+sys.print(m.md5('md5 test'));
 ```
 
 The output is:
