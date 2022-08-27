@@ -3,8 +3,12 @@
 # Copyright (C) Niklaus F.Schen.
 #
 
-cc="cc"
 os=`uname -s`
+if ! case $os in MINGW*) false;; esac; then
+    cc="gcc"
+else
+    cc="cc"
+fi
 
 #output installation path
 echo -e "#include <stdio.h>\nint main(int argc, char *argv[]) {printf(\"%s\", argv[1]);return 0;}" > .path_generator.c
@@ -19,7 +23,6 @@ libmelonPath=`./path_generator /usr/local/melon`
 libPath=`./path_generator /usr/local/lib/melang_dynamic`
 if ! case $os in MINGW*) false;; esac; then
     installPath=`./path_generator "$HOME/melang-0.5.0"`
-    cc="gcc"
     libmelonPath=`./path_generator "$HOME/libmelon"`
 elif [ $os == 'Darwin' ]; then
     installPath=`./path_generator "/usr/local/bin/"`
