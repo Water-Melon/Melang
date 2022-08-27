@@ -174,10 +174,10 @@ err:
 
 static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
 {
+#if !defined(WIN32)
     mln_rbtree_t *tree;
     struct mln_rbtree_attr rbattr;
 
-#if !defined(WIN32)
     if ((tree = mln_lang_ctx_resource_fetch(ctx, "sys_exec")) == NULL) {
         rbattr.pool = ctx->pool;
         rbattr.pool_alloc = (rbtree_pool_alloc_handler)mln_alloc_m;
