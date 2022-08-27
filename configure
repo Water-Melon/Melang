@@ -175,91 +175,91 @@ else
 fi
 echo "\$(LIBAES) : \$(LIBAESOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_32 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBBASE64) : \$(LIBBASE64OBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_32 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBDES) : \$(LIBDESOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBFILE) : \$(LIBFILEOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBJSON) : \$(LIBJSONOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBMATRIX) : \$(LIBMATRIXOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBMD5) : \$(LIBMD5OBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBMQ) : \$(LIBMQOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBMYSQL) : \$(LIBMYSQLOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBNETWORK) : \$(LIBNETWORKOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBPRIME) : \$(LIBPRIMEOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBRC) : \$(LIBRCOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBSHA) : \$(LIBSHAOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBSTR) : \$(LIBSTROBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBSYS) : \$(LIBSYSOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -lWs2_3 -shared -fPIC -L$libmelonPath/lib -llibmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static -ggdb -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
 	echo "	\$(CC) -o libs/\$@ \$^ -ggdb -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
