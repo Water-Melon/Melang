@@ -3,6 +3,7 @@
  * Copyright (C) Niklaus F.Schen.
  */
 #include "mln_lang_mysql.h"
+#include "mln_core.h"
 
 #ifdef MLN_MYSQL
 
@@ -1295,8 +1296,25 @@ static int mln_lang_mysql(mln_lang_ctx_t *ctx)
     return 0;
 }
 
+static int melon_init_flag = 0;
+
 mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
+    if (!melon_init_flag) {
+        struct mln_core_attr cattr;
+        cattr.argc = 0;
+        cattr.argv = NULL;
+        cattr.global_init = NULL;
+#if !defined(WINNT)
+        cattr.master_process = NULL;
+        cattr.worker_process = NULL;
+#endif
+        if (mln_core_init(&cattr) < 0) {
+            fprintf(stderr, "framework init failed.\n");
+            return NULL;
+        }
+        melon_init_flag = 1;
+    }
     mln_string_t s = mln_string("Mysql");
     mln_lang_var_t *ret_var = mln_lang_var_create_string(ctx, &s, NULL);
     if (ret_var == NULL) {

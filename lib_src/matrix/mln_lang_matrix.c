@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include "mln_core.h"
 
 #ifdef __DEBUG__
 #include <assert.h>
@@ -14,6 +15,8 @@
 #else
 #define ASSERT(x);
 #endif
+
+static int melon_init_flag = 0;
 
 static int mln_lang_matrix(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_matrix_mul_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
@@ -26,6 +29,21 @@ static mln_lang_var_t *mln_lang_matrix2array_exp(mln_lang_ctx_t *ctx, mln_matrix
 
 mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
+    if (!melon_init_flag) {
+        struct mln_core_attr cattr;
+        cattr.argc = 0;
+        cattr.argv = NULL;
+        cattr.global_init = NULL;
+#if !defined(WINNT)
+        cattr.master_process = NULL;
+        cattr.worker_process = NULL;
+#endif
+        if (mln_core_init(&cattr) < 0) {
+            fprintf(stderr, "framework init failed.\n");
+            return NULL;
+        }
+        melon_init_flag = 1;
+    }
     mln_lang_var_t *obj = mln_lang_var_create_obj(ctx, NULL, NULL);
     if (obj == NULL) {
         mln_lang_errmsg(ctx, "No memory.");

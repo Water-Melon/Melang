@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <signal.h>
 #include "mln_lang_network.h"
+#include "mln_core.h"
 
 #ifdef __DEBUG__
 #include <assert.h>
@@ -24,6 +25,8 @@
 #define ASSERT(x);
 #endif
 
+
+static int melon_init_flag = 0;
 
 static int mln_lang_network(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_network_resource_register(mln_lang_ctx_t *ctx);
@@ -196,6 +199,21 @@ char *inet_ntop(int af, const void *src, char* dst, socklen_t size){
 
 mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
+    if (!melon_init_flag) {
+        struct mln_core_attr cattr;
+        cattr.argc = 0;
+        cattr.argv = NULL;
+        cattr.global_init = NULL;
+#if !defined(WINNT)
+        cattr.master_process = NULL;
+        cattr.worker_process = NULL;
+#endif
+        if (mln_core_init(&cattr) < 0) {
+            fprintf(stderr, "framework init failed.\n");
+            return NULL;
+        }
+        melon_init_flag = 1;
+    }
     mln_lang_var_t *obj = mln_lang_var_create_obj(ctx, NULL, NULL);
     if (obj == NULL) {
         mln_lang_errmsg(ctx, "No memory.");

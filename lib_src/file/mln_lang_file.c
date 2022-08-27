@@ -9,6 +9,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include "mln_core.h"
 
 #ifdef __DEBUG__
 #include <assert.h>
@@ -16,6 +17,8 @@
 #else
 #define ASSERT(x);
 #endif
+
+static int melon_init_flag = 0;
 
 static int mln_lang_file(mln_lang_ctx_t *ctx);
 static inline void mln_lang_file_open_get_prio(mln_s64_t prio, mode_t *mode);
@@ -41,6 +44,21 @@ static int mln_lang_file_fd_cmp(int fd1, int fd2);
 
 mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
+    if (!melon_init_flag) {
+        struct mln_core_attr cattr;
+        cattr.argc = 0;
+        cattr.argv = NULL;
+        cattr.global_init = NULL;
+#if !defined(WINNT)
+        cattr.master_process = NULL;
+        cattr.worker_process = NULL;
+#endif
+        if (mln_core_init(&cattr) < 0) {
+            fprintf(stderr, "framework init failed.\n");
+            return NULL;
+        }
+        melon_init_flag = 1;
+    }
     mln_string_t s = mln_string("File");
     mln_lang_var_t *ret_var = mln_lang_var_create_string(ctx, &s, NULL);
     if (ret_var == NULL) {
