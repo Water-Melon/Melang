@@ -253,13 +253,16 @@ static void mln_run_all(int argc, char *argv[])
 
     args.ev = ev;
     args.t = &t;
-    tattr.nthread = nth <= 1? nth: (nth - 1);
-    tattr.entry = (mln_iothread_entry_t)mln_iothread_entry;
-    tattr.args = &args;
-    tattr.handler = mln_iothread_msg_handler;
-    if (mln_iothread_init(&t, &tattr) < 0) {
-        mln_log(error, "iothread init failed.\n");
-        exit(1);
+
+    if (nth > 1) {
+        tattr.nthread = nth - 1;
+        tattr.entry = (mln_iothread_entry_t)mln_iothread_entry;
+        tattr.args = &args;
+        tattr.handler = mln_iothread_msg_handler;
+        if (mln_iothread_init(&t, &tattr) < 0) {
+            mln_log(error, "iothread init failed.\n");
+            exit(1);
+        }
     }
 
 
@@ -300,14 +303,16 @@ static void mln_run_all(int argc, char *argv[])
         exit(1);
     }
 
-    while (1) {
-        pthread_mutex_lock(&lock);
-        if (head != NULL) {
-            pthread_mutex_unlock(&lock);
-            mln_iothread_send(&t, 0, lang, io_thread, 0);
-        } else {
-            pthread_mutex_unlock(&lock);
-            break;
+    if (nth > 1) {
+        while (1) {
+            pthread_mutex_lock(&lock);
+            if (head != NULL) {
+                pthread_mutex_unlock(&lock);
+                mln_iothread_send(&t, 0, lang, io_thread, 0);
+            } else {
+                pthread_mutex_unlock(&lock);
+                break;
+            }
         }
     }
 
