@@ -2655,7 +2655,6 @@ static mln_lang_var_t *mln_lang_sys_eval_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     mln_string_free(dup);
-    mln_lang_run(newctx->lang);
     if ((ret_var = mln_lang_var_create_nil(ctx, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_job_free(newctx);
