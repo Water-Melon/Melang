@@ -403,6 +403,7 @@ static mln_lang_var_t *mln_lang_matrix2array_exp(mln_lang_ctx_t *ctx, mln_matrix
     mln_string_t r = mln_string("row");
     mln_string_t c = mln_string("col");
     mln_string_t d = mln_string("data");
+    mln_string_t *tmp;
 
     if ((ret_var = mln_lang_var_create_array(ctx, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -410,18 +411,24 @@ static mln_lang_var_t *mln_lang_matrix2array_exp(mln_lang_ctx_t *ctx, mln_matrix
     }
     array = ret_var->val->data.array;
 
+    if ((tmp = mln_string_pool_dup(ctx->pool, &r)) == NULL) {
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
     var.type = M_LANG_VAR_NORMAL;
     var.name = NULL;
     var.val = &val;
     var.in_set = NULL;
     var.prev = var.next = NULL;
-    val.data.s = &r;
+    val.data.s = tmp;
     val.type = M_LANG_VAL_TYPE_STRING;
     val.ref = 1;
     if ((array_val = mln_lang_array_get(ctx, array, &var)) == NULL) {
+        mln_string_free(tmp);
         mln_lang_var_free(ret_var);
         return NULL;
     }
+    mln_string_free(tmp);
     var.type = M_LANG_VAR_NORMAL;
     var.name = NULL;
     var.val = &val;
@@ -435,18 +442,24 @@ static mln_lang_var_t *mln_lang_matrix2array_exp(mln_lang_ctx_t *ctx, mln_matrix
         return NULL;
     }
 
+    if ((tmp = mln_string_pool_dup(ctx->pool, &c)) == NULL) {
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
     var.type = M_LANG_VAR_NORMAL;
     var.name = NULL;
     var.val = &val;
     var.in_set = NULL;
     var.prev = var.next = NULL;
-    val.data.s = &c;
+    val.data.s = tmp;
     val.type = M_LANG_VAL_TYPE_STRING;
     val.ref = 1;
     if ((array_val = mln_lang_array_get(ctx, array, &var)) == NULL) {
+        mln_string_free(tmp);
         mln_lang_var_free(ret_var);
         return NULL;
     }
+    mln_string_free(tmp);
     var.type = M_LANG_VAR_NORMAL;
     var.name = NULL;
     var.val = &val;
@@ -487,19 +500,26 @@ static mln_lang_var_t *mln_lang_matrix2array_exp(mln_lang_ctx_t *ctx, mln_matrix
         }
     }
 
+    if ((tmp = mln_string_pool_dup(ctx->pool, &d)) == NULL) {
+        mln_lang_array_free(darray);
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
     var.type = M_LANG_VAR_NORMAL;
     var.name = NULL;
     var.val = &val;
     var.in_set = NULL;
     var.prev = var.next = NULL;
-    val.data.s = &d;
+    val.data.s = tmp;
     val.type = M_LANG_VAL_TYPE_STRING;
     val.ref = 1;
     if ((array_val = mln_lang_array_get(ctx, array, &var)) == NULL) {
+        mln_string_free(tmp);
         mln_lang_array_free(darray);
         mln_lang_var_free(ret_var);
         return NULL;
     }
+    mln_string_free(tmp);
     var.type = M_LANG_VAR_NORMAL;
     var.name = NULL;
     var.val = &val;

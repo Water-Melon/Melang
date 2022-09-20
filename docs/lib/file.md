@@ -162,13 +162,14 @@ $ echo "hello" > tempfile
 Execute Melang program:
 
 ```
+sys = import('sys');
 F = import('file');
 f = $F; // or f = $File; both are the same.
 if (f.open('tempfile', 'rw+') != false) { //read and write file and file content won't be ereased
   f.lseek(1, 'begin');
-  f.write('i all');
+  f.write('hi all');
   f.lseek(0, 'begin');
-  mln_print(f.read(f.size()));
+  sys.print(f.read(f.size()));
 } fi
 ```
 
