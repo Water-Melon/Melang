@@ -15,7 +15,6 @@ Contents in Library:
 - [MySQL](https://water-melon.github.io/Melang/lib/mysql.html)
 - [Network](https://water-melon.github.io/Melang/lib/network.html)
 - [Prime Number](https://water-melon.github.io/Melang/lib/prime.html)
-- [Print](https://water-melon.github.io/Melang/lib/print.html)
 - [RC4](https://water-melon.github.io/Melang/lib/rc4.html)
 - [SHA](https://water-melon.github.io/Melang/lib/sha.html)
 - [String](https://water-melon.github.io/Melang/lib/string.html)
