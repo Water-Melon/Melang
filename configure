@@ -289,7 +289,11 @@ echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_msgqueue.o : lib_src/msgqueue/mln_lang_msgqueue.c lib_src/msgqueue/mln_lang_msgqueue.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_mysql.o : lib_src/mysql/mln_lang_mysql.c lib_src/mysql/mln_lang_mysql.h" >> Makefile
+if [ $mysql -eq 1 ]; then
+echo "	\$(CC) \$(FLAGS) -o \$@ \$< -DMLN_MYSQL" >> Makefile
+else
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+fi
 echo "objs/mln_lang_network.o : lib_src/network/mln_lang_network.c lib_src/network/mln_lang_network.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_prime.o : lib_src/prime/mln_lang_prime.c lib_src/prime/mln_lang_prime.h" >> Makefile

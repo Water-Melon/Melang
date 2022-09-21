@@ -7,8 +7,8 @@
 
 #include "mln_lang.h"
 #ifdef MLN_MYSQL
-#include <mysql.h>
-#include <mysqld_error.h>
+#include <mysql/mysql.h>
+#include <mysql/mysqld_error.h>
 
 
 typedef struct mln_lang_mysql_s {
