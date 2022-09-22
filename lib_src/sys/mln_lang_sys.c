@@ -3482,7 +3482,9 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
+    mln_lang_mutex_lock(ctx->lang);
     mln_lang_ctx_suspend(ctx);
+    mln_lang_mutex_unlock(ctx->lang);
     return ret_var;
 }
 
@@ -3539,12 +3541,16 @@ static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data)
             }
             mln_rbtree_delete(se->tree, se->rn);
             mln_rbtree_node_free(se->tree, se->rn);
+            mln_lang_mutex_lock(ctx->lang);
             mln_lang_ctx_continue(ctx);
+            mln_lang_mutex_unlock(ctx->lang);
         }
     } else { /*M_C_ERROR*/
         mln_rbtree_delete(se->tree, se->rn);
         mln_rbtree_node_free(se->tree, se->rn);
+        mln_lang_mutex_lock(ctx->lang);
         mln_lang_ctx_continue(ctx);
+        mln_lang_mutex_unlock(ctx->lang);
     }
 }
 
