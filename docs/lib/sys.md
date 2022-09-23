@@ -850,15 +850,17 @@ Output:
 
 Create a new coroutine and execute.
 
+This is an internal function.
+
 ```
-sys.eval(val, data, in_string);
+eval(val, data, in_string);
 ```
 
 Input:
 
 - val - a file path or a code string.
 - data - the data that we want to deliver to the new coroutine.
-- In_string - a optional argument. If is set and its value is *true*, *val* is a code string. Otherwise, *val* is a file path.
+- in_string - a optional argument. If is set and its value is *true*, *val* is a code string. Otherwise, *val* is a file path.
 
 Return value:
 

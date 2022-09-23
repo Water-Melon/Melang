@@ -16,8 +16,7 @@ $ ./melang a.mln b.mln ...
 Besides this way, there is a function named *eval* to start a new script task in the current thread to execute a piece of code.
 
 ```
-sys = import('sys');
-sys.eval(val, data, in_string);
+eval(val, data, in_string);
 ```
 
 If *in_string* is true, *val* is the script code, otherwise *val* is the script file path.
@@ -37,7 +36,7 @@ e.g.
 ```
 sys = import('sys');
 
-sys.eval('sys = import('sys'); while (1) {sys.print(EVAL_DATA);}', 'bbb', true);
+eval('sys = import('sys'); while (1) {sys.print(EVAL_DATA);}', 'bbb', true);
 while (1) {
   sys.print('aaa');
 }
@@ -86,7 +85,7 @@ listenfd = net.tcp_listen('127.0.0.1', '80');
 while (1) {
     fd = net.tcp_accept(listenfd);
     sys.print(fd);
-    sys.eval('processor.mln', fd);
+    eval('processor.mln', fd);
 }
 ```
 
@@ -116,13 +115,12 @@ Each TCP will be delivered to a coroutine which is in coroutine pool to be handl
 
 ```
 /* filename: server.mln */
-sys = import('sys');
 net = import('net');
 mq = import('mq');
 
 listenfd = net.tcp_listen('127.0.0.1', '80');
 for (i = 0; i < 100; ++i) {
-    sys.eval('processor.mln', i);
+    eval('processor.mln', i);
 }
 while (1) {
     fd = net.tcp_accept(listenfd);
