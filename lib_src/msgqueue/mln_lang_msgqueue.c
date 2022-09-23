@@ -341,11 +341,13 @@ static mln_lang_var_t *mln_lang_msgqueue_mq_send_process(mln_lang_ctx_t *ctx)
         }
         data = (mln_u8ptr_t)s;
     }
+    mln_lang_mutex_lock(ctx->lang);
     if (broadcast) {
         ret_var = mln_lang_mq_msg_broadcast(ctx, qname, type, data);
     } else {
         ret_var = mln_lang_mq_msg_set(ctx, qname, type, data);
     }
+    mln_lang_mutex_unlock(ctx->lang);
     if (type == M_LANG_VAL_TYPE_STRING) mln_string_free((mln_string_t *)data);
     return ret_var;
 }
@@ -452,10 +454,18 @@ static mln_lang_var_t *mln_lang_msgqueue_mq_recv_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
+    mln_lang_mutex_lock(ctx->lang);
     rc = mln_lang_mq_msg_subscribe_get(ctx, qname, &ret_var);
-    if (!rc) return ret_var;
-    else if (rc < 0) return NULL;
-    return mln_lang_mq_msg_get(ctx, qname, timeout);
+    if (!rc) {
+        mln_lang_mutex_unlock(ctx->lang);
+        return ret_var;
+    } else if (rc < 0) {
+        mln_lang_mutex_unlock(ctx->lang);
+        return NULL;
+    }
+    ret_var = mln_lang_mq_msg_get(ctx, qname, timeout);
+    mln_lang_mutex_unlock(ctx->lang);
+    return ret_var;
 }
 
 static int mln_lang_mq_msg_subscribe_get(mln_lang_ctx_t *ctx, mln_string_t *qname, mln_lang_var_t **ret_var)
@@ -602,19 +612,25 @@ out:
 
 static void mln_lang_msgqueue_timeout_handler(mln_event_t *ev, void *data)
 {
-    mln_lang_t *lang = (mln_lang_t *)data;
-    mln_fheap_t *mq_timeout_set = mln_lang_resource_fetch(lang, "mq_timeout");
-    ASSERT(mq_timeout_set != NULL);
     mln_fheap_node_t *fn;
     struct timeval tv;
     mln_u64_t now;
     mln_lang_mq_wait_t *wait;
-    mln_rbtree_t *mq_set = mln_lang_resource_fetch(lang, "mq");
-    ASSERT(mq_set != NULL);
     mln_lang_mq_t *mq;
+    mln_fheap_t *mq_timeout_set;
+    mln_rbtree_t *mq_set;
+    mln_lang_t *lang = (mln_lang_t *)data;
+
+    mln_lang_mutex_lock(lang);
+
+    mq_timeout_set = mln_lang_resource_fetch(lang, "mq_timeout");
+    ASSERT(mq_timeout_set != NULL);
+    mq_set = mln_lang_resource_fetch(lang, "mq");
+    ASSERT(mq_set != NULL);
 
     --(lang->wait);
     if (lang->quit) {
+        mln_lang_mutex_unlock(lang);
         mln_lang_free(lang);
         return;
     }
@@ -645,6 +661,7 @@ static void mln_lang_msgqueue_timeout_handler(mln_event_t *ev, void *data)
             }
         }
     }
+    mln_lang_mutex_unlock(lang);
 }
 
 static mln_lang_var_t *mln_lang_mq_msg_broadcast(mln_lang_ctx_t *ctx, mln_string_t *qname, int type, void *data)
