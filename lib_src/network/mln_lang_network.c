@@ -17,6 +17,7 @@
 #include <signal.h>
 #include "mln_lang_network.h"
 #include "mln_core.h"
+#include "mln_log.h"
 
 #ifdef __DEBUG__
 #include <assert.h>
@@ -1902,15 +1903,19 @@ static mln_lang_var_t *mln_lang_network_udp_create_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
+    mln_lang_mutex_lock(ctx->lang);
     if (notbind) {
         if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
             if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+                mln_lang_mutex_unlock(ctx->lang);
                 mln_lang_errmsg(ctx, "No memory.");
                 return NULL;
             }
+            mln_lang_mutex_unlock(ctx->lang);
             return ret_var;
         }
         if ((udp = mln_lang_udp_new(ctx->lang, fd)) == NULL) {
+            mln_lang_mutex_unlock(ctx->lang);
             mln_socket_close(fd);
             mln_lang_errmsg(ctx, "No memory.");
             return NULL;
@@ -1923,17 +1928,21 @@ static mln_lang_var_t *mln_lang_network_udp_create_process(mln_lang_ctx_t *ctx)
         addr.ai_protocol = IPPROTO_IP;
         if (getaddrinfo(host, service, &addr, &res) != 0 || res == NULL) {
             if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+                mln_lang_mutex_unlock(ctx->lang);
                 mln_lang_errmsg(ctx, "No memory.");
                 return NULL;
             }
+            mln_lang_mutex_unlock(ctx->lang);
             return ret_var;
         }
         if ((fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0) {
             freeaddrinfo(res);
             if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+                mln_lang_mutex_unlock(ctx->lang);
                 mln_lang_errmsg(ctx, "No memory.");
                 return NULL;
             }
+            mln_lang_mutex_unlock(ctx->lang);
             return ret_var;
         }
 #if defined (WIN32)
@@ -1943,6 +1952,7 @@ static mln_lang_var_t *mln_lang_network_udp_create_process(mln_lang_ctx_t *ctx)
         }
 #endif
         if ((udp = mln_lang_udp_new(ctx->lang, fd)) == NULL) {
+            mln_lang_mutex_unlock(ctx->lang);
             mln_socket_close(fd);
             freeaddrinfo(res);
             mln_lang_errmsg(ctx, "No memory.");
@@ -1956,33 +1966,40 @@ static mln_lang_var_t *mln_lang_network_udp_create_process(mln_lang_ctx_t *ctx)
             mln_lang_udp_free(udp);
             freeaddrinfo(res);
             if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+                mln_lang_mutex_unlock(ctx->lang);
                 mln_lang_errmsg(ctx, "No memory.");
                 return NULL;
             }
+            mln_lang_mutex_unlock(ctx->lang);
             return ret_var;
         }
         if (bind(fd, res->ai_addr, res->ai_addrlen) < 0) {
             mln_lang_udp_free(udp);
             freeaddrinfo(res);
             if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+                mln_lang_mutex_unlock(ctx->lang);
                 mln_lang_errmsg(ctx, "No memory.");
                 return NULL;
             }
+            mln_lang_mutex_unlock(ctx->lang);
             return ret_var;
         }
         freeaddrinfo(res);
     }
     if ((ret_var = mln_lang_var_create_int(ctx, fd, NULL)) == NULL) {
         mln_lang_udp_free(udp);
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
     if (mln_lang_network_udp_resource_add(ctx->lang, udp) < 0) {
         mln_lang_var_free(ret_var);
         mln_lang_udp_free(udp);
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
+    mln_lang_mutex_unlock(ctx->lang);
     return ret_var;
 }
 
@@ -2051,7 +2068,9 @@ static mln_lang_var_t *mln_lang_network_udp_close_process(mln_lang_ctx_t *ctx)
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
+    mln_lang_mutex_lock(ctx->lang);
     mln_lang_network_udp_resource_remove(ctx->lang, sym->data.var->val->data.i);
+    mln_lang_mutex_unlock(ctx->lang);
     return ret_var;
 }
 
@@ -2213,13 +2232,17 @@ static mln_lang_var_t *mln_lang_network_udp_send_process(mln_lang_ctx_t *ctx)
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
+
+    mln_lang_mutex_lock(ctx->lang);
     udp = mln_lang_network_udp_resource_fetch(ctx->lang, fd);
     if (udp == NULL) {
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_var_free(ret_var);
         mln_lang_errmsg(ctx, "socket not existing.");
         return NULL;
     }
     if (udp->recving || udp->sending) {
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_errmsg(ctx, "Socket used in other script task.");
         return ret_var;
     }
@@ -2229,6 +2252,7 @@ static mln_lang_var_t *mln_lang_network_udp_send_process(mln_lang_ctx_t *ctx)
     addr.ai_socktype = SOCK_DGRAM;
     addr.ai_protocol = IPPROTO_IP;
     if (getaddrinfo(host, service, &addr, &res) != 0 || res == NULL) {
+        mln_lang_mutex_unlock(ctx->lang);
         return ret_var;
     }
     memcpy(&(udp->addr), res->ai_addr, sizeof(struct sockaddr));
@@ -2236,11 +2260,13 @@ static mln_lang_var_t *mln_lang_network_udp_send_process(mln_lang_ctx_t *ctx)
     freeaddrinfo(res);
     ASSERT(udp->data==NULL);
     if ((udp->data = mln_string_dup(data)) == NULL) {
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_var_free(ret_var);
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
     if (mln_event_set_fd(ctx->lang->ev, fd, M_EV_SEND|M_EV_NONBLOCK|M_EV_ONESHOT, M_EV_UNLIMITED, udp, mln_lang_network_udp_send_handler) < 0) {
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(ret_var);
         return NULL;
@@ -2248,12 +2274,16 @@ static mln_lang_var_t *mln_lang_network_udp_send_process(mln_lang_ctx_t *ctx)
     udp->sending = 1;
     mln_lang_ctx_udp_resource_add(ctx, udp);
     mln_lang_ctx_suspend(ctx);
+    mln_lang_mutex_unlock(ctx->lang);
     return ret_var;
 }
 
 static void mln_lang_network_udp_send_handler(mln_event_t *ev, int fd, void *data)
 {
     mln_lang_udp_t *udp = (mln_lang_udp_t *)data;
+    mln_lang_t *lang = udp->ctx->lang;
+
+    mln_lang_mutex_lock(lang);
 #if defined(WIN32)
     int rc = sendto(fd, (char *)(udp->data->data), udp->data->len, 0, &(udp->addr), udp->len);
 #else
@@ -2263,6 +2293,7 @@ static void mln_lang_network_udp_send_handler(mln_event_t *ev, int fd, void *dat
     mln_string_free(udp->data);
     udp->data = NULL;
     if (rc < 0 && err == EINTR) {
+        mln_lang_mutex_unlock(lang);
         mln_event_set_fd(ev, fd, M_EV_SEND|M_EV_NONBLOCK|M_EV_ONESHOT, M_EV_UNLIMITED, udp, mln_lang_network_udp_send_handler);
         return;
     }
@@ -2274,6 +2305,7 @@ static void mln_lang_network_udp_send_handler(mln_event_t *ev, int fd, void *dat
     udp->sending = 0;
     mln_lang_ctx_continue(udp->ctx);
     mln_lang_ctx_udp_resource_remove(udp);
+    mln_lang_mutex_unlock(lang);
 }
 
 static int mln_lang_network_udp_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
@@ -2450,13 +2482,17 @@ static mln_lang_var_t *mln_lang_network_udp_recv_process(mln_lang_ctx_t *ctx)
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
+
+    mln_lang_mutex_lock(ctx->lang);
     udp = mln_lang_network_udp_resource_fetch(ctx->lang, fd);
     if (udp == NULL) {
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_var_free(ret_var);
         mln_lang_errmsg(ctx, "socket not existing.");
         return NULL;
     }
     if (udp->recving || udp->sending) {
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_errmsg(ctx, "Socket used in other script task.");
         return ret_var;
     }
@@ -2466,6 +2502,7 @@ static mln_lang_var_t *mln_lang_network_udp_recv_process(mln_lang_ctx_t *ctx)
     udp->port = var2;
 
     if (mln_event_set_fd(ctx->lang->ev, fd, M_EV_RECV|M_EV_NONBLOCK|M_EV_ONESHOT, udp->timeout, udp, mln_lang_network_udp_recv_handler) < 0) {
+        mln_lang_mutex_unlock(ctx->lang);
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(ret_var);
         return NULL;
@@ -2476,6 +2513,7 @@ static mln_lang_var_t *mln_lang_network_udp_recv_process(mln_lang_ctx_t *ctx)
     udp->recving = 1;
     mln_lang_ctx_udp_resource_add(ctx, udp);
     mln_lang_ctx_suspend(ctx);
+    mln_lang_mutex_unlock(ctx->lang);
     return ret_var;
 }
 
@@ -2494,12 +2532,15 @@ static void mln_lang_network_udp_recv_handler(mln_event_t *ev, int fd, void *dat
     mln_string_t tmp;
     mln_u16_t port;
     char ip[128] = {0};
+    mln_lang_t *lang = udp->ctx->lang;
 
+    mln_lang_mutex_lock(lang);
     len = sizeof(addr);
     if ((buf = (mln_u8ptr_t)malloc(udp->bufsize)) == NULL) {
         mln_event_set_fd(ev, fd, M_EV_RECV|M_EV_NONBLOCK|M_EV_ONESHOT, udp->timeout, udp, mln_lang_network_udp_recv_handler);
         if (udp->timeout != M_EV_UNLIMITED)
             mln_event_set_fd_timeout_handler(ev, fd, udp, mln_lang_network_udp_timeout_handler);
+        mln_lang_mutex_unlock(lang);
         return;
     }
 
@@ -2514,6 +2555,7 @@ static void mln_lang_network_udp_recv_handler(mln_event_t *ev, int fd, void *dat
             mln_event_set_fd(ev, fd, M_EV_RECV|M_EV_NONBLOCK|M_EV_ONESHOT, udp->timeout, udp, mln_lang_network_udp_recv_handler);
             if (udp->timeout != M_EV_UNLIMITED)
                 mln_event_set_fd_timeout_handler(ev, fd, udp, mln_lang_network_udp_timeout_handler);
+            mln_lang_mutex_unlock(lang);
             return;
         }
     } else if (rc == 0) {
@@ -2562,12 +2604,16 @@ out:
     udp->recving = 0;
     mln_lang_ctx_continue(udp->ctx);
     mln_lang_ctx_udp_resource_remove(udp);
+    mln_lang_mutex_unlock(lang);
 }
 
 static void mln_lang_network_udp_timeout_handler(mln_event_t *ev, int fd, void *data)
 {
     mln_lang_udp_t *udp = (mln_lang_udp_t *)data;
     mln_lang_var_t *ret_var;
+    mln_lang_t *lang = udp->ctx->lang;
+
+    mln_lang_mutex_lock(lang);
     mln_event_set_fd(ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
     ret_var = mln_lang_var_create_nil(udp->ctx, NULL);
     udp->recving = 0;
@@ -2577,6 +2623,7 @@ static void mln_lang_network_udp_timeout_handler(mln_event_t *ev, int fd, void *
     }
     mln_lang_ctx_continue(udp->ctx);
     mln_lang_ctx_udp_resource_remove(udp);
+    mln_lang_mutex_unlock(lang);
 }
 
 /*
