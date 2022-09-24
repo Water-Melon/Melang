@@ -3300,9 +3300,7 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
-    mln_lang_mutex_lock(ctx->lang);
     mln_lang_ctx_suspend(ctx);
-    mln_lang_mutex_unlock(ctx->lang);
     return ret_var;
 }
 
@@ -3432,7 +3430,6 @@ static mln_lang_var_t *mln_lang_sys_print_process(mln_lang_ctx_t *ctx)
 
     type = mln_lang_var_val_type_get(sym->data.var);
     val = sym->data.var->val;
-    mln_lang_mutex_lock(ctx->lang);
     switch (type) {
         case M_LANG_VAL_TYPE_NIL:
             mln_log(none, "nil\n");
@@ -3466,7 +3463,6 @@ static mln_lang_var_t *mln_lang_sys_print_process(mln_lang_ctx_t *ctx)
             rbattr.data_free = NULL;
             rbattr.cache = 0;
             if ((check = mln_rbtree_init(&rbattr)) == NULL) {
-                mln_lang_mutex_unlock(ctx->lang);
                 mln_lang_errmsg(ctx, "No memory.\n");
                 return NULL;
             }
@@ -3479,7 +3475,6 @@ static mln_lang_var_t *mln_lang_sys_print_process(mln_lang_ctx_t *ctx)
             mln_log(none, "<type error>\n");
             break;
     }
-    mln_lang_mutex_unlock(ctx->lang);
 
     if ((ret_var = mln_lang_var_create_true(ctx, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");

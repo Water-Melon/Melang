@@ -352,9 +352,7 @@ static mln_lang_var_t *mln_lang_mysql_connect_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     mln_lang_mysql_chain_add(&(lmt->head), &(lmt->tail), mysql);
-    mln_lang_mutex_lock(ctx->lang);
     mln_lang_ctx_suspend(ctx);
-    mln_lang_mutex_unlock(ctx->lang);
     return ret_var;
 }
 
@@ -1081,9 +1079,7 @@ static mln_lang_var_t *mln_lang_mysql_execute_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     mln_lang_mysql_chain_add(&(lmt->head), &(lmt->tail), mysql);
-    mln_lang_mutex_lock(ctx->lang);
     mln_lang_ctx_suspend(ctx);
-    mln_lang_mutex_unlock(ctx->lang);
 
     return ret_var;
 }

@@ -341,13 +341,11 @@ static mln_lang_var_t *mln_lang_msgqueue_mq_send_process(mln_lang_ctx_t *ctx)
         }
         data = (mln_u8ptr_t)s;
     }
-    mln_lang_mutex_lock(ctx->lang);
     if (broadcast) {
         ret_var = mln_lang_mq_msg_broadcast(ctx, qname, type, data);
     } else {
         ret_var = mln_lang_mq_msg_set(ctx, qname, type, data);
     }
-    mln_lang_mutex_unlock(ctx->lang);
     if (type == M_LANG_VAL_TYPE_STRING) mln_string_free((mln_string_t *)data);
     return ret_var;
 }
@@ -454,18 +452,13 @@ static mln_lang_var_t *mln_lang_msgqueue_mq_recv_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
-    mln_lang_mutex_lock(ctx->lang);
     rc = mln_lang_mq_msg_subscribe_get(ctx, qname, &ret_var);
     if (!rc) {
-        mln_lang_mutex_unlock(ctx->lang);
         return ret_var;
     } else if (rc < 0) {
-        mln_lang_mutex_unlock(ctx->lang);
         return NULL;
     }
-    ret_var = mln_lang_mq_msg_get(ctx, qname, timeout);
-    mln_lang_mutex_unlock(ctx->lang);
-    return ret_var;
+    return mln_lang_mq_msg_get(ctx, qname, timeout);
 }
 
 static int mln_lang_mq_msg_subscribe_get(mln_lang_ctx_t *ctx, mln_string_t *qname, mln_lang_var_t **ret_var)
