@@ -1552,7 +1552,7 @@ static void mln_lang_network_tcp_accept_handler(mln_event_t *ev, int fd, void *d
     mln_lang_mutex_lock(lang);
     len = sizeof(addr);
     if ((connfd = accept(fd, (struct sockaddr *)addr, &len)) < 0) {
-        if (errno == EINTR || errno == ECONNABORTED || errno == EAGAIN) {
+        if (errno == EINTR) {
             mln_event_set_fd(ev, fd, M_EV_RECV|M_EV_NONBLOCK|M_EV_ONESHOT, tcp->timeout, tcp, mln_lang_network_tcp_accept_handler);
             if (tcp->timeout >= 0)
                 mln_event_set_fd_timeout_handler(ev, fd, tcp, mln_lang_network_tcp_timeout_handler);
