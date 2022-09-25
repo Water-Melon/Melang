@@ -7,9 +7,6 @@
 
 Melang is a script Language of preemptive scheduling coroutine in single thread. It is only support on UNIX/Linux.
 
-> At present, the migration of the script library to multi-threading has not been completed, so an error may be reported when executing `make`.
->
-
 
 
 ### Installation
