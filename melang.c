@@ -38,7 +38,7 @@ static void mln_task_checker(mln_event_t *ev, void *data);
 static mln_fd_node_t *mln_fd_node_new(void);
 static void mln_fd_node_free(mln_fd_node_t *n);
 static int mln_fd_node_cmp(const mln_fd_node_t *n1, const mln_fd_node_t *n2);
-static void mln_iothread_msg_handler(mln_iothread_t *t, mln_iothread_ep_type_t from, mln_u32_t type, void *data);
+static void mln_iothread_msg_handler(mln_iothread_t *t, mln_iothread_ep_type_t from, mln_iothread_msg_t *msg);
 MLN_CHAIN_FUNC_DECLARE(mln_fd_node, mln_fd_node_t, static inline void,);
 MLN_CHAIN_FUNC_DEFINE(mln_fd_node, mln_fd_node_t, static inline void, prev, next);
 
@@ -223,9 +223,9 @@ static void *mln_iothread_entry(void *args)
     return NULL;
 }
 
-static void mln_iothread_msg_handler(mln_iothread_t *t, mln_iothread_ep_type_t from, mln_u32_t type, void *data)
+static void mln_iothread_msg_handler(mln_iothread_t *t, mln_iothread_ep_type_t from, mln_iothread_msg_t *msg)
 {
-    mln_lang_t *lang = (mln_lang_t *)data;
+    mln_lang_t *lang = (mln_lang_t *)mln_iothread_msg_data(msg);
     mln_lang_signal_get(lang)(lang);
 }
 
