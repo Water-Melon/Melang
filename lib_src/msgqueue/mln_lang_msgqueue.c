@@ -488,7 +488,7 @@ static int mln_lang_mq_msg_subscribe_get(mln_lang_ctx_t *ctx, mln_string_t *qnam
             *ret_var = mln_lang_var_create_real(ctx, msg->data.f, NULL);
             break;
         case M_LANG_VAL_TYPE_STRING:
-            *ret_var = mln_lang_var_create_ref_string(ctx, msg->data.s, NULL);
+            *ret_var = mln_lang_var_create_string(ctx, msg->data.s, NULL);
             break;
         default:
             mln_lang_errmsg(ctx, "Invalid type.");
@@ -550,7 +550,7 @@ static mln_lang_var_t *mln_lang_mq_msg_get(mln_lang_ctx_t *ctx, mln_string_t *qn
                 ret_var = mln_lang_var_create_real(ctx, msg->data.f, NULL);
                 break;
             case M_LANG_VAL_TYPE_STRING:
-                ret_var = mln_lang_var_create_ref_string(ctx, msg->data.s, NULL);
+                ret_var = mln_lang_var_create_string(ctx, msg->data.s, NULL);
                 break;
             default:
                 mln_lang_errmsg(ctx, "Invalid type.");
@@ -720,7 +720,7 @@ static int mln_lang_mq_msg_broadcast_ctx(mln_lang_ctx_t *ctx, mln_string_t *qnam
                 ret_var = mln_lang_var_create_real(ctx, msg->data.f, NULL);
                 break;
             case M_LANG_VAL_TYPE_STRING:
-                ret_var = mln_lang_var_create_ref_string(ctx, msg->data.s, NULL);
+                ret_var = mln_lang_var_create_string(ctx, msg->data.s, NULL);
                 break;
             default:
                 mln_lang_errmsg(ctx, "Invalid type.");
@@ -791,7 +791,7 @@ static mln_lang_var_t *mln_lang_mq_msg_set(mln_lang_ctx_t *ctx, mln_string_t *qn
                 ret_var2 = mln_lang_var_create_real(wait->ctx, msg->data.f, NULL);
                 break;
             case M_LANG_VAL_TYPE_STRING:
-                ret_var2 = mln_lang_var_create_ref_string(wait->ctx, msg->data.s, NULL);
+                ret_var2 = mln_lang_var_create_string(wait->ctx, msg->data.s, NULL);
                 break;
             default:
                 mln_lang_errmsg(ctx, "Invalid type.");
