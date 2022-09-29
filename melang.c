@@ -34,7 +34,7 @@ static int mln_clear(mln_lang_t *lang);
 static int mln_global_init(void);
 static void mln_params_check(int argc, char *argv[]);
 static void mln_run_all(int argc, char *argv[]);
-static void taskChecker(mln_event_t *ev, void *data);
+static void mln_task_checker(mln_event_t *ev, void *data);
 static mln_fd_node_t *mln_fd_node_new(void);
 static void mln_fd_node_free(mln_fd_node_t *n);
 static int mln_fd_node_cmp(const mln_fd_node_t *n1, const mln_fd_node_t *n2);
@@ -46,6 +46,7 @@ static mln_rbtree_t *fd_tree = NULL;
 static mln_fd_node_t *head = NULL;
 static mln_fd_node_t *tail = NULL;
 static pthread_mutex_t lock;
+__thread mln_fd_node_t *t_node;
 
 int main(int argc, char *argv[])
 {
@@ -196,6 +197,7 @@ static void *mln_iothread_entry(void *args)
         mln_log(error, "No memory\n");
         return NULL;
     }
+    t_node = n;
 
     pthread_mutex_lock(&lock);
 
@@ -274,6 +276,7 @@ static void mln_run_all(int argc, char *argv[])
         mln_log(error, "No memory\n");
         exit(1);
     }
+    t_node = n;
 
     pthread_mutex_lock(&lock);
 
@@ -301,7 +304,7 @@ static void mln_run_all(int argc, char *argv[])
         mln_lang_job_new(lang, M_INPUT_T_FILE, &path, NULL, NULL);
     }
 
-    if (mln_event_set_timer(ev, 3, lang, taskChecker) < 0) {
+    if (mln_event_set_timer(ev, 1, lang, mln_task_checker) < 0) {
         mln_log(error, "Set timer failed.\n");
         exit(1);
     }
@@ -322,7 +325,7 @@ static void mln_run_all(int argc, char *argv[])
     mln_event_dispatch(ev);
 }
 
-static void taskChecker(mln_event_t *ev, void *data)
+static void mln_task_checker(mln_event_t *ev, void *data)
 {
     mln_lang_t *lang = (mln_lang_t *)data;
     mln_lang_mutex_lock(lang);
@@ -333,51 +336,17 @@ static void taskChecker(mln_event_t *ev, void *data)
     }
     mln_lang_signal_get(lang)(lang);
     mln_lang_mutex_unlock(lang);
-    mln_event_set_timer(ev, 3, lang, taskChecker);
+    mln_event_set_timer(ev, 1, lang, mln_task_checker);
 }
 
 static int mln_signal(mln_lang_t *lang)
 {
-    mln_fd_node_t n, *node;
-    mln_rbtree_node_t *rn;
-
-    n.tid = pthread_self();
-
-    pthread_mutex_lock(&lock);
-
-    rn = mln_rbtree_search(fd_tree, fd_tree->root, &n);
-    if (mln_rbtree_null(rn, fd_tree)) {
-        pthread_mutex_unlock(&lock);
-        mln_log(error, "fd_node not exist\n");
-        return -1;
-    }
-    node = (mln_fd_node_t *)(rn->data);
-
-    pthread_mutex_unlock(&lock);
-
-    return mln_event_set_fd(mln_lang_event_get(lang), node->signal_fd, M_EV_SEND|M_EV_ONESHOT, M_EV_UNLIMITED, lang, mln_lang_launcher_get(lang));
+    return mln_event_set_fd(mln_lang_event_get(lang), t_node->signal_fd, M_EV_SEND|M_EV_ONESHOT, M_EV_UNLIMITED, lang, mln_lang_launcher_get(lang));
 }
 
 static int mln_clear(mln_lang_t *lang)
 {
-    mln_fd_node_t n, *node;
-    mln_rbtree_node_t *rn;
-
-    n.tid = pthread_self();
-
-    pthread_mutex_lock(&lock);
-
-    rn = mln_rbtree_search(fd_tree, fd_tree->root, &n);
-    if (mln_rbtree_null(rn, fd_tree)) {
-        pthread_mutex_unlock(&lock);
-        mln_log(error, "fd_node not exist\n");
-        return -1;
-    }
-    node = (mln_fd_node_t *)(rn->data);
-
-    pthread_mutex_unlock(&lock);
-
-    return mln_event_set_fd(mln_lang_event_get(lang), node->signal_fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+    return mln_event_set_fd(mln_lang_event_get(lang), t_node->signal_fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
 }
 
 /*
