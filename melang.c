@@ -49,7 +49,7 @@ static pthread_mutex_t lock;
 
 int main(int argc, char *argv[])
 {
-#if defined(WINNT)
+#if defined(WIN32)
     WSADATA wsaData = {0};
     int rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (rc < 0) {
@@ -63,7 +63,10 @@ int main(int argc, char *argv[])
     cattr.argc = argc;
     cattr.argv = argv;
     cattr.global_init = mln_global_init;
+#if !defined(WIN32)
     cattr.worker_process = NULL;
+    cattr.master_process = NULL;
+#endif
     if (mln_core_init(&cattr) < 0) {
         fprintf(stderr, "init failed.\n");
         return -1;
@@ -71,7 +74,7 @@ int main(int argc, char *argv[])
 
     mln_run_all(argc, argv);
 
-#if defined(WINNT)
+#if defined(WIN32)
     WSACleanup();
 #endif
     return 0;
