@@ -298,7 +298,7 @@ static void mln_run_all(int argc, char *argv[])
         mln_lang_job_new(lang, M_INPUT_T_FILE, &path, NULL, NULL);
     }
 
-    if (mln_event_set_timer(ev, 100, lang, taskChecker) < 0) {
+    if (mln_event_set_timer(ev, 3, lang, taskChecker) < 0) {
         mln_log(error, "Set timer failed.\n");
         exit(1);
     }
@@ -330,7 +330,7 @@ static void taskChecker(mln_event_t *ev, void *data)
     }
     mln_lang_signal_get(lang)(lang);
     mln_lang_mutex_unlock(lang);
-    mln_event_set_timer(ev, 100, lang, taskChecker);
+    mln_event_set_timer(ev, 3, lang, taskChecker);
 }
 
 static int mln_signal(mln_lang_t *lang)

@@ -3313,6 +3313,7 @@ static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data)
     mln_u8ptr_t p;
     mln_string_t s;
 
+    mln_lang_mutex_lock(ctx->lang);
     int rc = mln_tcp_conn_recv(&se->conn, M_C_TYPE_MEMORY);
     if (rc == M_C_FINISH || rc == M_C_NOTYET || rc == M_C_CLOSED) {
         if (mln_tcp_conn_get_head(&se->conn, M_C_RECV) != NULL) {
@@ -3357,17 +3358,14 @@ static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data)
             }
             mln_rbtree_delete(se->tree, se->rn);
             mln_rbtree_node_free(se->tree, se->rn);
-            mln_lang_mutex_lock(ctx->lang);
             mln_lang_ctx_continue(ctx);
-            mln_lang_mutex_unlock(ctx->lang);
         }
     } else { /*M_C_ERROR*/
         mln_rbtree_delete(se->tree, se->rn);
         mln_rbtree_node_free(se->tree, se->rn);
-        mln_lang_mutex_lock(ctx->lang);
         mln_lang_ctx_continue(ctx);
-        mln_lang_mutex_unlock(ctx->lang);
     }
+    mln_lang_mutex_unlock(ctx->lang);
 }
 
 #endif
