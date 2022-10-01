@@ -70,7 +70,7 @@ Here are two comprehensive examples of HTTP server. There are some functions whi
 
 
 
-There are two files: *server.mln* and *processor.mln*.
+There are two files: *server.mln* and *worker.mln*.
 
 Example 1.
 
@@ -85,12 +85,12 @@ listenfd = net.tcp_listen('127.0.0.1', '80');
 while (1) {
     fd = net.tcp_accept(listenfd);
     sys.print(fd);
-    eval('processor.mln', fd);
+    eval('worker.mln', fd);
 }
 ```
 
 ```
-/* filename: processor.mln */
+/* filename: worker.mln */
 net = import('net');
 sys = import('sys');
 
@@ -119,8 +119,8 @@ net = import('net');
 mq = import('mq');
 
 listenfd = net.tcp_listen('127.0.0.1', '80');
-for (i = 0; i < 100; ++i) {
-    eval('processor.mln', i);
+for (i = 0; i < 4; ++i) {
+    eval('worker.mln', i);
 }
 while (1) {
     fd = net.tcp_accept(listenfd);
@@ -129,7 +129,7 @@ while (1) {
 ```
 
 ```
-/* filename: processor.mln */
+/* filename: worker.mln */
 sys = import('sys');
 net = import('net');
 mq = import('mq');
