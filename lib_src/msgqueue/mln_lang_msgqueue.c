@@ -19,7 +19,6 @@ static int melon_init_flag = 0;
 
 int mln_lang_msgqueue(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_msgqueue_resource_register(mln_lang_ctx_t *ctx);
-static void mln_lang_msgqueue_resource_cancel(mln_lang_ctx_t *ctx);
 static int mln_lang_msgqueue_mq_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_msgqueue_mq_send_process(mln_lang_ctx_t *ctx);
 static int mln_lang_mq_msg_broadcast_ctx(mln_lang_ctx_t *ctx, mln_string_t *qname, int type, void *data);
@@ -88,25 +87,43 @@ mln_lang_var_t *init(mln_lang_ctx_t *ctx)
     return obj;
 }
 
+void destroy(mln_lang_t *lang)
+{
+    mln_rbtree_t *mq_set;
+    mln_fheap_t *mq_timeout_set;
+    if ((mq_set = mln_lang_resource_fetch(lang, "mq")) == NULL) {
+        return;
+    }
+    if (!mq_set->nr_node) {
+        mln_lang_resource_cancel(lang, "mq");
+    }
+    if ((mq_timeout_set = mln_lang_resource_fetch(lang, "mq_timeout")) == NULL) {
+        return;
+    }
+    if (!mq_timeout_set->num) {
+        mln_lang_resource_cancel(lang, "mq_timeout");
+    }
+}
+
 int mln_lang_msgqueue(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     if (mln_lang_msgqueue_resource_register(ctx) < 0) {
         return -1;
     }
     if (mln_lang_msgqueue_mq_send(ctx, obj) < 0) {
-        mln_lang_msgqueue_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_msgqueue_mq_recv(ctx, obj) < 0) {
-        mln_lang_msgqueue_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_msgqueue_topic_subscribe(ctx, obj) < 0) {
-        mln_lang_msgqueue_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_msgqueue_topic_unsubscribe(ctx, obj) < 0) {
-        mln_lang_msgqueue_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     return 0;
@@ -168,24 +185,6 @@ static int mln_lang_msgqueue_resource_register(mln_lang_ctx_t *ctx)
         }
     }
     return 0;
-}
-
-static void mln_lang_msgqueue_resource_cancel(mln_lang_ctx_t *ctx)
-{
-    mln_rbtree_t *mq_set;
-    mln_fheap_t *mq_timeout_set;
-    if ((mq_set = mln_lang_resource_fetch(ctx->lang, "mq")) == NULL) {
-        return;
-    }
-    if (!mq_set->nr_node) {
-        mln_lang_resource_cancel(ctx->lang, "mq");
-    }
-    if ((mq_timeout_set = mln_lang_resource_fetch(ctx->lang, "mq_timeout")) == NULL) {
-        return;
-    }
-    if (!mq_timeout_set->num) {
-        mln_lang_resource_cancel(ctx->lang, "mq_timeout");
-    }
 }
 
 static int mln_lang_msgqueue_mq_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)

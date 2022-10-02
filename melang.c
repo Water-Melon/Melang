@@ -170,7 +170,7 @@ static void mln_params_check(int argc, char *argv[])
             printf("Melang Usage:\n");
             printf("\tmelang <script-file> ...\n");
             printf("\t-v\t\t\tshow version\n");
-            printf("\t-t=number_of_threads\tspecify the number of threads\n");
+            printf("\t-t=number_of_threads\tspecify the number of threads. Default is 1\n");
         } else if (!strncmp(argv[i], "-t=", 3)) {
             /* do nothing */
         } else {
@@ -231,7 +231,7 @@ static void mln_iothread_msg_handler(mln_iothread_t *t, mln_iothread_ep_type_t f
 
 static void mln_run_all(int argc, char *argv[])
 {
-    int i, nth = 0;
+    int i, nth = 1;
     mln_iothread_t t;
     mln_string_t path;
     mln_event_t *ev;
@@ -253,7 +253,6 @@ static void mln_run_all(int argc, char *argv[])
             nth = atoi(&argv[i][3]);
             break;
         }
-        ++nth;
     }
 
     args.ev = ev;

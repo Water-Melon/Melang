@@ -31,7 +31,6 @@ static int melon_init_flag = 0;
 
 static int mln_lang_network(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_network_resource_register(mln_lang_ctx_t *ctx);
-static void mln_lang_network_resource_cancel(mln_lang_ctx_t *ctx);
 /*tcp*/
 MLN_CHAIN_FUNC_DECLARE(mln_lang_tcp, mln_lang_tcp_t, static inline void,);
 MLN_CHAIN_FUNC_DEFINE(mln_lang_tcp, mln_lang_tcp_t, static inline void, prev, next);
@@ -227,53 +226,70 @@ mln_lang_var_t *init(mln_lang_ctx_t *ctx)
     return obj;
 }
 
+void destroy(mln_lang_t *lang)
+{
+    mln_rbtree_t *tcp_set, *udp_set;
+    if ((tcp_set = mln_lang_resource_fetch(lang, "tcp")) == NULL) {
+        return;
+    }
+    if (!tcp_set->nr_node) {
+        mln_lang_resource_cancel(lang, "tcp");
+    }
+    if ((udp_set = mln_lang_resource_fetch(lang, "udp")) == NULL) {
+        return;
+    }
+    if (!udp_set->nr_node) {
+        mln_lang_resource_cancel(lang, "udp");
+    }
+}
+
 static int mln_lang_network(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
     if (mln_lang_network_resource_register(ctx) < 0) {
         return -1;
     }
     if (mln_lang_network_tcp_listen(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_tcp_accept(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_tcp_send(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_tcp_recv(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_tcp_connect(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_tcp_shutdown(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_tcp_close(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_udp_create(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_udp_close(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_udp_send(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     if (mln_lang_network_udp_recv(ctx, obj) < 0) {
-        mln_lang_network_resource_cancel(ctx);
+        destroy(ctx->lang);
         return -1;
     }
     return 0;
@@ -347,23 +363,6 @@ static int mln_lang_network_resource_register(mln_lang_ctx_t *ctx)
         }
     }
     return 0;
-}
-
-static void mln_lang_network_resource_cancel(mln_lang_ctx_t *ctx)
-{
-    mln_rbtree_t *tcp_set, *udp_set;
-    if ((tcp_set = mln_lang_resource_fetch(ctx->lang, "tcp")) == NULL) {
-        return;
-    }
-    if (!tcp_set->nr_node) {
-        mln_lang_resource_cancel(ctx->lang, "tcp");
-    }
-    if ((udp_set = mln_lang_resource_fetch(ctx->lang, "udp")) == NULL) {
-        return;
-    }
-    if (!udp_set->nr_node) {
-        mln_lang_resource_cancel(ctx->lang, "udp");
-    }
 }
 
 /*
