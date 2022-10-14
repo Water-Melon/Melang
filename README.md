@@ -1,4 +1,4 @@
-<p align="center"><img width="108" src="https://github.com/Water-Melon/Melang/blob/master/docs/logo.png?raw=true" alt="Melang logo"></p>
+<p align="center"><img width="210" src="https://github.com/Water-Melon/Melang/blob/master/docs/logo.png?raw=true" alt="Melang logo"></p>
 <p align="center"><img src="https://img.shields.io/github/license/Water-Melon/Melang" /></p>
 <h1 align="center">Melang</h1>
 
