@@ -473,7 +473,7 @@ static int mln_lang_mq_msg_subscribe_get(mln_lang_ctx_t *ctx, mln_string_t *qnam
     rn = mln_rbtree_search(lcm->topics, lcm->topics->root, &tmp);
     if (mln_rbtree_null(rn, lcm->topics)) return 1;
 
-    topic = (mln_lang_ctx_mq_topic_t *)(rn->data);
+    topic = (mln_lang_ctx_mq_topic_t *)mln_rbtree_node_data(rn);
     if ((msg = topic->msg_head) == NULL) return 1;
 
     switch (msg->type) {
@@ -631,13 +631,13 @@ static void mln_lang_msgqueue_timeout_handler(mln_event_t *ev, void *data)
     while (1) {
         fn = mln_fheap_minimum(mq_timeout_set);
         if (fn == NULL) break;
-        if (((mln_lang_mq_wait_t *)(fn->key))->timestamp > now) {
+        if (((mln_lang_mq_wait_t *)mln_fheap_node_key(fn))->timestamp > now) {
             mln_event_set_timer(ev, 10, data, mln_lang_msgqueue_timeout_handler);
             ++(lang->wait);
             break;
         }
         fn = mln_fheap_extract_min(mq_timeout_set);
-        wait = (mln_lang_mq_wait_t *)(fn->key);
+        wait = (mln_lang_mq_wait_t *)mln_fheap_node_key(fn);
         wait->in_heap = 0;
         mq = wait->mq;
         mln_lang_mq_wait_chain_del(&(mq->wait_head), &(mq->wait_tail), wait);
@@ -697,7 +697,7 @@ static int mln_lang_mq_msg_broadcast_ctx(mln_lang_ctx_t *ctx, mln_string_t *qnam
     rn = mln_rbtree_search(lcm->topics, lcm->topics->root, &tmp);
     if (mln_rbtree_null(rn, lcm->topics)) return 0;
 
-    topic = (mln_lang_ctx_mq_topic_t *)(rn->data);
+    topic = (mln_lang_ctx_mq_topic_t *)mln_rbtree_node_data(rn);
     if ((msg = mln_lang_mq_msg_new(ctx->lang, type, data)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         return -1;
@@ -1172,7 +1172,7 @@ static mln_lang_mq_t *mln_lang_mq_fetch(mln_lang_t *lang, mln_string_t *qname)
     tmp.name = qname;
     rn = mln_rbtree_search(mq_set, mq_set->root, &tmp);
     if (mln_rbtree_null(rn, mq_set)) return NULL;
-    return (mln_lang_mq_t *)(rn->data);
+    return (mln_lang_mq_t *)mln_rbtree_node_data(rn);
 }
 
 static mln_lang_ctx_mq_topic_t *mln_lang_ctx_mq_topic_new(mln_lang_ctx_t *ctx, mln_string_t *name)

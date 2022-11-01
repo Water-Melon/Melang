@@ -65,7 +65,7 @@ static int mln_lang_string_lower_handler(mln_lang_ctx_t *ctx, mln_lang_object_t 
 static mln_lang_var_t *mln_lang_string_lower_process(mln_lang_ctx_t *ctx);
 static int mln_lang_string_join_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_string_join_process(mln_lang_ctx_t *ctx);
-static int mln_lang_string_join_process_iterate_handler(mln_rbtree_node_t *node, mln_lang_array_elem_t *elem, struct mln_lang_string_join_s *lsj);
+static int mln_lang_string_join_process_iterate_handler(mln_rbtree_node_t *node, struct mln_lang_string_join_s *lsj);
 
 mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
@@ -1863,7 +1863,7 @@ static inline mln_lang_var_t *mln_replace_do(mln_lang_ctx_t *ctx, mln_lang_array
 static int mln_replace_do_iterate_handler(mln_rbtree_node_t *node, void *udata)
 {
     struct mln_lang_string_replace_s *sr = (struct mln_lang_string_replace_s *)udata;
-    mln_lang_array_elem_t *elem = (mln_lang_array_elem_t *)(node->data);
+    mln_lang_array_elem_t *elem = (mln_lang_array_elem_t *)mln_rbtree_node_data(node);
     mln_string_t s = *(sr->s);
     mln_u8ptr_t p;
     mln_lang_string_pos_t *pos, *scan;
@@ -2245,11 +2245,12 @@ static mln_lang_var_t *mln_lang_string_join_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-static int mln_lang_string_join_process_iterate_handler(mln_rbtree_node_t *node, mln_lang_array_elem_t *elem, struct mln_lang_string_join_s *lsj)
+static int mln_lang_string_join_process_iterate_handler(mln_rbtree_node_t *node, struct mln_lang_string_join_s *lsj)
 {
     mln_string_t *s, *tmp;
     mln_u8ptr_t buf;
     mln_u64_t len;
+    mln_lang_array_elem_t *elem = (mln_lang_array_elem_t *)mln_rbtree_node_data(node);
 
     tmp = mln_lang_var_tostring(lsj->ctx->pool, elem->value);
     if (tmp == NULL) return -1;
