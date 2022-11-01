@@ -33,7 +33,7 @@ static inline mln_json_t *mln_lang_json_encode_generate_bool(mln_u8_t b);
 static inline mln_json_t *mln_lang_json_encode_generate_int(mln_s64_t i);
 static inline mln_json_t *mln_lang_json_encode_generate_real(double f);
 static inline mln_json_t *mln_lang_json_encode_generate_string(mln_string_t *s);
-static int mln_lang_json_encode_obj_scan(mln_rbtree_node_t *node, void *rn_data, void *udata);
+static int mln_lang_json_encode_obj_iterate_handler(mln_rbtree_node_t *node, void *udata);
 static mln_lang_var_t *mln_lang_json_decode_process(mln_lang_ctx_t *ctx);
 static inline int
 mln_lang_json_decode_obj(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_hash_t *obj);
@@ -49,7 +49,7 @@ static inline int
 mln_lang_json_decode_false(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lang_var_t *key);
 static inline int
 mln_lang_json_decode_null(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lang_var_t *key);
-static int mln_lang_json_decode_array_scan(mln_rbtree_node_t *node, void *rn_data, void *udata);
+static int mln_lang_json_decode_array_iterate_handler(mln_rbtree_node_t *node, void *udata);
 static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data);
 
 
@@ -278,7 +278,7 @@ mln_lang_json_encode_generate_obj(mln_lang_array_t *array)
         return NULL;
     }
     if (mln_rbtree_iterate(array->elems_key, \
-                            mln_lang_json_encode_obj_scan, \
+                            mln_lang_json_encode_obj_iterate_handler, \
                             json) < 0)
     {
         mln_json_free(json);
@@ -287,13 +287,13 @@ mln_lang_json_encode_generate_obj(mln_lang_array_t *array)
     return json;
 }
 
-static int mln_lang_json_encode_obj_scan(mln_rbtree_node_t *node, void *rn_data, void *udata)
+static int mln_lang_json_encode_obj_iterate_handler(mln_rbtree_node_t *node, void *udata)
 {
     mln_s32_t type;
     mln_string_t *k, *dup;
     mln_lang_var_t *var;
     mln_json_t *jparent = (mln_json_t *)udata, *j, *kj;
-    mln_lang_array_elem_t *lae = (mln_lang_array_elem_t *)rn_data;
+    mln_lang_array_elem_t *lae = (mln_lang_array_elem_t *)(node->data);
     if (mln_lang_var_val_type_get(lae->key) != M_LANG_VAL_TYPE_STRING || \
         (k = lae->key->val->data.s) == NULL)
     {
@@ -634,16 +634,16 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_rbt
     struct mln_lang_json_scan_s ljs;
     ljs.ctx = ctx;
     ljs.array = array;
-    if (mln_rbtree_iterate(a, mln_lang_json_decode_array_scan, &ljs) < 0) {
+    if (mln_rbtree_iterate(a, mln_lang_json_decode_array_iterate_handler, &ljs) < 0) {
         return -1;
     }
     return 0;
 }
 
-static int mln_lang_json_decode_array_scan(mln_rbtree_node_t *node, void *rn_data, void *udata)
+static int mln_lang_json_decode_array_iterate_handler(mln_rbtree_node_t *node, void *udata)
 {
     int rc = 0;
-    mln_json_t *json = (mln_json_t *)rn_data;
+    mln_json_t *json = (mln_json_t *)(node->data);
     struct mln_lang_json_scan_s *ljs = (struct mln_lang_json_scan_s *)udata;
     mln_lang_var_t kvar;
     mln_lang_val_t kval;
