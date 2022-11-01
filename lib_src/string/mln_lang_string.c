@@ -1819,7 +1819,7 @@ static inline mln_lang_var_t *mln_replace_do(mln_lang_ctx_t *ctx, mln_lang_array
     udata.ctx = ctx;
     udata.s = s;
     udata.head = udata.tail = NULL;
-    if (mln_rbtree_scan_all(arr->elems_key, mln_replace_do_scanner, &udata) < 0) {
+    if (mln_rbtree_iterate(arr->elems_key, mln_replace_do_scanner, &udata) < 0) {
         mln_lang_string_pos_free_all(&udata);
         return NULL;
     }
@@ -2226,7 +2226,7 @@ static mln_lang_var_t *mln_lang_string_join_process(mln_lang_ctx_t *ctx)
     val = mln_lang_var_val_get(sym->data.var);
     arr = val->data.array;
 
-    if (mln_rbtree_scan_all(arr->elems_index, (rbtree_act)mln_lang_string_join_process_scan, &lsj)) {
+    if (mln_rbtree_iterate(arr->elems_index, (rbtree_iterate_handler)mln_lang_string_join_process_scan, &lsj)) {
         if (lsj.res != NULL) mln_string_free(lsj.res);
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;

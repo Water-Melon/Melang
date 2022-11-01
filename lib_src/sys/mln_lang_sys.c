@@ -318,7 +318,7 @@ static mln_lang_var_t *mln_lang_sys_array_process(mln_lang_ctx_t *ctx)
                 }
                 break;
             case M_LANG_VAL_TYPE_OBJECT:
-                if (mln_rbtree_scan_all(val->data.obj->members, mln_lang_sys_array_add_elem, array) < 0) {
+                if (mln_rbtree_iterate(val->data.obj->members, mln_lang_sys_array_add_elem, array) < 0) {
                     mln_lang_var_free(ret_var);
                     mln_lang_errmsg(ctx, "No memory.");
                     return NULL;
@@ -555,7 +555,7 @@ static mln_lang_var_t *mln_lang_sys_obj_process(mln_lang_ctx_t *ctx)
                 mln_lang_errmsg(ctx, "No memory.");
                 return NULL;
             }
-            if (mln_rbtree_scan_all(array->elems_key, \
+            if (mln_rbtree_iterate(array->elems_key, \
                                     mln_lang_sys_obj_add_key, \
                                     ret_var->val->data.obj) < 0) {
                 mln_lang_var_free(ret_var);
@@ -1739,7 +1739,7 @@ static mln_lang_var_t *mln_lang_sys_keys_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     arr = ret_var->val->data.array;
-    if (mln_rbtree_scan_all(array->elems_key, mln_lang_sys_keys_scanner, arr) < 0) {
+    if (mln_rbtree_iterate(array->elems_key, mln_lang_sys_keys_scanner, arr) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(ret_var);
         return NULL;
@@ -1844,7 +1844,7 @@ static mln_lang_var_t *mln_lang_sys_merge_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     array = mln_lang_var_val_get(sym->data.var)->data.array;
-    if (mln_rbtree_scan_all(array->elems_index, mln_lang_sys_merge_scanner, arr) < 0) {
+    if (mln_rbtree_iterate(array->elems_index, mln_lang_sys_merge_scanner, arr) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(ret_var);
         return NULL;
@@ -1862,7 +1862,7 @@ static mln_lang_var_t *mln_lang_sys_merge_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     array = mln_lang_var_val_get(sym->data.var)->data.array;
-    if (mln_rbtree_scan_all(array->elems_index, mln_lang_sys_merge_scanner, arr) < 0) {
+    if (mln_rbtree_iterate(array->elems_index, mln_lang_sys_merge_scanner, arr) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(ret_var);
         return NULL;
@@ -1983,7 +1983,7 @@ static mln_lang_var_t *mln_lang_sys_diff_process(mln_lang_ctx_t *ctx)
     udata.notin = mln_lang_var_val_get(sym->data.var)->data.array;
     udata.key = 0;
 
-    if (mln_rbtree_scan_all(arr->elems_index, mln_lang_sys_diff_scanner, &udata) < 0) {
+    if (mln_rbtree_iterate(arr->elems_index, mln_lang_sys_diff_scanner, &udata) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(ret_var);
         return NULL;
@@ -2089,7 +2089,7 @@ static mln_lang_var_t *mln_lang_sys_key_diff_process(mln_lang_ctx_t *ctx)
     udata.notin = mln_lang_var_val_get(sym->data.var)->data.array;
     udata.key = 1;
 
-    if (mln_rbtree_scan_all(arr->elems_key, mln_lang_sys_diff_scanner, &udata) < 0) {
+    if (mln_rbtree_iterate(arr->elems_key, mln_lang_sys_diff_scanner, &udata) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(ret_var);
         return NULL;
@@ -2107,7 +2107,7 @@ static int mln_lang_sys_diff_scanner(mln_rbtree_node_t *node, void *rn_data, voi
         if (mln_lang_array_elem_exist(sd->notin, elem->key))
             return 0;
     } else {
-        if (mln_rbtree_scan_all(sd->notin->elems_index, mln_lang_sys_diff_check_scanner, elem) < 0)
+        if (mln_rbtree_iterate(sd->notin->elems_index, mln_lang_sys_diff_check_scanner, elem) < 0)
             return 0;
     }
 
@@ -3497,7 +3497,7 @@ static void mln_lang_sys_print_array(mln_lang_array_t *arr, mln_rbtree_t *check)
     if (rn == NULL) return;
     mln_rbtree_insert(check, rn);
     mln_log(none, "[");
-    mln_rbtree_scan_all(arr->elems_index, mln_lang_sys_print_array_elem, check);
+    mln_rbtree_iterate(arr->elems_index, mln_lang_sys_print_array_elem, check);
     mln_log(none, "]");
 }
 

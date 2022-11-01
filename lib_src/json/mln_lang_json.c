@@ -277,7 +277,7 @@ mln_lang_json_encode_generate_obj(mln_lang_array_t *array)
     if ((json = mln_json_new()) == NULL) {
         return NULL;
     }
-    if (mln_rbtree_scan_all(array->elems_key, \
+    if (mln_rbtree_iterate(array->elems_key, \
                             mln_lang_json_encode_obj_scan, \
                             json) < 0)
     {
@@ -533,7 +533,7 @@ mln_lang_json_decode_obj(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_hash_
     struct mln_lang_json_scan_s ljs;
     ljs.ctx = ctx;
     ljs.array = array;
-    if (mln_hash_scan_all(obj, mln_lang_json_decode_obj_scan, &ljs) < 0) {
+    if (mln_hash_iterate(obj, mln_lang_json_decode_obj_scan, &ljs) < 0) {
         return -1;
     }
     return 0;
@@ -634,7 +634,7 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_rbt
     struct mln_lang_json_scan_s ljs;
     ljs.ctx = ctx;
     ljs.array = array;
-    if (mln_rbtree_scan_all(a, mln_lang_json_decode_array_scan, &ljs) < 0) {
+    if (mln_rbtree_iterate(a, mln_lang_json_decode_array_scan, &ljs) < 0) {
         return -1;
     }
     return 0;
