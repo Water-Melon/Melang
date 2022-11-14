@@ -44,6 +44,8 @@ Now, let's start our journey.
 
 [Coroutine](https://water-melon.github.io/Melang/coroutine.html)
 
+[Pipe](https://water-melon.github.io/Melang/pipe.html)
+
 [Library](https://water-melon.github.io/Melang/library.html)
 
 
