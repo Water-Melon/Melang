@@ -428,8 +428,7 @@ static int mln_lang_network_tcp_listen(mln_lang_ctx_t *ctx, mln_lang_object_t *o
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -441,8 +440,7 @@ static int mln_lang_network_tcp_listen(mln_lang_ctx_t *ctx, mln_lang_object_t *o
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -636,8 +634,7 @@ static int mln_lang_network_tcp_accept(mln_lang_ctx_t *ctx, mln_lang_object_t *o
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -649,8 +646,7 @@ static int mln_lang_network_tcp_accept(mln_lang_ctx_t *ctx, mln_lang_object_t *o
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -767,8 +763,7 @@ static int mln_lang_network_tcp_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -780,8 +775,7 @@ static int mln_lang_network_tcp_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -892,8 +886,7 @@ static int mln_lang_network_tcp_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -905,8 +898,7 @@ static int mln_lang_network_tcp_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1042,8 +1034,7 @@ static int mln_lang_network_tcp_connect(mln_lang_ctx_t *ctx, mln_lang_object_t *
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -1055,8 +1046,7 @@ static int mln_lang_network_tcp_connect(mln_lang_ctx_t *ctx, mln_lang_object_t *
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -1068,8 +1058,7 @@ static int mln_lang_network_tcp_connect(mln_lang_ctx_t *ctx, mln_lang_object_t *
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1266,8 +1255,7 @@ static int mln_lang_network_tcp_shutdown(mln_lang_ctx_t *ctx, mln_lang_object_t 
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -1279,8 +1267,7 @@ static int mln_lang_network_tcp_shutdown(mln_lang_ctx_t *ctx, mln_lang_object_t 
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1427,8 +1414,7 @@ static int mln_lang_network_tcp_close(mln_lang_ctx_t *ctx, mln_lang_object_t *ob
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1838,8 +1824,7 @@ static int mln_lang_network_udp_create(mln_lang_ctx_t *ctx, mln_lang_object_t *o
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -1851,8 +1836,7 @@ static int mln_lang_network_udp_create(mln_lang_ctx_t *ctx, mln_lang_object_t *o
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2040,8 +2024,7 @@ static int mln_lang_network_udp_close(mln_lang_ctx_t *ctx, mln_lang_object_t *ob
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2109,8 +2092,7 @@ static int mln_lang_network_udp_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -2122,8 +2104,7 @@ static int mln_lang_network_udp_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -2135,8 +2116,7 @@ static int mln_lang_network_udp_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -2148,8 +2128,7 @@ static int mln_lang_network_udp_send(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2336,8 +2315,7 @@ static int mln_lang_network_udp_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2350,8 +2328,7 @@ static int mln_lang_network_udp_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2364,8 +2341,7 @@ static int mln_lang_network_udp_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2378,8 +2354,7 @@ static int mln_lang_network_udp_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -2392,8 +2367,7 @@ static int mln_lang_network_udp_recv(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
 
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");

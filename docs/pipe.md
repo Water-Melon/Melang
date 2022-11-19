@@ -34,7 +34,7 @@ Return value:
 #### In Melang
 
 ```
-pipe(op, wait);
+pipe(op);
 ```
 
 This function is used to subscribe, unsubscribe and receive data from C layer.
@@ -45,10 +45,9 @@ This function is used to subscribe, unsubscribe and receive data from C layer.
 - `unsubscribe` stop to accept data set.
 - `recv` receive data set.
 
-`wait` indicates the current task returned until receiving at least one data set if `wait` is `true`. Otherwise, returned immediately with `[]`. This is an optional parameter. `true` is its default value if it omitted.
-
 Return value:
 
+- `nil` - not subscribed if call this function with op `recv`.
 - `[]` - no data received.
 - An array with each element in it is also an array.
 
