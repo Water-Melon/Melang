@@ -26,5 +26,10 @@ struct mln_sys_diff_s {
     mln_u32_t              key;
 };
 
+typedef struct {
+    mln_lang_ctx_t        *ctx;
+    mln_fheap_node_t      *timer;
+} mln_sys_msleep_t;
+
 #endif
 

@@ -1248,3 +1248,30 @@ Output:
 init
 ```
 
+
+
+##### msleep
+
+Execute shell command in Melang.
+
+```
+sys.msleep(msec);
+```
+
+Input:
+
+- `msec` - timeout milliseconds.
+
+Return value:
+
+- `nil`
+
+Example:
+
+```
+sys = import('sys');
+
+sys.msleep(1000); //1 second
+```
+
+

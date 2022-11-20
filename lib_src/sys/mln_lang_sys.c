@@ -23,7 +23,6 @@ static int melon_init_flag = 0;
 
 static int mln_lang_sys(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx);
-static void mln_lang_sys_resource_unregister(mln_lang_ctx_t *ctx);
 static int mln_lang_sys_size_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_sys_size_process(mln_lang_ctx_t *ctx);
 static int mln_lang_sys_keys_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
@@ -113,6 +112,11 @@ static mln_lang_var_t *mln_lang_sys_print_process(mln_lang_ctx_t *ctx);
 static int mln_lang_sys_print_array_cmp(const void *addr1, const void *addr2);
 static void mln_lang_sys_print_array(mln_lang_array_t *arr, mln_rbtree_t *check);
 static int mln_lang_sys_print_array_elem(mln_rbtree_node_t *node, void *udata);
+static inline mln_sys_msleep_t *mln_sys_msleep_new(mln_lang_ctx_t *ctx);
+static void mln_sys_msleep_free(mln_sys_msleep_t *s);
+static int mln_lang_sys_msleep_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static mln_lang_var_t *mln_lang_sys_msleep_process(mln_lang_ctx_t *ctx);
+static void mln_lang_sys_msleep_timeout_handler(mln_event_t *ev, void *data);
 
 mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
@@ -180,15 +184,16 @@ static int mln_lang_sys(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
     if (mln_lang_sys_exec_handler(ctx, obj) < 0) goto err;
 #endif
     if (mln_lang_sys_print_handler(ctx, obj) < 0) goto err;
+    if (mln_lang_sys_msleep_handler(ctx, obj) < 0) goto err;
     return 0;
 
 err:
-    mln_lang_sys_resource_unregister(ctx);
     return -1;
 }
 
 static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
 {
+    mln_sys_msleep_t *s;
 #if !defined(WIN32)
     mln_rbtree_t *tree;
     struct mln_rbtree_attr rbattr;
@@ -211,13 +216,18 @@ static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
         }
     }
 #endif
+    if ((s = mln_lang_ctx_resource_fetch(ctx, "sys_msleep")) == NULL) {
+        if ((s = mln_sys_msleep_new(ctx)) == NULL) {
+            mln_lang_errmsg(ctx, "No memory.");
+            return -1;
+        }
+        if (mln_lang_ctx_resource_register(ctx, "sys_msleep", s, (mln_lang_resource_free)mln_sys_msleep_free) < 0) {
+            mln_lang_errmsg(ctx, "No memory.");
+            mln_sys_msleep_free(s);
+            return -1;
+        }
+    }
     return 0;
-}
-
-static void mln_lang_sys_resource_unregister(mln_lang_ctx_t *ctx)
-{
-#if !defined(WIN32)
-#endif
 }
 
 static int mln_lang_sys_array_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
@@ -3352,8 +3362,7 @@ static int mln_lang_sys_print_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *ob
         mln_lang_func_detail_free(func);
         return -1;
     }
-    func->args_head = func->args_tail = var;
-    func->nargs = 1;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -3499,5 +3508,124 @@ static int mln_lang_sys_print_array_elem(mln_rbtree_node_t *node, void *udata)
             break;
     }
     return 0;
+}
+
+/*
+ * msleep
+ */
+static inline mln_sys_msleep_t *mln_sys_msleep_new(mln_lang_ctx_t *ctx)
+{
+    mln_sys_msleep_t *s;
+
+    if ((s = (mln_sys_msleep_t *)mln_alloc_m(ctx->pool, sizeof(mln_sys_msleep_t))) == NULL)
+        return NULL;
+
+    s->ctx = ctx;
+    s->timer = NULL;
+    return s;
+}
+
+static void mln_sys_msleep_free(mln_sys_msleep_t *s)
+{
+    if (s == NULL) return;
+    if (s->timer != NULL)
+        mln_event_cancel_timer(s->ctx->lang->ev, s->timer);
+    mln_alloc_free(s);
+}
+
+static int mln_lang_sys_msleep_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
+{
+    mln_lang_val_t *val;
+    mln_lang_var_t *var;
+    mln_lang_func_detail_t *func;
+    mln_string_t funcname = mln_string("msleep");
+    mln_string_t v = mln_string("msec");
+    if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_sys_msleep_process, NULL, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    if ((var = mln_lang_var_new(ctx, &v, M_LANG_VAR_NORMAL, val, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_val_free(val);
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    mln_lang_func_detail_arg_append(func, var);
+    if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    if ((var = mln_lang_var_new(ctx, &funcname, M_LANG_VAR_NORMAL, val, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_val_free(val);
+        return -1;
+    }
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_var_free(var);
+        return -1;
+    }
+    return 0;
+}
+
+static mln_lang_var_t *mln_lang_sys_msleep_process(mln_lang_ctx_t *ctx)
+{
+    mln_lang_val_t *val;
+    mln_lang_var_t *ret_var;
+    mln_sys_msleep_t *s;
+    mln_string_t var = mln_string("msec");
+    mln_lang_symbol_node_t *sym;
+    if ((sym = mln_lang_symbol_node_search(ctx, &var, 1)) == NULL) {
+        ASSERT(0);
+        mln_lang_errmsg(ctx, "Argument missing.");
+        return NULL;
+    }
+    ASSERT(sym->type == M_LANG_SYMBOL_VAR);
+
+    val = mln_lang_var_val_get(sym->data.var);
+
+    if (mln_lang_var_val_type_get(sym->data.var) != M_LANG_VAL_TYPE_INT || val->data.i < 0) {
+        mln_lang_errmsg(ctx, "Invalid argument 1.");
+        return NULL;
+    }
+
+    s = mln_lang_ctx_resource_fetch(ctx, "sys_msleep");
+    ASSERT(s != NULL);
+
+    if (s->timer != NULL) {
+        mln_lang_errmsg(ctx, "Already in sleep.");
+        return NULL;
+    }
+
+    if ((ret_var = mln_lang_var_create_nil(ctx, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+
+    s->timer = mln_event_set_timer(ctx->lang->ev, val->data.i, s, mln_lang_sys_msleep_timeout_handler);
+    if (s->timer == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
+
+    mln_lang_ctx_suspend(ctx);
+
+    return ret_var;
+}
+
+static void mln_lang_sys_msleep_timeout_handler(mln_event_t *ev, void *data)
+{
+    mln_sys_msleep_t *s = (mln_sys_msleep_t *)data;
+    mln_lang_mutex_lock(s->ctx->lang);
+    s->timer = NULL;
+    mln_lang_ctx_continue(s->ctx);
+    mln_lang_mutex_unlock(s->ctx->lang);
 }
 
