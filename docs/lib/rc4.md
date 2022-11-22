@@ -5,7 +5,7 @@
 ### Import
 
 ```
-rc = import('rc');
+rc = Import('rc');
 ```
 
 
@@ -32,8 +32,8 @@ Error:
 Example:
 
 ```
-rc = import('rc');
-sys = import('sys');
+rc = Import('rc');
+sys = Import('sys');
 
 cipher = rc.rc4('This is a rc4 test', 'a key');
 sys.print(cipher);

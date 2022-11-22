@@ -7,13 +7,13 @@ Reactive programming is based on two functions:
 - watch
 
   ```
-  watch(var, func, userdata);
+  Watch(var, func, userdata);
   ```
 
 - unwatch
 
   ```
-  unwatch(var);
+  unWatch(var);
   ```
 
 But these functions are bound with interpreter tightly, so they won't be achieved in library.
@@ -25,14 +25,14 @@ e.g.
 ```
 @handler (newValue, userData)
 {
-  sys = import('sys');
+  sys = Import('sys');
   sys.print(newValue);
   sys.print(userData);
   userData = 'world';
 }
 a = 10;
 userData = 'hello';
-watch(a, handler, userData);
+Watch(a, handler, userData);
 a = 11;
 a = 12;
 ```
@@ -55,14 +55,14 @@ So let's fix this problem.
 ```
 @handler (newValue, &userData)
 {
-  sys = import('sys');
+  sys = Import('sys');
   sys.print(newValue);
   sys.print(userData);
   userData = 'world';
 }
 a = 10;
 userData = 'hello';
-watch(a, handler, userData);
+Watch(a, handler, userData);
 a = 11;
 a = 12;
 ```
@@ -78,10 +78,10 @@ world
 
 
 
-If we don't want to trace this variable any more, we can use *unwatch* to stop tracing.
+If we don't want to trace this variable any more, we can use *Unwatch* to stop tracing.
 
 ```
-unwatch(a);
+Unwatch(a);
 a = 13;
 ```
 

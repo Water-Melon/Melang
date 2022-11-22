@@ -7,7 +7,7 @@ This is a library function for AES encryption and decryption.
 ### Import
 
 ```
-aes = import('aes');
+aes = Import('aes');
 ```
 
 
@@ -39,9 +39,9 @@ Error:
 Example:
 
 ```
-aes = import('aes');
-sys = import('sys');
-str = import('str');
+aes = Import('aes');
+sys = Import('sys');
+str = Import('str');
 
 text = 'This is an aes test, note length';
 sys.print('text length: '+str.strlen(text));

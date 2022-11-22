@@ -5,7 +5,7 @@
 ### Import
 
 ```
-p = import('prime');
+p = Import('prime');
 ```
 
 
@@ -33,8 +33,8 @@ Error:
 Example:
 
 ```
-p = import('prime');
-sys = import('sys');
+p = Import('prime');
+sys = Import('sys');
 
 sys.print(p.prime(22));
 ```

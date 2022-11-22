@@ -5,7 +5,7 @@
 ### Import
 
 ```
-str = import('str');
+str = Import('str');
 ```
 
 
@@ -29,9 +29,9 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
-rc = import('rc');
+str = Import('str');
+sys = Import('sys');
+rc = Import('rc');
 
 sys.print(str.bin2hex(rc.rc4('HI', 'key')));
 ```
@@ -63,8 +63,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.hex2bin('4849'));
 ```
@@ -96,8 +96,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.bin2int('HI'));
 ```
@@ -129,8 +129,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.int2bin(18505));
 ```
@@ -192,8 +192,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.real2bin(1070435769529469910793714477087121352287059968.000000));
 ```
@@ -228,8 +228,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.b2s(100));
 ```
@@ -265,8 +265,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.s2b('d', 'int'));
 ```
@@ -330,8 +330,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.split('this is a test', -10));
 ```
@@ -364,8 +364,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.slice('this is a test', ' s'));
 ```
@@ -398,8 +398,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.kmp('this is a test', 'is'));
 ```
@@ -432,8 +432,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.strstr('this is a test', 'is'));
 ```
@@ -467,8 +467,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.strncmp('this is a test', 'is', 2));
 ```
@@ -501,8 +501,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.strcmp('drink', 'drink'));
 ```
@@ -538,8 +538,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.strseqcmp('drinking', 'drink'));
 ```
@@ -572,8 +572,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.reg_equal('.*', 'test'));
 sys.print(str.reg_equal('.*ed', 'test'));
@@ -608,8 +608,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.reg_match('((this )*i(s)).*', 'this is a reg exp test.'));
 ```
@@ -642,8 +642,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.replace(['aaa':'123', 'bbb': 'Hello'], 'aaabbbcccaaa'));
 ```
@@ -676,8 +676,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.trim(" hello \t\n"));
 ```
@@ -709,8 +709,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.upper('hello'));
 ```
@@ -742,8 +742,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 str.print(sys.lower('HELLO'));
 ```
@@ -776,8 +776,8 @@ Return value:
 Example:
 
 ```
-str = import('str');
-sys = import('sys');
+str = Import('str');
+sys = Import('sys');
 
 sys.print(str.join(',', [1, [1,2], 'asd']));
 ```

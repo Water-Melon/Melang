@@ -66,7 +66,7 @@ That's done. Now, we have a variable named *Tom*, and that is an object of set *
 Now, we can visit *Tom*'s properties and methods.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 Tom.init('Tom Moore', 8, 'male');
 

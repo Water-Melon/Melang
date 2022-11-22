@@ -5,7 +5,7 @@
 ### Import
 
 ```
-sys = import('sys');
+sys = Import('sys');
 ```
 
 
@@ -38,7 +38,7 @@ Output detail of the given argument.
 This is an internal function, not implemented in dynamic library.
 
 ```
-dump(var);
+Dump(var);
 ```
 
 Input:
@@ -55,11 +55,11 @@ Return value:
 ##### Example
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 a = [1, 2, 3];
 sys.print(a);
-dump(a);
+Dump(a);
 ```
 
 The output is:
@@ -106,7 +106,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.size([1, 2, 3]));
 ```
@@ -138,7 +138,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.is_int(1));
 sys.print(sys.is_int('1'));
@@ -172,7 +172,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.is_real(1));
 sys.print(sys.is_real(1.0));
@@ -300,7 +300,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 set {}
 o = $set;
@@ -334,7 +334,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 @foo() {}
 sys.print(sys.is_func(foo));
@@ -367,7 +367,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.is_array([1, 2]));
 sys.print(sys.is_array(['key1': 1, 'key2':2]));
@@ -401,7 +401,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.int(1.2));
 sys.print(sys.int('1'));
@@ -435,7 +435,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.bool(1.2));
 sys.print(sys.bool(0));
@@ -475,7 +475,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.real(1));
 sys.print(sys.real('1.2'));
@@ -509,10 +509,10 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
-dump(sys.str(1));
-dump(sys.str(1.2));
+Dump(sys.str(1));
+Dump(sys.str(1.2));
 ```
 
 Output:
@@ -545,8 +545,8 @@ Return value:
 Example:
 
 ```
-dump(sys.obj([1, 2]));
-dump(sys.obj(['name': 'Tom', 'age': 18]));
+Dump(sys.obj([1, 2]));
+Dump(sys.obj(['name': 'Tom', 'age': 18]));
 ```
 
 Output:
@@ -585,7 +585,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 Human {
   name;
@@ -627,7 +627,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 a = ['name': 'Tom', 'age': 18];
 sys.print(sys.keys(a));
@@ -661,7 +661,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 a = ['name': 'Tom', 'age': 18];
 b = ['name': 'Sam', 'age': 19];
@@ -705,7 +705,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 a = ['name': 'Tom', 'age': 18];
 sys.print(sys.has(a, 'name'));
@@ -738,7 +738,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 a = ['name': 'Tom', 'age': 18];
 SetA {}
@@ -787,7 +787,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 Human {
   name;
@@ -826,7 +826,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 Human {
   name;
@@ -853,7 +853,7 @@ Create a new coroutine and execute.
 This is an internal function.
 
 ```
-eval(val, data, in_string);
+Eval(val, data, in_string);
 ```
 
 Input:
@@ -890,7 +890,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.mkdir('/tmp/aaa');
 ```
@@ -926,7 +926,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.remove('/tmp/aaa'));
 ```
@@ -958,7 +958,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.exist('/tmp'));
 ```
@@ -990,7 +990,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.path('/'));
 ```
@@ -1022,7 +1022,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.exist('/'));
 ```
@@ -1083,7 +1083,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 tm = sys.time();
 sys.print(tm);
@@ -1119,7 +1119,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.diff([1,2,3,4,5], [2,4,5]));
 ```
@@ -1152,7 +1152,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.key_diff(['aaa':1,2,'ccc':3,'ddd':4, 5], ['aaa':1,2,3]););
 ```
@@ -1186,7 +1186,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.exec('ls /');
 ```
@@ -1210,7 +1210,7 @@ Import dynamic library extension into current scope. Dynamic library may contain
 This is an internal function.
 
 ```
-import(name);
+Import(name);
 ```
 
 Input:
@@ -1228,7 +1228,7 @@ Return value:
 Example:
 
 ```
-import('test');
+Import('test');
 ```
 
 ```c
@@ -1269,7 +1269,7 @@ Return value:
 Example:
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.msleep(1000); //1 second
 ```

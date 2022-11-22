@@ -12,7 +12,7 @@ Melang supports many coroutines to listen the same queue. If message is a queue 
 ### Import
 
 ```
-mq = import('mq');
+mq = Import('mq');
 ```
 
 
@@ -110,15 +110,15 @@ Error:
 
 ```
 //file a.mln
-mq = import('mq');
+mq = Import('mq');
 
 mq.send('test', 'hello');
 ```
 
 ```
 //b.mln
-mq = import('mq');
-sys = import('sys');
+mq = Import('mq');
+sys = Import('sys');
 
 msg = mq.recv('test');
 sys.print(msg);

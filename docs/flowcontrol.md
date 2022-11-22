@@ -135,7 +135,7 @@ Interpreter will follow these steps to execute:
 e.g.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 array = [1, 2, 3, 4];
 for (i = 0; i < 4; i++)
@@ -232,7 +232,7 @@ goto label;
 e.g.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
   i = 10;
   goto plus;
@@ -249,7 +249,7 @@ plus:
 ```
 @foo()
 {
-  sys = _import('sys');
+  sys = Import('sys');
 
   i = 0;
   if (++i > 10) {
@@ -267,7 +267,7 @@ The interpreter will throw an error that `l1` can not be found, because it is no
 ```
 @foo()
 {
-  sys = _import('sys');
+  sys = Import('sys');
 
   i = 0;
 li:
@@ -291,7 +291,7 @@ But this example is working correctlly.
 e.g.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 for (i = 0; i < 1000; i++) {
   if (i > 10)

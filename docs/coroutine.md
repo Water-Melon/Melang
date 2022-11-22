@@ -16,7 +16,7 @@ $ ./melang a.mln b.mln ...
 Besides this way, there is a function named *eval* to start a new script task in the current thread to execute a piece of code.
 
 ```
-eval(val, data, in_string);
+Eval(val, data, in_string);
 ```
 
 If *in_string* is true, *val* is the script code, otherwise *val* is the script file path.
@@ -34,9 +34,9 @@ If *in_string* is true, *val* is the script code, otherwise *val* is the script 
 e.g.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
-eval('sys = import('sys'); while (1) {sys.print(EVAL_DATA);}', 'bbb', true);
+Eval('sys = Import('sys'); while (1) {sys.print(EVAL_DATA);}', 'bbb', true);
 while (1) {
   sys.print('aaa');
 }
@@ -78,21 +78,21 @@ Each TCP connection will be handled in an individual coroutine.
 
 ```
 /* filename: server.mln */
-net = import('net');
-sys = import('sys');
+net = Import('net');
+sys = Import('sys');
 
 listenfd = net.tcp_listen('127.0.0.1', '80');
 while (1) {
     fd = net.tcp_accept(listenfd);
     sys.print(fd);
-    eval('worker.mln', fd);
+    Eval('worker.mln', fd);
 }
 ```
 
 ```
 /* filename: worker.mln */
-net = import('net');
-sys = import('sys');
+net = Import('net');
+sys = Import('sys');
 
 fd = EVAL_DATA;
 ret = net.tcp_recv(fd);
@@ -115,12 +115,12 @@ Each TCP will be delivered to a coroutine which is in coroutine pool to be handl
 
 ```
 /* filename: server.mln */
-net = import('net');
-mq = import('mq');
+net = Import('net');
+mq = Import('mq');
 
 listenfd = net.tcp_listen('127.0.0.1', '80');
 for (i = 0; i < 4; ++i) {
-    eval('worker.mln', i);
+    Eval('worker.mln', i);
 }
 while (1) {
     fd = net.tcp_accept(listenfd);
@@ -130,9 +130,9 @@ while (1) {
 
 ```
 /* filename: worker.mln */
-sys = import('sys');
-net = import('net');
-mq = import('mq');
+sys = Import('sys');
+net = Import('net');
+mq = Import('mq');
 
 sys.print(EVAL_DATA);
 while (1) {

@@ -9,7 +9,7 @@ Reflection makes us call a specified function or set by a name string.
 ```
 @foo ()
 {
-  sys = import('sys');
+  sys = Import('sys');
   sys.print('foo');
 }
 a = 'foo';
@@ -23,7 +23,7 @@ Let's see a more complex example:
 ```
 @foo ()
 {
-  sys = import('sys');
+  sys = Import('sys');
   sys.print('foo');
 }
 a = 'foo';
@@ -38,7 +38,7 @@ This example will output 'foo' on terminal either.
 ##### Set reflection
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 human {
   name;
@@ -66,7 +66,7 @@ human {
   action;
   @run ()
   {
-    sys = import('sys');
+    sys = Import('sys');
     sys.print('running');
   }
 }

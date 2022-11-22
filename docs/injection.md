@@ -13,7 +13,7 @@ Now, we have a set *Human* without any property or method, and an object of *Hum
 So as a human, *someone* must has age. Let's add for it.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 someone.age = 20;
 sys.print(someone.age);
 ```
@@ -25,7 +25,7 @@ Let's add a method for *someone*.
 ```
 @printAge()
 {
-  sys = _import('sys');
+  sys = Import('sys');
   sys.print(this.age);
 }
 
@@ -42,7 +42,7 @@ There is another way to inject properties and methods.
 ##### setter
 
 ```
-sys = import('sys');
+sys = Import('sys');
 sys.setter(object, name, value);
 ```
 
@@ -51,7 +51,7 @@ use *sys.setter* to inject property or method into an object. Its return value i
 Let's add a *name* in *someone*.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 ret = sys.setter(someone, 'name', 'Jason');
 sys.print(ret);
@@ -68,13 +68,13 @@ Jason
 Let's add a method in *someone* to print name.
 
 ```
-sys = import('sys');
+Sys = Import('sys');
 
 @printName()
 {
-  _sys.print(this.name);
+  Sys.print(this.name);
 }
-sys.setter(someone, 'showName', printName);
+Sys.setter(someone, 'showName', printName);
 someone.showName();
 ```
 
@@ -85,7 +85,7 @@ Since there is a function for setting property, there will be a function for get
 ##### getter
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.getter(object, name);
 ```
@@ -93,7 +93,7 @@ sys.getter(object, name);
 e.g.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
 sys.print(sys.getter(someone, 'name'));
 ```

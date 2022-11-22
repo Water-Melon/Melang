@@ -5,7 +5,7 @@
 ### import
 
 ```
-f = import('file');
+f = Import('file');
 ```
 
 
@@ -162,8 +162,8 @@ $ echo "hello" > tempfile
 Execute Melang program:
 
 ```
-sys = import('sys');
-F = import('file');
+sys = Import('sys');
+F = Import('file');
 f = $F; // or f = $File; both are the same.
 if (f.open('tempfile', 'rw+') != false) { //read and write file and file content won't be ereased
   f.lseek(1, 'begin');

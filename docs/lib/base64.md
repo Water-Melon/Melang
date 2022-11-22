@@ -5,7 +5,7 @@
 ### Import
 
 ```
-b = import('base64');
+b = Import('base64');
 ```
 
 
@@ -32,8 +32,8 @@ Error:
 Example:
 
 ```
-b = import('base64');
-sys = import('sys');
+b = Import('base64');
+sys = Import('sys');
 
 text = 'base64 test';
 encoded = b.base64(text, 'encode');

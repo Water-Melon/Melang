@@ -5,7 +5,7 @@
 ### Import
 
 ```
-sha = import('sha');
+sha = Import('sha');
 ```
 
 
@@ -53,8 +53,8 @@ Error:
 ##### Example
 
 ```
-sha = import('sha');
-sys = import('sys');
+sha = Import('sha');
+sys = Import('sys');
 
 sys.print(sha.sha1('sha test'));
 sys.print(sha.sha256('sha test'));

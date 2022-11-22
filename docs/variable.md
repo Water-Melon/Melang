@@ -31,7 +31,7 @@ e.g.
 ```
 a = 1;
 @foo() { //function definition
-  sys = import('sys');
+  sys = Import('sys');
   sys.print(a); //output a's value
 }
 foo(); //call function foo
@@ -48,10 +48,10 @@ nil
 But if we need a's value in foo, how to do?
 
 ```
-a = 1;
+A = 1;
 @foo() {
-  sys = import('sys');
-  sys.print(_a); //_a instead of a
+  sys = Import('sys');
+  sys.print(A);
 }
 foo();
 ```
@@ -64,22 +64,20 @@ Result is:
 
 So here is the special rule:
 
-> If variable name start with _ (underscore), that variable whose name is the part except first underscore will be searched from current scope to outest scope.
+> If variable name start with an upper case character, it will be searched from current scope and outest scope.
 
 
 
 Let's see another example:
 
 ```
-a = 1;
+A = 1;
 b = 2;
 @foo() {
-  sys = import('sys');
+  sys = Import('sys');
 
-  a = 10;
-  sys.print(a); //will output 10
-  sys.print(_a); //also 10
+  A = 10;
+  sys.print(A); //will output 10
   sys.print(b); //will output nil
-  sys.print(_b); //will output 2
 }
 ```

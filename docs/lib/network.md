@@ -7,7 +7,7 @@ This document introduces a set of functions about TCP and UDP in Melang.
 ### Import
 
 ```
-net = import('net');
+net = Import('net');
 ```
 
 
@@ -238,8 +238,8 @@ Return value:
 
 ```
 //client.mln
-net = import('net');
-sys = import('sys');
+net = Import('net');
+sys = Import('sys');
 
 fd = net.tcp_connect('127.0.0.1', '1234');
 sys.print(fd);
@@ -250,8 +250,8 @@ net.tcp_close(fd);
 
 ```
 //server.mln
-net = import('net');
-sys = import('sys');
+net = Import('net');
+sys = Import('sys');
 
 listenfd = net.tcp_listen('127.0.0.1', '1234');
 connfd = net.tcp_accept(listenfd);

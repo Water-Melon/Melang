@@ -103,7 +103,7 @@ Operator *&* makes argument *a* to be a reference variable named *data* in funct
 ```
 @foo(data)
 {
-  dump(data);
+  Dump(data);
 }
 
 foo();
@@ -120,7 +120,7 @@ Let's see an example:
 ```
 @foo() {
   @bar() {
-    sys = _import('sys');
+    sys = Import('sys');
     sys.print('bar');
   }
   return bar;
@@ -144,7 +144,7 @@ In most programming languages, they all support variable arguments. In melang, w
 ```
 @log()
 {
-  sys = _import('sys');
+  sys = Import('sys');
 
   s = 'argument list: ';
   for (i = 0; i < sys.size(args); ++i) {
@@ -180,7 +180,7 @@ Let us see an example at first.
   a = 1;
   @bar()
   {
-    sys = _import('sys');
+    sys = Import('sys');
 
     sys.print(a);
   }
@@ -201,7 +201,7 @@ But there is a way to get `a` in `bar`.
   a = 1;
   @bar() $(a)
   {
-    sys = _import('sys');
+    sys = Import('sys');
     sys.print(a);
   }
   return bar;
@@ -221,7 +221,7 @@ Let us modify this example again:
   a = 1;
   @bar() $(a)
   {
-    sys = _import('sys');
+    sys = Import('sys');
     sys.print(a);
   }
   a = 100; //change to another value
@@ -240,7 +240,7 @@ Now, the output still be `1`. How can I do if I want the value `a` in function `
   a = 1;
   @bar() $(&a) //to become a reference
   {
-    sys = _import('sys');
+    sys = Import('sys');
     sys.print(a);
   }
   a = 100; //change to another value

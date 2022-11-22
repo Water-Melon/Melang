@@ -5,7 +5,7 @@
 ### Import
 
 ```
-m = import('md5');
+m = Import('md5');
 ```
 
 
@@ -33,8 +33,8 @@ Error:
 Example:
 
 ```
-m = import('md5');
-sys = import('sys');
+m = Import('md5');
+sys = Import('sys');
 
 sys.print(m.md5('md5 test'));
 ```

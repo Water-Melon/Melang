@@ -5,7 +5,7 @@
 ### Import
 
 ```
-m = import('matrix');
+m = Import('matrix');
 ```
 
 
@@ -53,8 +53,8 @@ Error:
 Example:
 
 ```
-m = import('matrix');
-sys = import('sys');
+m = Import('matrix');
+sys = Import('sys');
 
 array1 = ['row': 3, 'col': 2, 'data':[1,0,0,1,1,1]];
 array2 = ['row': 2, 'col': 2, 'data':[1,2,3,4]];
@@ -97,8 +97,8 @@ Error:
 Example:
 
 ```
-m = import('matrix');
-sys = import('sys');
+m = Import('matrix');
+sys = Import('sys');
 
 array = ['row': 2, 'col': 2, 'data':[1,0,1,1]];
 res_array = m.inv(array);

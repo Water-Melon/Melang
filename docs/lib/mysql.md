@@ -9,7 +9,7 @@ If you want to activate MySQL APIs, you should install MySQL library and header 
 ### Import
 
 ```
-mysql = import('mysql');
+mysql = Import('mysql');
 ```
 
 
@@ -223,8 +223,8 @@ CREATE TABLE `people` (
 Our program:
 
 ```
-mysql = import('mysql');
-sys = import('sys');
+mysql = Import('mysql');
+sys = Import('sys');
 
 m = $mysql; // or m = $Mysql; both are the same. the value of mysql is 'Mysql'.
 m.connect('127.0.0.1', 3306, 'test', 'root', '.../*password*/');

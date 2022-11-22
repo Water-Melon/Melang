@@ -5,7 +5,7 @@
 ### Import
 
 ```
-j = import('json');
+j = Import('json');
 ```
 
 
@@ -53,8 +53,8 @@ Error:
 ##### Example
 
 ```
-j = import('json');
-sys = import('sys');
+j = Import('json');
+sys = Import('sys');
 
 a = ['name': 'Tom', 'age': 18, 'gender': 'male'];
 json = j.encode(a);

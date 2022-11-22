@@ -34,7 +34,7 @@ Return value:
 #### In Melang
 
 ```
-pipe(op);
+Pipe(op);
 ```
 
 This function is used to subscribe, unsubscribe and receive data from C layer.
@@ -64,10 +64,10 @@ mln_lang_ctx_pipe_send(ctx, "ir", 1, 3.14);
 In Melang
 
 ```
-sys = import('sys');
-pipe('subscribe');
-sys.print(pipe('recv'));
-pipe('unsubscribe');
+sys = Import('sys');
+Pipe('subscribe');
+sys.print(Pipe('recv'));
+Pipe('unsubscribe');
 ```
 
 The output is:

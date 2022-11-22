@@ -7,7 +7,7 @@ This document includes DES and 3DES functions.
 ### Import
 
 ```
-d = import('des');
+d = Import('des');
 ```
 
 
@@ -35,8 +35,8 @@ Error:
 Example:
 
 ```
-d = import('des');
-sys = import('sys');
+d = Import('des');
+sys = Import('sys');
 
 text = 'DES test'; //length is 8
 cipher = d.des(text, 100, 'encode');
@@ -76,8 +76,8 @@ Error:
 Example:
 
 ```
-d = import('des');
-sys = import('sys');
+d = Import('des');
+sys = Import('sys');
 
 text = 'DES test'; //length is 8
 cipher = d.des3(text, 100, 99, 'encode');
