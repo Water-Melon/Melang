@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include "mln_lang_msgqueue.h"
 #include "mln_core.h"
+#include "mln_conf.h"
 
 #ifdef __DEBUG__
 #include <assert.h>
@@ -58,13 +59,27 @@ mln_lang_mq_wait_t mq_wait_min = {
     NULL, NULL, NULL, 0, 0, 0, NULL, NULL
 };
 
+static int mln_lang_mq_global_init(void)
+{
+    mln_conf_t *cf;
+    mln_conf_domain_t *cd;
+
+    cf = mln_get_conf();
+    if (cf == NULL) return 0;
+    cd = cf->search(cf, "main");
+    if (cd == NULL) return 0;
+    cd->remove(cd, "trace_mode");
+
+    return 0;
+}
+
 mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
     if (!melon_init_flag) {
         struct mln_core_attr cattr;
         cattr.argc = 0;
         cattr.argv = NULL;
-        cattr.global_init = NULL;
+        cattr.global_init = mln_lang_mq_global_init;
 #if !defined(WINNT)
         cattr.master_process = NULL;
         cattr.worker_process = NULL;

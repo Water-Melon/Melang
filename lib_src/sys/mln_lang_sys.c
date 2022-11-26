@@ -11,6 +11,7 @@
 #include "mln_cron.h"
 #include "mln_log.h"
 #include "mln_core.h"
+#include "mln_conf.h"
 
 #ifdef __DEBUG__
 #include <assert.h>
@@ -118,13 +119,27 @@ static int mln_lang_sys_msleep_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *o
 static mln_lang_var_t *mln_lang_sys_msleep_process(mln_lang_ctx_t *ctx);
 static void mln_lang_sys_msleep_timeout_handler(mln_event_t *ev, void *data);
 
+static int mln_lang_sys_global_init(void)
+{
+    mln_conf_t *cf;
+    mln_conf_domain_t *cd;
+
+    cf = mln_get_conf();
+    if (cf == NULL) return 0;
+    cd = cf->search(cf, "main");
+    if (cd == NULL) return 0;
+    cd->remove(cd, "trace_mode");
+
+    return 0;
+}
+
 mln_lang_var_t *init(mln_lang_ctx_t *ctx)
 {
     if (!melon_init_flag) {
         struct mln_core_attr cattr;
         cattr.argc = 0;
         cattr.argv = NULL;
-        cattr.global_init = NULL;
+        cattr.global_init = mln_lang_sys_global_init;
 #if !defined(WINNT)
         cattr.master_process = NULL;
         cattr.worker_process = NULL;
