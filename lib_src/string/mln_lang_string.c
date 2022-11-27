@@ -78,6 +78,7 @@ static int mln_lang_string_global_init(void)
     cd = cf->search(cf, "main");
     if (cd == NULL) return 0;
     cd->remove(cd, "trace_mode");
+    cd->remove(cd, "framework");
 
     return 0;
 }
