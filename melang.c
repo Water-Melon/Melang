@@ -303,7 +303,7 @@ static void mln_run_all(int argc, char *argv[])
         mln_lang_job_new(lang, M_INPUT_T_FILE, &path, NULL, NULL);
     }
 
-    if (mln_event_set_timer(ev, 1, lang, mln_task_checker) < 0) {
+    if (mln_event_timer_set(ev, 1, lang, mln_task_checker) < 0) {
         mln_log(error, "Set timer failed.\n");
         exit(1);
     }
@@ -330,22 +330,22 @@ static void mln_task_checker(mln_event_t *ev, void *data)
     mln_lang_mutex_lock(lang);
     if (mln_lang_task_empty(lang)) {
         mln_lang_mutex_unlock(lang);
-        mln_event_set_break(ev);
+        mln_event_break_set(ev);
         return;
     }
     mln_lang_signal_get(lang)(lang);
     mln_lang_mutex_unlock(lang);
-    mln_event_set_timer(ev, 1, lang, mln_task_checker);
+    mln_event_timer_set(ev, 1, lang, mln_task_checker);
 }
 
 static int mln_signal(mln_lang_t *lang)
 {
-    return mln_event_set_fd(mln_lang_event_get(lang), t_node->signal_fd, M_EV_SEND|M_EV_ONESHOT, M_EV_UNLIMITED, lang, mln_lang_launcher_get(lang));
+    return mln_event_fd_set(mln_lang_event_get(lang), t_node->signal_fd, M_EV_SEND|M_EV_ONESHOT, M_EV_UNLIMITED, lang, mln_lang_launcher_get(lang));
 }
 
 static int mln_clear(mln_lang_t *lang)
 {
-    return mln_event_set_fd(mln_lang_event_get(lang), t_node->signal_fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+    return mln_event_fd_set(mln_lang_event_get(lang), t_node->signal_fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
 }
 
 /*

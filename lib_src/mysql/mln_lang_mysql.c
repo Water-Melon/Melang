@@ -110,7 +110,7 @@ static void mln_lang_mysql_timeout_free(mln_lang_mysql_timeout_t *lmt)
     mln_lang_mysql_t *lm;
     while ((lm = lmt->head) != NULL) {
         mln_lang_mysql_chain_del(&(lmt->head), &(lmt->tail), lm);
-        mln_event_set_fd(lmt->ctx->lang->ev, lm->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(lmt->ctx->lang->ev, lm->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         mln_lang_mysql_free(lm);
     }
     mln_alloc_free(lmt);
@@ -161,14 +161,14 @@ static void mln_lang_mysql_connect_test(mln_event_t *ev, int fd, void *data)
                                             NULL, \
                                             0);
     if (status == NET_ASYNC_ERROR) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         mln_lang_mysql_chain_del(&(lmt->head), &(lmt->tail), mysql);
         mln_lang_mysql_free(mysql);
         mln_lang_ctx_continue(ctx);
     } else if (status == NET_ASYNC_NOT_READY) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_connect_test);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_connect_test);
     } else {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         mln_lang_mysql_chain_del(&(lmt->head), &(lmt->tail), mysql);
         if ((ret_var = mln_lang_var_create_true(ctx, NULL)) != NULL) {
             mln_s32_t type;
@@ -339,14 +339,14 @@ static mln_lang_var_t *mln_lang_mysql_connect_process(mln_lang_ctx_t *ctx)
     }
     lmt = (mln_lang_mysql_timeout_t *)mln_lang_ctx_resource_fetch(ctx, "mysql");
     ASSERT(lmt != NULL);
-    if (mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_connect_test) < 0) {
+    if (mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_connect_test) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_mysql_free(mysql);
         return NULL;
     }
     if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         mln_lang_mysql_free(mysql);
         return NULL;
     }
@@ -828,10 +828,10 @@ static void mln_lang_mysql_free_test(mln_event_t *ev, int fd, void *data)
         status = mysql_free_result_nonblocking(mysql->result);
     }
     if (status == NET_ASYNC_NOT_READY) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_free_test);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_free_test);
     } else {
         mysql->result = NULL;
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         mln_lang_mysql_chain_del(&(lmt->head), &(lmt->tail), mysql);
         mln_lang_ctx_continue(ctx);
     }
@@ -911,15 +911,15 @@ static void mln_lang_mysql_fetch_test(mln_event_t *ev, int fd, void *data)
     mln_lang_mutex_lock(ctx->lang);
     status = mysql_fetch_row_nonblocking(mysql->result, &(mysql->row));
     if (status != NET_ASYNC_COMPLETE) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_fetch_test);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_fetch_test);
     } else if (status == NET_ASYNC_ERROR) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_free_test);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_free_test);
     } else {
         if (mysql->row) {
             if (mln_lang_mysql_build_return_value(mysql) < 0) {
-                mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_free_test);
+                mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_free_test);
             } else {
-                mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_fetch_test);
+                mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_fetch_test);
             }
         } else {
             if (mysql->ret_var == NULL && (mysql->ret_var = mln_lang_var_create_array(ctx, NULL)) == NULL) {
@@ -929,7 +929,7 @@ static void mln_lang_mysql_fetch_test(mln_event_t *ev, int fd, void *data)
                 mln_lang_ctx_set_ret_var(mysql->ctx, mysql->ret_var);
                 mysql->ret_var = NULL;
             }
-            mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_free_test);
+            mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_free_test);
         }
     }
     mln_lang_mutex_unlock(ctx->lang);
@@ -948,9 +948,9 @@ static void mln_lang_mysql_result_test(mln_event_t *ev, int fd, void *data)
 
     status = mysql_store_result_nonblocking(mysql->mysql, &(mysql->result));
     if (status == NET_ASYNC_NOT_READY) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_result_test);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_result_test);
     } else if (status == NET_ASYNC_ERROR) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         mln_lang_mysql_chain_del(&(lmt->head), &(lmt->tail), mysql);
         mln_lang_ctx_continue(ctx);
     } else {
@@ -961,12 +961,12 @@ static void mln_lang_mysql_result_test(mln_event_t *ev, int fd, void *data)
                 mln_lang_ctx_set_ret_var(mysql->ctx, mysql->ret_var);
                 mysql->ret_var = NULL;
             }
-            mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+            mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
             mln_lang_mysql_chain_del(&(lmt->head), &(lmt->tail), mysql);
             mln_lang_ctx_continue(ctx);
         } else {
             mysql->nfield = mysql_num_fields(mysql->result);
-            mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_fetch_test);
+            mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_fetch_test);
         }
     }
     mln_lang_mutex_unlock(ctx->lang);
@@ -985,13 +985,13 @@ static void mln_lang_mysql_query_test(mln_event_t *ev, int fd, void *data)
 
     status = mysql_real_query_nonblocking(mysql->mysql, (char *)(mysql->sql->data), mysql->sql->len);
     if (status == NET_ASYNC_ERROR) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         mln_lang_mysql_chain_del(&(lmt->head), &(lmt->tail), mysql);
         mln_lang_ctx_continue(ctx);
     } else if (status == NET_ASYNC_NOT_READY) {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_query_test);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_query_test);
     } else {
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_result_test);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_result_test);
     }
     mln_lang_mutex_unlock(ctx->lang);
 }
@@ -1068,13 +1068,13 @@ static mln_lang_var_t *mln_lang_mysql_execute_process(mln_lang_ctx_t *ctx)
 
     lmt = (mln_lang_mysql_timeout_t *)mln_lang_ctx_resource_fetch(ctx, "mysql");
     ASSERT(lmt != NULL);
-    if (mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_query_test) < 0) {
+    if (mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_SEND|M_EV_ONESHOT|M_EV_NONBLOCK, M_EV_UNLIMITED, mysql, mln_lang_mysql_query_test) < 0) {
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
     if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
-        mln_event_set_fd(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(ctx->lang->ev, mysql->fd_signal, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         return NULL;
     }
     mln_lang_mysql_chain_add(&(lmt->head), &(lmt->tail), mysql);

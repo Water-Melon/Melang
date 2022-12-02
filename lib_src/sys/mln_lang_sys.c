@@ -3115,7 +3115,7 @@ static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se)
 {
     if (se == NULL) return;
     int fd = mln_tcp_conn_get_fd(&se->conn);
-    mln_event_set_fd(se->ctx->lang->ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+    mln_event_fd_set(se->ctx->lang->ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
     mln_chain_pool_release_all(se->head);
     mln_tcp_conn_destroy(&se->conn);
     close(fd);
@@ -3246,7 +3246,7 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
             mln_lang_var_free(ret_var);
             return NULL;
         }
-        if (mln_event_set_fd(ctx->lang->ev, fds[0], M_EV_RECV|M_EV_NONBLOCK, M_EV_UNLIMITED, se, mln_lang_sys_exec_read_handler) < 0) {
+        if (mln_event_fd_set(ctx->lang->ev, fds[0], M_EV_RECV|M_EV_NONBLOCK, M_EV_UNLIMITED, se, mln_lang_sys_exec_read_handler) < 0) {
             mln_lang_errmsg(ctx, "No memory.");
             mln_lang_sys_exec_free(se);
             mln_lang_var_free(ret_var);
@@ -3545,7 +3545,7 @@ static void mln_sys_msleep_free(mln_sys_msleep_t *s)
 {
     if (s == NULL) return;
     if (s->timer != NULL)
-        mln_event_cancel_timer(s->ctx->lang->ev, s->timer);
+        mln_event_timer_cancel(s->ctx->lang->ev, s->timer);
     mln_alloc_free(s);
 }
 
@@ -3624,7 +3624,7 @@ static mln_lang_var_t *mln_lang_sys_msleep_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
-    s->timer = mln_event_set_timer(ctx->lang->ev, val->data.i, s, mln_lang_sys_msleep_timeout_handler);
+    s->timer = mln_event_timer_set(ctx->lang->ev, val->data.i, s, mln_lang_sys_msleep_timeout_handler);
     if (s->timer == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_var_free(ret_var);

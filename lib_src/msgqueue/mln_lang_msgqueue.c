@@ -595,7 +595,7 @@ static mln_lang_var_t *mln_lang_mq_msg_get(mln_lang_ctx_t *ctx, mln_string_t *qn
             mln_fheap_insert(mq_timeout_set, wait->fnode);
             wait->in_heap = 1;
             if (mq_timeout_set->num == 1) {
-                if (mln_event_set_timer(ctx->lang->ev, 10, ctx->lang, mln_lang_msgqueue_timeout_handler) < 0) {
+                if (mln_event_timer_set(ctx->lang->ev, 10, ctx->lang, mln_lang_msgqueue_timeout_handler) < 0) {
                     mln_lang_mq_wait_chain_del(&(mq->wait_head), &(mq->wait_tail), wait);
                     mln_lang_mq_wait_free(wait);
                     mln_lang_var_free(ret_var);
@@ -643,7 +643,7 @@ static void mln_lang_msgqueue_timeout_handler(mln_event_t *ev, void *data)
         fn = mln_fheap_minimum(mq_timeout_set);
         if (fn == NULL) break;
         if (((mln_lang_mq_wait_t *)mln_fheap_node_key(fn))->timestamp > now) {
-            mln_event_set_timer(ev, 10, data, mln_lang_msgqueue_timeout_handler);
+            mln_event_timer_set(ev, 10, data, mln_lang_msgqueue_timeout_handler);
             ++(lang->wait);
             break;
         }
