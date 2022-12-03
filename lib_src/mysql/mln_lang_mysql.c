@@ -15,9 +15,9 @@
 #define ASSERT(x);
 #endif
 
-MLN_CHAIN_FUNC_DECLARE(mln_lang_mysql, mln_lang_mysql_t, static inline void, __NONNULL3(1,2,3));
+MLN_CHAIN_FUNC_DECLARE(mln_lang_mysql, mln_lang_mysql_t, static inline void,);
 MLN_CHAIN_FUNC_DEFINE(mln_lang_mysql, mln_lang_mysql_t, static inline void, prev, next);
-MLN_CHAIN_FUNC_DECLARE(mln_lang_ctx, mln_lang_ctx_t, static inline void, __NONNULL3(1,2,3));
+MLN_CHAIN_FUNC_DECLARE(mln_lang_ctx, mln_lang_ctx_t, static inline void,);
 MLN_CHAIN_FUNC_DEFINE(mln_lang_ctx, mln_lang_ctx_t, static inline void, prev, next);
 
 static mln_lang_mysql_t *mln_lang_mysql_new(mln_lang_ctx_t *ctx, mln_string_t *db, mln_string_t *username, mln_string_t *password, mln_string_t *host, int port)
@@ -386,8 +386,7 @@ static int mln_lang_mysql_add_connect(mln_lang_ctx_t *ctx, mln_lang_set_detail_t
             mln_lang_func_detail_free(func);
             return -1;
         }
-        mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-        ++func->nargs;
+        mln_lang_func_detail_arg_append(func, var);
     }
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1106,8 +1105,7 @@ static int mln_lang_mysql_add_execute(mln_lang_ctx_t *ctx, mln_lang_set_detail_t
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -1224,8 +1222,7 @@ static int mln_lang_mysql_add_autocommit(mln_lang_ctx_t *ctx, mln_lang_set_detai
         mln_lang_func_detail_free(func);
         return -1;
     }
-    mln_lang_var_chain_add(&(func->args_head), &(func->args_tail), var);
-    ++func->nargs;
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
