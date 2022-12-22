@@ -3,6 +3,7 @@
  * Copyright (C) Niklaus F.Schen.
  */
 #include "mln_lang_string.h"
+#include "mln_lang_str.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "mln_core.h"
@@ -2244,7 +2245,7 @@ static int mln_lang_string_join_process_iterate_handler(mln_rbtree_node_t *node,
     mln_u64_t len;
     mln_lang_array_elem_t *elem = (mln_lang_array_elem_t *)mln_rbtree_node_data(node);
 
-    tmp = mln_lang_var_tostring(lsj->ctx->pool, elem->value);
+    tmp = mln_lang_str_var_tostring(lsj->ctx->pool, elem->value);
     if (tmp == NULL) return -1;
 
     if (lsj->res == NULL) {
