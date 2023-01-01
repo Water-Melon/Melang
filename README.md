@@ -21,7 +21,14 @@ Then execute these following shell commands:
 $ git clone https://github.com/Water-Melon/Melang.git
 $ cd Melang
 $ ./configure [some options, --help will list them all]
-$ make && make install
+#Then make
+$ make #only install melang elf
+#or
+$ make lib #only install dynamic libraries
+#or
+$ make all #install melang and dynamic libraries
+#make install
+$ make install
 ```
 
 *prefix* is the path where melang will be placed after shell *install* executed. Default is */usr/bin/*.

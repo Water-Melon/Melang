@@ -6,8 +6,10 @@
 os=`uname -s`
 if ! case $os in MINGW*) false;; esac; then
     cc="gcc"
+    mcc="gcc"
 else
     cc="cc"
+    mcc="cc"
 fi
 
 #output installation path
@@ -15,6 +17,10 @@ echo -e "#include <stdio.h>\nint main(int argc, char *argv[]) {printf(\"%s\", ar
 $cc -o path_generator .path_generator.c
 
 
+wasm=0
+
+mysql=0
+mysql_enable=0
 mysql_header_path=`./path_generator /usr/include/mysql`
 mysql_lib_path=`./path_generator /usr/lib64/mysql`
 mysql_lib=""
@@ -46,8 +52,10 @@ do
         echo -e "\t--prefix=INSTALL_PATH"
         echo -e "\t--melon-path=LIBMELON_INSTALL_PATH"
         echo -e "\t--lib-prefix=LIB_INSTALL_PATH"
+        echo -e "\t--enable-mysql"
         echo -e "\t--mysql_header_path=MYSQL_CLIENT_HREADER_PATH"
         echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
+        echo -e "\t--enable-wasm"
         exit 0
     fi
     param_prefix=`echo $param|cut -d '=' -f 1`
@@ -67,23 +75,44 @@ do
     if [ $param_prefix == "--mysql_lib_path" ]; then
         mysql_lib_path=`./path_generator $param_suffix`
     fi
+    if [ $param_prefix == "--enable-mysql" ]; then
+        mysql_enable=1
+    fi
+    if [ $param_prefix == "--enable-wasm" ]; then
+        wasm=1
+        mcc="emcc"
+    fi
 done
 
 rm -f path_generator .path_generator.c
 
-#test MySQL Asynchronous----------#
-echo -e "#include <stdio.h>\n#include <mysql.h>" > mysql_test.c
-echo "int main(void){MYSQL *mysql_local = mysql_init(NULL);mysql_real_connect_nonblocking(mysql_local, NULL, NULL, NULL, NULL, 3306, NULL, 0);return 0;}" >> mysql_test.c
-cc -o mysql_test mysql_test.c -I/usr/include/mysql/ -L/usr/lib64/mysql/ -lmysqlclient 2>/dev/null
-if [ "$?" == "0" ]; then
-    mysql=1
-    mysql_lib="-I $mysql_header_path -L $mysql_lib_path -lmysqlclient"
-    echo -e "MySQL Asynchronous\t[support]"
-else
-    mysql=0
-    echo -e "MySQL Asynchronous\t[not support]"
+#wasm
+if [ $wasm -eq 1 ]; then
+    echo -e "Webassembly\t\t[enable]"
+
+    #llvm
+    llvm_flag=""
+    cc --help|grep LLVM > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        llvm_flag="--llvm-lto 1"
+    fi
 fi
-rm -fr mysql_test mysql_test.c
+
+#test MySQL Asynchronous----------#
+if [ $mysql_enable -eq 1 ]; then
+    echo -e "#include <stdio.h>\n#include <mysql.h>" > mysql_test.c
+    echo "int main(void){MYSQL *mysql_local = mysql_init(NULL);mysql_real_connect_nonblocking(mysql_local, NULL, NULL, NULL, NULL, 3306, NULL, 0);return 0;}" >> mysql_test.c
+    cc -o mysql_test mysql_test.c -I/usr/include/mysql/ -L/usr/lib64/mysql/ -lmysqlclient 2>/dev/null
+    if [ "$?" == "0" ]; then
+        mysql=1
+        mysql_lib="-I $mysql_header_path -L $mysql_lib_path -lmysqlclient"
+        echo -e "MySQL Asynchronous\t[support]"
+    else
+        mysql=0
+        echo -e "MySQL Asynchronous\t[not support]"
+    fi
+    rm -fr mysql_test mysql_test.c
+fi
 #test MySQL Asynchronous end------#
 
 # Generate Makefile
@@ -91,8 +120,15 @@ echo "#" > Makefile
 echo "# Copyright (C) Niklaus F.Schen." >> Makefile
 echo "#" >> Makefile
 echo "CC	= $cc" >> Makefile
+echo "MCC	= $mcc" >> Makefile
 echo "FLAGS           = -I$libmelonPath/include -c -Wall -ggdb -Werror -O3 -fPIC" >> Makefile
-echo "MELANG          = melang" >> Makefile
+if [ $wasm -eq 1 ]; then
+    echo "MFLAGS          = -I$libmelonPath/include -c -g -O3 $llvm_flag -s -mmutable-globals -mnontrapping-fptoint -msign-ext -Wemcc" >> Makefile
+    echo "MELANG          = melang.wasm" >> Makefile
+else
+    echo "MFLAGS           = -I$libmelonPath/include -c -Wall -ggdb -Werror -O3 -fPIC" >> Makefile
+    echo "MELANG          = melang" >> Makefile
+fi
 if ! case $os in MINGW*) false;; esac; then
 echo "LIBAES		= aes.dll" >> Makefile
 echo "LIBBASE64	= base64.dll" >> Makefile
@@ -144,8 +180,15 @@ echo "LIBSHAOBJS	= objs/mln_lang_sha.o" >> Makefile
 echo "LIBSTROBJS	= objs/mln_lang_string.o" >> Makefile
 echo "LIBSYSOBJS	= objs/mln_lang_sys.o" >> Makefile
 echo "" >> Makefile
-echo ".PHONY :	compile install clean" >> Makefile
-echo "compile: PREPARE \$(MELANGOBJS) \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
+echo ".PHONY :	compile all install clean" >> Makefile
+echo "compile: PREPARE \$(MELANGOBJS) \$(MELANG) COMPILECLEAN" >> Makefile
+echo "lib:     PREPARE \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
+echo "         \$(LIBMATRIXOBJS) \$(LIBMD5OBJS) \$(LIBMQOBJS) \$(LIBMYSQLOBJS) \$(LIBNETWORKOBJS) \$(LIBPRIMEOBJS) \\" >> Makefile
+echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \\" >> Makefile
+echo "         \$(LIBAES) \$(LIBBASE64) \$(LIBDES) \$(LIBFILE) \$(LIBJSON) \$(LIBMATRIX) \$(LIBMD5) \\" >> Makefile
+echo "         \$(LIBMQ) \$(LIBMYSQL) \$(LIBNETWORK) \$(LIBPRIME) \$(LIBRC) \$(LIBSHA) \$(LIBSTR) \$(LIBSYS) \\" >> Makefile
+echo "         COMPILECLEAN" >> Makefile
+echo "all:     PREPARE \$(MELANGOBJS) \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
 echo "         \$(LIBMATRIXOBJS) \$(LIBMD5OBJS) \$(LIBMQOBJS) \$(LIBMYSQLOBJS) \$(LIBNETWORKOBJS) \$(LIBPRIMEOBJS) \\" >> Makefile
 echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \\" >> Makefile
 echo "         \$(MELANG) \$(LIBAES) \$(LIBBASE64) \$(LIBDES) \$(LIBFILE) \$(LIBJSON) \$(LIBMATRIX) \$(LIBMD5) \\" >> Makefile
@@ -170,9 +213,9 @@ else
 fi
 echo "\$(MELANG) : \$(MELANGOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o bin/\$@ \$^ -static -O3 -L$libmelonPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32" >> Makefile
+	echo "	\$(MCC) -o bin/\$@ \$^ -static -O3 -L$libmelonPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o bin/\$@ \$^ -O3 -L. -lmelon -ldl -lpthread $mysql_lib" >> Makefile
+	echo "	\$(MCC) -o bin/\$@ \$^ -O3 -L. -lmelon -ldl -lpthread $mysql_lib" >> Makefile
 fi
 echo "\$(LIBAES) : \$(LIBAESOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
@@ -271,7 +314,7 @@ echo "	cp -fr libs/* $libPath/" >> Makefile
 echo "	cp -fr bin/melang $installPath/" >> Makefile
 echo "" >> Makefile
 echo "objs/melang.o : melang.c" >> Makefile
-echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "	\$(MCC) \$(MFLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_aes.o : lib_src/aes/mln_lang_aes.c lib_src/aes/mln_lang_aes.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_base64.o : lib_src/base64/mln_lang_base64.c lib_src/base64/mln_lang_base64.h" >> Makefile
