@@ -363,7 +363,7 @@ mln_lang_array2matrix(mln_lang_ctx_t *ctx, mln_lang_array_t *array)
         return NULL;
     }
     if ((darray = array_val->val->data.array) == NULL || \
-        darray->elems_index->nr_node != row*col)
+        mln_rbtree_node_num(darray->elems_index) != row*col)
     {
         mln_lang_errmsg(ctx, "Invalid argument.");
         return NULL;
@@ -374,7 +374,7 @@ mln_lang_array2matrix(mln_lang_ctx_t *ctx, mln_lang_array_t *array)
         return NULL;
     }
 
-    for (p = data, n = darray->elems_index->nr_node, i = 0; i < n; ++i) {
+    for (p = data, n = mln_rbtree_node_num(darray->elems_index), i = 0; i < n; ++i) {
         kvar.type = M_LANG_VAR_NORMAL;
         kvar.name = NULL;
         kvar.val = &kval;

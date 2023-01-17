@@ -197,9 +197,9 @@ fout:
 static inline mln_json_t *mln_lang_json_encode_generate(mln_lang_array_t *array)
 {
     mln_json_t *json;
-    if (!array->elems_key->nr_node) {
+    if (!mln_rbtree_node_num(array->elems_key)) {
         json = mln_lang_json_encode_generate_array(array);
-    } else if (array->elems_index->nr_node == array->elems_key->nr_node) {
+    } else if (mln_rbtree_node_num(array->elems_index) == mln_rbtree_node_num(array->elems_key)) {
         json = mln_lang_json_encode_generate_obj(array);
     } else {
         return NULL;
@@ -214,14 +214,14 @@ static mln_json_t *mln_lang_json_encode_generate_array(mln_lang_array_t *array)
     mln_rbtree_node_t *rn;
     mln_lang_var_t *var;
     mln_lang_array_elem_t elem;
-    int i, n = array->elems_index->nr_node;
+    int i, n = mln_rbtree_node_num(array->elems_index);
     if ((json = mln_json_new()) == NULL) {
         return NULL;
     }
     M_JSON_SET_TYPE_ARRAY(json);
     for (i = 0; i < n; ++i) {
         elem.index = i;
-        rn = mln_rbtree_search(array->elems_index, array->elems_index->root, &elem);
+        rn = mln_rbtree_root_search(array->elems_index, &elem);
         if (mln_rbtree_null(rn, array->elems_index)) {
             mln_json_free(json);
             return NULL;
@@ -259,9 +259,9 @@ static mln_json_t *mln_lang_json_encode_generate_array(mln_lang_array_t *array)
                     mln_json_free(json);
                     return NULL;
                 }
-                if (!tmpa->elems_key->nr_node) {
+                if (!mln_rbtree_node_num(tmpa->elems_key)) {
                     j = mln_lang_json_encode_generate_array(tmpa);
-                } else if (tmpa->elems_index->nr_node == tmpa->elems_key->nr_node) {
+                } else if (mln_rbtree_node_num(tmpa->elems_index) == mln_rbtree_node_num(tmpa->elems_key)) {
                     j = mln_lang_json_encode_generate_obj(tmpa);
                 } else {
                     mln_json_free(json);
@@ -342,9 +342,9 @@ static int mln_lang_json_encode_obj_iterate_handler(mln_rbtree_node_t *node, voi
             if ((tmpa = var->val->data.array) == NULL) {
                 return -1;
             }
-            if (!tmpa->elems_key->nr_node) {
+            if (!mln_rbtree_node_num(tmpa->elems_key)) {
                 j = mln_lang_json_encode_generate_array(tmpa);
-            } else if (tmpa->elems_index->nr_node == tmpa->elems_key->nr_node) {
+            } else if (mln_rbtree_node_num(tmpa->elems_index) == mln_rbtree_node_num(tmpa->elems_key)) {
                 j = mln_lang_json_encode_generate_obj(tmpa);
             } else {
                 return -1;

@@ -1565,7 +1565,7 @@ static mln_lang_var_t *mln_lang_sys_size_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     if ((ret_var = mln_lang_var_create_int(ctx, \
-                                             sym->data.var->val->data.array->elems_index->nr_node, \
+                                             mln_rbtree_node_num(sym->data.var->val->data.array->elems_index), \
                                              NULL)) == NULL)
     {
         mln_lang_errmsg(ctx, "No memory.");
@@ -3473,7 +3473,7 @@ static int mln_lang_sys_print_array_cmp(const void *addr1, const void *addr2)
 
 static void mln_lang_sys_print_array(mln_lang_array_t *arr, mln_rbtree_t *check)
 {
-    mln_rbtree_node_t *rn = mln_rbtree_search(check, check->root, arr);
+    mln_rbtree_node_t *rn = mln_rbtree_root_search(check, arr);
     if (!mln_rbtree_null(rn, check)) {
         mln_log(none, "[...]");
         return;
