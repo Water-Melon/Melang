@@ -221,13 +221,13 @@ static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
         rbattr.cmp = (rbtree_cmp)mln_lang_sys_exec_cmp;
         rbattr.data_free = (rbtree_free_data)mln_lang_sys_exec_free;
         rbattr.cache = 0;
-        if ((tree = mln_rbtree_init(&rbattr)) == NULL) {
+        if ((tree = mln_rbtree_new(&rbattr)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
         }
-        if (mln_lang_ctx_resource_register(ctx, "sys_exec", tree, (mln_lang_resource_free)mln_rbtree_destroy) < 0) {
+        if (mln_lang_ctx_resource_register(ctx, "sys_exec", tree, (mln_lang_resource_free)mln_rbtree_free) < 0) {
             mln_lang_errmsg(ctx, "No memory.");
-            mln_rbtree_destroy(tree);
+            mln_rbtree_free(tree);
             return -1;
         }
     }
@@ -3445,13 +3445,13 @@ static mln_lang_var_t *mln_lang_sys_print_process(mln_lang_ctx_t *ctx)
             rbattr.cmp = mln_lang_sys_print_array_cmp;
             rbattr.data_free = NULL;
             rbattr.cache = 0;
-            if ((check = mln_rbtree_init(&rbattr)) == NULL) {
+            if ((check = mln_rbtree_new(&rbattr)) == NULL) {
                 mln_lang_errmsg(ctx, "No memory.\n");
                 return NULL;
             }
             mln_lang_sys_print_array(val->data.array, check);
             mln_log(none, "\n");
-            mln_rbtree_destroy(check);
+            mln_rbtree_free(check);
             break;
         }
         default:

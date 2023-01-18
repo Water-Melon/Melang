@@ -102,13 +102,13 @@ static int mln_lang_file(mln_lang_ctx_t *ctx)
         rbattr.cmp = (rbtree_cmp)mln_lang_file_fd_cmp;
         rbattr.data_free = (rbtree_free_data)close;
         rbattr.cache = 0;
-        if ((tree = mln_rbtree_init(&rbattr)) == NULL) {
+        if ((tree = mln_rbtree_new(&rbattr)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
         }
-        if (mln_lang_ctx_resource_register(ctx, "file_fd", tree, (mln_lang_resource_free)mln_rbtree_destroy) < 0) {
+        if (mln_lang_ctx_resource_register(ctx, "file_fd", tree, (mln_lang_resource_free)mln_rbtree_free) < 0) {
             mln_lang_errmsg(ctx, "No memory.");
-            mln_rbtree_destroy(tree);
+            mln_rbtree_free(tree);
             return -1;
         }
     }

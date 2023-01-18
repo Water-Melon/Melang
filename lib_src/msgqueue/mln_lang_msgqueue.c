@@ -157,13 +157,13 @@ static int mln_lang_msgqueue_resource_register(mln_lang_ctx_t *ctx)
         rbattr.cmp = (rbtree_cmp)mln_lang_mq_cmp;
         rbattr.data_free = (rbtree_free_data)mln_lang_mq_free;
         rbattr.cache = 0;
-        if ((mq_set = mln_rbtree_init(&rbattr)) == NULL) {
+        if ((mq_set = mln_rbtree_new(&rbattr)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
         }
-        if (mln_lang_resource_register(ctx->lang, "mq", mq_set, (mln_lang_resource_free)mln_rbtree_destroy) < 0) {
+        if (mln_lang_resource_register(ctx->lang, "mq", mq_set, (mln_lang_resource_free)mln_rbtree_free) < 0) {
             mln_lang_errmsg(ctx, "No memory.");
-            mln_rbtree_destroy(mq_set);
+            mln_rbtree_free(mq_set);
             return -1;
         }
     }
@@ -177,13 +177,13 @@ static int mln_lang_msgqueue_resource_register(mln_lang_ctx_t *ctx)
         fattr.key_free = NULL;
         fattr.min_val = &mq_wait_min;
         fattr.min_val_size = sizeof(mq_wait_min);
-        if ((mq_timeout_set = mln_fheap_init(&fattr)) == NULL) {
+        if ((mq_timeout_set = mln_fheap_new(&fattr)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
         }
-        if (mln_lang_resource_register(ctx->lang, "mq_timeout", mq_timeout_set, (mln_lang_resource_free)mln_fheap_destroy) < 0) {
+        if (mln_lang_resource_register(ctx->lang, "mq_timeout", mq_timeout_set, (mln_lang_resource_free)mln_fheap_free) < 0) {
             mln_lang_errmsg(ctx, "No memory.");
-            mln_fheap_destroy(mq_timeout_set);
+            mln_fheap_free(mq_timeout_set);
             return -1;
         }
     }
@@ -1052,7 +1052,7 @@ static mln_lang_mq_wait_t *mln_lang_mq_wait_new(mln_lang_ctx_t *ctx, mln_lang_mq
     }
     lmw->ctx = ctx;
     lmw->mq = mq;
-    if ((lmw->fnode = mln_fheap_node_init(mq_timeout_set, lmw)) == NULL) {
+    if ((lmw->fnode = mln_fheap_node_new(mq_timeout_set, lmw)) == NULL) {
         free(lmw);
         return NULL;
     }
@@ -1071,7 +1071,7 @@ static void mln_lang_mq_wait_free(mln_lang_mq_wait_t *lmw)
         if (mq_timeout_set != NULL) {
             if (lmw->in_heap)
                 mln_fheap_delete(mq_timeout_set, lmw->fnode);
-            mln_fheap_node_destroy(mq_timeout_set, lmw->fnode);
+            mln_fheap_node_free(mq_timeout_set, lmw->fnode);
         }
     }
     free(lmw);
@@ -1139,7 +1139,7 @@ static mln_lang_ctx_mq_t *mln_lang_ctx_mq_new(mln_lang_ctx_t *ctx)
     rbattr.cmp = (rbtree_cmp)mln_lang_ctx_mq_topic_cmp;
     rbattr.data_free = (rbtree_free_data)mln_lang_ctx_mq_topic_free;
     rbattr.cache = 0;
-    if ((lcm->topics = mln_rbtree_init(&rbattr)) == NULL) {
+    if ((lcm->topics = mln_rbtree_new(&rbattr)) == NULL) {
         mln_alloc_free(lcm);
         return NULL;
     }
@@ -1149,7 +1149,7 @@ static mln_lang_ctx_mq_t *mln_lang_ctx_mq_new(mln_lang_ctx_t *ctx)
 static void mln_lang_ctx_mq_free(mln_lang_ctx_mq_t *lcm)
 {
     if (lcm == NULL) return;
-    if (lcm->topics != NULL) mln_rbtree_destroy(lcm->topics);
+    if (lcm->topics != NULL) mln_rbtree_free(lcm->topics);
     if (lcm->mq_wait != NULL) {
         lcm->mq_wait->ctx = NULL;
         mln_lang_mq_wait_chain_del(&(lcm->mq_wait->mq->wait_head), &(lcm->mq_wait->mq->wait_tail), lcm->mq_wait);

@@ -148,7 +148,7 @@ static int mln_global_init(void)
     rbattr.cmp = (rbtree_cmp)mln_fd_node_cmp;
     rbattr.data_free = (rbtree_free_data)mln_fd_node_free;
     rbattr.cache = 0;
-    if ((fd_tree = mln_rbtree_init(&rbattr)) == NULL) {
+    if ((fd_tree = mln_rbtree_new(&rbattr)) == NULL) {
         fprintf(stderr, "Init fd tree failed.\n");
         return -1;
     }
