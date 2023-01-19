@@ -220,7 +220,6 @@ static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
         rbattr.pool_free = (rbtree_pool_free_handler)mln_alloc_free;
         rbattr.cmp = (rbtree_cmp)mln_lang_sys_exec_cmp;
         rbattr.data_free = (rbtree_free_data)mln_lang_sys_exec_free;
-        rbattr.cache = 0;
         if ((tree = mln_rbtree_new(&rbattr)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
@@ -3444,7 +3443,6 @@ static mln_lang_var_t *mln_lang_sys_print_process(mln_lang_ctx_t *ctx)
             rbattr.pool_free = (rbtree_pool_free_handler)mln_alloc_free;
             rbattr.cmp = mln_lang_sys_print_array_cmp;
             rbattr.data_free = NULL;
-            rbattr.cache = 0;
             if ((check = mln_rbtree_new(&rbattr)) == NULL) {
                 mln_lang_errmsg(ctx, "No memory.\n");
                 return NULL;

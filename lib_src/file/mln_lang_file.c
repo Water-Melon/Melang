@@ -101,7 +101,6 @@ static int mln_lang_file(mln_lang_ctx_t *ctx)
         rbattr.pool_free = (rbtree_pool_free_handler)mln_alloc_free;
         rbattr.cmp = (rbtree_cmp)mln_lang_file_fd_cmp;
         rbattr.data_free = (rbtree_free_data)close;
-        rbattr.cache = 0;
         if ((tree = mln_rbtree_new(&rbattr)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
