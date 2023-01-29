@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
     cattr.argv = argv;
     cattr.global_init = mln_global_init;
 #if !defined(WIN32)
+    cattr.main_thread = NULL;
     cattr.worker_process = NULL;
     cattr.master_process = NULL;
 #endif

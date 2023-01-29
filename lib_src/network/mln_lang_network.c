@@ -221,6 +221,7 @@ mln_lang_var_t *init(mln_lang_ctx_t *ctx)
         cattr.argv = NULL;
         cattr.global_init = mln_lang_network_global_init;
 #if !defined(WINNT)
+        cattr.main_thread = NULL;
         cattr.master_process = NULL;
         cattr.worker_process = NULL;
 #endif
