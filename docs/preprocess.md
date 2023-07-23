@@ -42,10 +42,12 @@ In example B, if NAME is defined, code B will be executed, otherwise execute cod
 
 Just like *include* in C, Melang also support it to load some script files into a file.
 
+**Note: the included file must be quoted by double quotes.**
+
 e.g.
 
 ```
-#include '~/lib.mln'
+#include "~/lib.mln"
 ```
 
 The path should follow these rules:
@@ -59,3 +61,15 @@ The path should follow these rules:
   3. if step 1 and step 2 are failed, interpreter will search for file in */usr/lib/melang/*.
 
   If failed, an error would be occurred.
+
+Another example:
+
+```
+//in /xxx/yyy/a.m
+
+#include "@/b.m"
+```
+
+`@` is a special char stands for base directory of current file (`a.m`). So its value is `/xxx/yyy'.
+
+So `/xxx/yyy/b.m` will be included in `a.m`.
