@@ -1630,9 +1630,13 @@ static int mln_lang_sys_has_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 
 static mln_lang_var_t *mln_lang_sys_has_process(mln_lang_ctx_t *ctx)
 {
-    mln_lang_var_t *ret_var = NULL;
+    mln_lang_var_t *ret_var = NULL, *var;
     mln_string_t v1 = mln_string("owner");
     mln_string_t v2 = mln_string("thing");
+    mln_string_t method = mln_string("method");
+    mln_string_t variable = mln_string("variable");
+    mln_string_t set = mln_string("set");
+    mln_string_t func = mln_string("function");
     mln_lang_symbol_node_t *sym, *sym2;
     mln_s32_t type;
 
@@ -1666,12 +1670,35 @@ static mln_lang_var_t *mln_lang_sys_has_process(mln_lang_ctx_t *ctx)
             mln_lang_errmsg(ctx, "Invalid type of argument 2.");
             return NULL;
         }
-        if (mln_lang_set_member_search(mln_lang_var_val_get(sym->data.var)->data.obj->members, \
-                                       mln_lang_var_val_get(sym2->data.var)->data.s) == NULL)
+        if ((var = mln_lang_set_member_search(mln_lang_var_val_get(sym->data.var)->data.obj->members, \
+                                              mln_lang_var_val_get(sym2->data.var)->data.s)) == NULL)
         {
             ret_var = mln_lang_var_create_false(ctx, NULL);
         } else {
-            ret_var = mln_lang_var_create_true(ctx, NULL);
+            if (mln_lang_var_val_type_get(var) == M_LANG_VAL_TYPE_FUNC) {
+                ret_var = mln_lang_var_create_string(ctx, &method, NULL);
+            } else {
+                ret_var = mln_lang_var_create_string(ctx, &variable, NULL);
+            }
+        }
+    } else if (type == M_LANG_VAL_TYPE_NIL) {
+        if (mln_lang_var_val_type_get(sym2->data.var) != M_LANG_VAL_TYPE_STRING) {
+            mln_lang_errmsg(ctx, "Invalid type of argument 2.");
+            return NULL;
+        }
+        sym = mln_lang_symbol_node_search(ctx, mln_lang_var_val_get(sym2->data.var)->data.s, 0);
+        if (sym == NULL) {
+            ret_var = mln_lang_var_create_false(ctx, NULL);
+        } else {
+            if (sym->type == M_LANG_SYMBOL_SET) {
+                ret_var = mln_lang_var_create_string(ctx, &set, NULL);
+            } else {
+                if (mln_lang_var_val_type_get(sym->data.var) == M_LANG_VAL_TYPE_FUNC) {
+                    ret_var = mln_lang_var_create_string(ctx, &func, NULL);
+                } else {
+                    ret_var = mln_lang_var_create_string(ctx, &variable, NULL);
+                }
+            }
         }
     } else {
         mln_lang_errmsg(ctx, "Invalid type of argument 1.");

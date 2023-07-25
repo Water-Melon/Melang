@@ -788,3 +788,36 @@ Output:
 1,Array,asd
 ```
 
+
+
+##### capitalize
+
+Capitalizes the first letter of a string.
+
+```
+str.capitalize(s);
+```
+
+Input:
+
+- `s` - the input string.
+
+Return value:
+
+- returns a string with the first character capitalized.
+
+Example:
+
+```
+str = Import('str');
+sys = Import('sys');
+
+sys.print(str.capitalize('abc'));
+```
+
+Output:
+
+```
+Abc
+```
+

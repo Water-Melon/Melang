@@ -687,7 +687,7 @@ Sam
 
 ##### has
 
-Checks if a key or property exists in an array or object.
+Checks whether the symbol string `thing` in `owner`.
 
 ```
 sys.has(owner, thing);
@@ -695,12 +695,29 @@ sys.has(owner, thing);
 
 Input:
 
-- owner - an array or object.
-- thing - a key or a property name.
+There are threee types of `owner`:
+
+- `nil`: `thing` will be searched in local and global symbol tables.
+
+- array: `thing` will be treated as a array key searched in array `owner`.
+
+- object: `thing` will be treated as a property searched in object `owner`.
+
+The `thing` is an array key or a string name.
 
 Return value:
 
-- *true* if exists, otherwise *false*.
+There are values will be returned:
+
+- `true`: if array key `thing` will be found in array `owner`.
+
+- `'variable'`: if `thing` is a regular variable or an object variable.
+
+- `'function'`: if `thing` is a regular function.
+
+- `'method'`: if `thing` is an object method.
+
+- `false`: found nothing.
 
 Example:
 
