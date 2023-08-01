@@ -203,7 +203,7 @@ static int mln_lang_network_global_init(void)
     mln_conf_t *cf;
     mln_conf_domain_t *cd;
 
-    cf = mln_get_conf();
+    cf = mln_conf();
     if (cf == NULL) return 0;
     cd = cf->search(cf, "main");
     if (cd == NULL) return 0;
@@ -401,7 +401,7 @@ static mln_lang_tcp_t *mln_lang_network_tcp_resource_fetch(mln_lang_t *lang, int
     mln_rbtree_node_t *rn;
     mln_rbtree_t *tcp_set = mln_lang_resource_fetch(lang, "tcp");
     ASSERT(tcp_set != NULL);
-    mln_tcp_conn_set_fd(&(tmp.conn), fd);
+    mln_tcp_conn_fd_set(&(tmp.conn), fd);
     rn = mln_rbtree_root_search(tcp_set, &tmp);
     if (mln_rbtree_null(rn, tcp_set)) return NULL;
     return (mln_lang_tcp_t *)mln_rbtree_node_data(rn);
@@ -413,7 +413,7 @@ static void mln_lang_network_tcp_resource_remove(mln_lang_t *lang, int fd)
     mln_rbtree_node_t *rn;
     mln_rbtree_t *tcp_set = mln_lang_resource_fetch(lang, "tcp");
     ASSERT(tcp_set != NULL);
-    mln_tcp_conn_set_fd(&(tmp.conn), fd);
+    mln_tcp_conn_fd_set(&(tmp.conn), fd);
     rn = mln_rbtree_root_search(tcp_set, &tmp);
     if (mln_rbtree_null(rn, tcp_set)) return;
     mln_rbtree_delete(tcp_set, rn);
@@ -991,13 +991,13 @@ static mln_lang_var_t *mln_lang_network_tcp_send_process(mln_lang_ctx_t *ctx)
         mln_lang_var_free(ret_var);
         return NULL;
     }
-    if ((c = mln_chain_new(mln_tcp_conn_get_pool(&(tcp->conn)))) == NULL) {
+    if ((c = mln_chain_new(mln_tcp_conn_pool_get(&(tcp->conn)))) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_event_fd_set(ctx->lang->ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         mln_lang_var_free(ret_var);
         return NULL;
     }
-    if ((b = mln_buf_new(mln_tcp_conn_get_pool(&(tcp->conn)))) == NULL) {
+    if ((b = mln_buf_new(mln_tcp_conn_pool_get(&(tcp->conn)))) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_chain_pool_release(c);
         mln_event_fd_set(ctx->lang->ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
@@ -1005,7 +1005,7 @@ static mln_lang_var_t *mln_lang_network_tcp_send_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     c->buf = b;
-    if ((buf = (mln_u8ptr_t)mln_alloc_m(mln_tcp_conn_get_pool(&(tcp->conn)), data->len)) == NULL) {
+    if ((buf = (mln_u8ptr_t)mln_alloc_m(mln_tcp_conn_pool_get(&(tcp->conn)), data->len)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_chain_pool_release(c);
         mln_event_fd_set(ctx->lang->ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
@@ -1600,7 +1600,7 @@ static void mln_lang_network_tcp_recv_handler(mln_event_t *ev, int fd, void *dat
     if (rc == M_C_ERROR) {
         mln_lang_mutex_unlock(lang);
         /* do nothing */
-    } else if (rc == M_C_CLOSED && mln_tcp_conn_get_head(&(tcp->conn), M_C_RECV) == NULL) {
+    } else if (rc == M_C_CLOSED && mln_tcp_conn_head(&(tcp->conn), M_C_RECV) == NULL) {
         mln_lang_var_t *ret_var = mln_lang_var_create_true(tcp->ctx, NULL);
         if (ret_var == NULL) {
             mln_lang_mutex_unlock(lang);
@@ -1609,7 +1609,7 @@ static void mln_lang_network_tcp_recv_handler(mln_event_t *ev, int fd, void *dat
         }
         mln_lang_ctx_set_ret_var(tcp->ctx, ret_var);
     } else {
-        c = mln_tcp_conn_get_head(&(tcp->conn), M_C_RECV);
+        c = mln_tcp_conn_head(&(tcp->conn), M_C_RECV);
         for (; c != NULL; c = c->next) {
             if (c->buf == NULL) continue;
             size += mln_buf_left_size(c->buf);
@@ -1619,7 +1619,7 @@ static void mln_lang_network_tcp_recv_handler(mln_event_t *ev, int fd, void *dat
             mln_event_fd_set(ev, fd, M_EV_SEND|M_EV_NONBLOCK|M_EV_ONESHOT, M_EV_UNLIMITED, tcp, mln_lang_network_tcp_recv_handler);
             return;
         }
-        for (p = buf, c = mln_tcp_conn_get_head(&(tcp->conn), M_C_RECV); c != NULL; c = c->next) {
+        for (p = buf, c = mln_tcp_conn_head(&(tcp->conn), M_C_RECV); c != NULL; c = c->next) {
             if (c->buf == NULL) continue;
             memcpy(p, c->buf->left_pos, mln_buf_left_size(c->buf));
             p += mln_buf_left_size(c->buf);
@@ -1651,7 +1651,7 @@ static void mln_lang_network_tcp_send_handler(mln_event_t *ev, int fd, void *dat
     mln_lang_mutex_lock(lang);
     if (rc == M_C_FINISH || rc == M_C_NOTYET) {
         mln_chain_pool_release_all(mln_tcp_conn_remove(&(tcp->conn), M_C_SENT));
-        if (mln_tcp_conn_get_head(&(tcp->conn), M_C_SEND) != NULL) {
+        if (mln_tcp_conn_head(&(tcp->conn), M_C_SEND) != NULL) {
             mln_lang_mutex_unlock(lang);
             mln_event_fd_set(ev, fd, M_EV_SEND|M_EV_NONBLOCK|M_EV_ONESHOT, M_EV_UNLIMITED, tcp, mln_lang_network_tcp_send_handler);
             return;
@@ -1726,15 +1726,15 @@ static void mln_lang_tcp_free(mln_lang_tcp_t *lt)
             lt->sending = lt->recving = 0;
         }
     }
-    mln_event_fd_set(lt->lang->ev, mln_tcp_conn_get_fd(&(lt->conn)), M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
-    mln_socket_close(mln_tcp_conn_get_fd(&(lt->conn)));
+    mln_event_fd_set(lt->lang->ev, mln_tcp_conn_fd_get(&(lt->conn)), M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+    mln_socket_close(mln_tcp_conn_fd_get(&(lt->conn)));
     mln_tcp_conn_destroy(&(lt->conn));
     free(lt);
 }
 
 static int mln_lang_tcp_cmp(const mln_lang_tcp_t *lt1, const mln_lang_tcp_t *lt2)
 {
-    return mln_tcp_conn_get_fd(&(lt1->conn)) - mln_tcp_conn_get_fd(&(lt2->conn));
+    return mln_tcp_conn_fd_get(&(lt1->conn)) - mln_tcp_conn_fd_get(&(lt2->conn));
 }
 
 static mln_lang_ctx_tcp_t *mln_lang_ctx_tcp_new(mln_lang_ctx_t *ctx)
@@ -1754,7 +1754,7 @@ static void mln_lang_ctx_tcp_free(mln_lang_ctx_tcp_t *lct)
     mln_lang_tcp_t *lt;
     while ((lt = lct->head) != NULL) {
         mln_lang_tcp_chain_del(&(lct->head), &(lct->tail), lt);
-        mln_event_fd_set(lt->lang->ev, mln_tcp_conn_get_fd(&(lt->conn)), M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        mln_event_fd_set(lt->lang->ev, mln_tcp_conn_fd_get(&(lt->conn)), M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
         lt->ctx = NULL;
     }
     mln_alloc_free(lct);

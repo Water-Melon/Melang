@@ -59,7 +59,7 @@ static int mln_lang_json_global_init(void)
     mln_conf_t *cf;
     mln_conf_domain_t *cd;
 
-    cf = mln_get_conf();
+    cf = mln_conf();
     if (cf == NULL) return 0;
     cd = cf->search(cf, "main");
     if (cd == NULL) return 0;
@@ -277,7 +277,7 @@ static mln_json_t *mln_lang_json_encode_generate_array(mln_lang_array_t *array)
         }
         if (j == NULL) continue;
         M_JSON_SET_INDEX(j, i);
-        if (mln_json_add_element(json, j) < 0) {
+        if (mln_json_element_add(json, j) < 0) {
             mln_json_free(j);
             mln_json_free(json);
             return NULL;
@@ -370,7 +370,7 @@ static int mln_lang_json_encode_obj_iterate_handler(mln_rbtree_node_t *node, voi
     }
     M_JSON_SET_TYPE_STRING(kj);
     M_JSON_SET_DATA_STRING(kj, dup);
-    if (mln_json_update_obj(jparent, kj, j) < 0) {
+    if (mln_json_obj_update(jparent, kj, j) < 0) {
         mln_json_free(kj);
         mln_json_free(j);
         return -1;

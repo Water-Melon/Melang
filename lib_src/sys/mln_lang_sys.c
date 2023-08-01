@@ -124,7 +124,7 @@ static int mln_lang_sys_global_init(void)
     mln_conf_t *cf;
     mln_conf_domain_t *cd;
 
-    cf = mln_get_conf();
+    cf = mln_conf();
     if (cf == NULL) return 0;
     cd = cf->search(cf, "main");
     if (cd == NULL) return 0;
@@ -3141,7 +3141,7 @@ static mln_lang_sys_exec_t *mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, mln_rbtre
 static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se)
 {
     if (se == NULL) return;
-    int fd = mln_tcp_conn_get_fd(&se->conn);
+    int fd = mln_tcp_conn_fd_get(&se->conn);
     mln_event_fd_set(se->ctx->lang->ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
     mln_chain_pool_release_all(se->head);
     mln_tcp_conn_destroy(&se->conn);
@@ -3151,7 +3151,7 @@ static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se)
 
 static int mln_lang_sys_exec_cmp(mln_lang_sys_exec_t *se1, mln_lang_sys_exec_t *se2)
 {
-    return mln_tcp_conn_get_fd(&se1->conn) - mln_tcp_conn_get_fd(&se2->conn);
+    return mln_tcp_conn_fd_get(&se1->conn) - mln_tcp_conn_fd_get(&se2->conn);
 }
 
 static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
@@ -3329,7 +3329,7 @@ static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data)
     mln_lang_mutex_lock(ctx->lang);
     int rc = mln_tcp_conn_recv(&se->conn, M_C_TYPE_MEMORY);
     if (rc == M_C_FINISH || rc == M_C_NOTYET || rc == M_C_CLOSED) {
-        if (mln_tcp_conn_get_head(&se->conn, M_C_RECV) != NULL) {
+        if (mln_tcp_conn_head(&se->conn, M_C_RECV) != NULL) {
             start = c = mln_tcp_conn_remove(&se->conn, M_C_RECV);
             for (; c != NULL; c = c->next) {
                 if (se->size_limit >= 0 && se->cur_size+mln_buf_size(c->buf) >= se->size_limit) {

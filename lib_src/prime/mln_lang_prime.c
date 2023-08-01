@@ -25,7 +25,7 @@ static int mln_lang_prime_global_init(void)
     mln_conf_t *cf;
     mln_conf_domain_t *cd;
 
-    cf = mln_get_conf();
+    cf = mln_conf();
     if (cf == NULL) return 0;
     cd = cf->search(cf, "main");
     if (cd == NULL) return 0;
@@ -127,7 +127,7 @@ static mln_lang_var_t *mln_lang_prime_process(mln_lang_ctx_t *ctx)
     }
     val = sym->data.var->val;
 
-    p = mln_prime_calc(val->data.i);
+    p = mln_prime_generate(val->data.i);
 
     if ((ret_var = mln_lang_var_create_int(ctx, p, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");

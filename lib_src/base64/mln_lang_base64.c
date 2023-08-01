@@ -24,7 +24,7 @@ static int mln_lang_base64_global_init(void)
     mln_conf_t *cf;
     mln_conf_domain_t *cd;
 
-    cf = mln_get_conf();
+    cf = mln_conf();
     if (cf == NULL) return 0;
     cd = cf->search(cf, "main");
     if (cd == NULL) return 0;
