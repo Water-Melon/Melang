@@ -481,7 +481,7 @@ static int mln_lang_mq_msg_subscribe_get(mln_lang_ctx_t *ctx, mln_string_t *qnam
     lcm  = mln_lang_ctx_resource_fetch(ctx, "mq");
     ASSERT(lcm != NULL);
     tmp.topic_name = qname;
-    rn = mln_rbtree_root_search(lcm->topics, &tmp);
+    rn = mln_rbtree_search(lcm->topics, &tmp);
     if (mln_rbtree_null(rn, lcm->topics)) return 1;
 
     topic = (mln_lang_ctx_mq_topic_t *)mln_rbtree_node_data(rn);
@@ -577,7 +577,7 @@ static mln_lang_var_t *mln_lang_mq_msg_get(mln_lang_ctx_t *ctx, mln_string_t *qn
         mln_lang_mq_msg_free(msg);
         if (mq->msg_head == NULL && mq->wait_head == NULL) {
             if (rn == NULL) {
-                rn = mln_rbtree_root_search(mq_set, mq);
+                rn = mln_rbtree_search(mq_set, mq);
                 if (mln_rbtree_null(rn, mq_set)) {
                     goto out;
                 }
@@ -657,7 +657,7 @@ static void mln_lang_msgqueue_timeout_handler(mln_event_t *ev, void *data)
         mln_lang_mq_wait_free(wait);
 
         if (mq->msg_head == NULL && mq->wait_head == NULL) {
-            mln_rbtree_node_t *rn = mln_rbtree_root_search(mq_set, mq);
+            mln_rbtree_node_t *rn = mln_rbtree_search(mq_set, mq);
             if (!mln_rbtree_null(rn, mq_set)) {
                 mln_rbtree_delete(mq_set, rn);
                 mln_rbtree_node_free(mq_set, rn);
@@ -705,7 +705,7 @@ static int mln_lang_mq_msg_broadcast_ctx(mln_lang_ctx_t *ctx, mln_string_t *qnam
     lcm  = mln_lang_ctx_resource_fetch(ctx, "mq");
     ASSERT(lcm != NULL);
     tmp.topic_name = qname;
-    rn = mln_rbtree_root_search(lcm->topics, &tmp);
+    rn = mln_rbtree_search(lcm->topics, &tmp);
     if (mln_rbtree_null(rn, lcm->topics)) return 0;
 
     topic = (mln_lang_ctx_mq_topic_t *)mln_rbtree_node_data(rn);
@@ -895,7 +895,7 @@ static mln_lang_var_t *mln_lang_msgqueue_topic_subscribe_process(mln_lang_ctx_t 
     lcm  = mln_lang_ctx_resource_fetch(ctx, "mq");
     ASSERT(lcm != NULL);
     tmp.topic_name = qname;
-    rn = mln_rbtree_root_search(lcm->topics, &tmp);
+    rn = mln_rbtree_search(lcm->topics, &tmp);
     if (mln_rbtree_null(rn, lcm->topics)) {
         if ((topic = mln_lang_ctx_mq_topic_new(ctx, qname)) == NULL) {
             mln_lang_var_free(ret_var);
@@ -986,7 +986,7 @@ static mln_lang_var_t *mln_lang_msgqueue_topic_unsubscribe_process(mln_lang_ctx_
     lcm  = mln_lang_ctx_resource_fetch(ctx, "mq");
     ASSERT(lcm != NULL);
     tmp.topic_name = qname;
-    rn = mln_rbtree_root_search(lcm->topics, &tmp);
+    rn = mln_rbtree_search(lcm->topics, &tmp);
     if (!mln_rbtree_null(rn, lcm->topics)) {
         mln_rbtree_delete(lcm->topics, rn);
         mln_rbtree_node_free(lcm->topics, rn);
@@ -1178,7 +1178,7 @@ static mln_lang_mq_t *mln_lang_mq_fetch(mln_lang_t *lang, mln_string_t *qname)
     mln_rbtree_t *mq_set = mln_lang_resource_fetch(lang, "mq");
     ASSERT(mq_set != NULL);
     tmp.name = qname;
-    rn = mln_rbtree_root_search(mq_set, &tmp);
+    rn = mln_rbtree_search(mq_set, &tmp);
     if (mln_rbtree_null(rn, mq_set)) return NULL;
     return (mln_lang_mq_t *)mln_rbtree_node_data(rn);
 }

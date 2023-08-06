@@ -402,7 +402,7 @@ static mln_lang_tcp_t *mln_lang_network_tcp_resource_fetch(mln_lang_t *lang, int
     mln_rbtree_t *tcp_set = mln_lang_resource_fetch(lang, "tcp");
     ASSERT(tcp_set != NULL);
     mln_tcp_conn_fd_set(&(tmp.conn), fd);
-    rn = mln_rbtree_root_search(tcp_set, &tmp);
+    rn = mln_rbtree_search(tcp_set, &tmp);
     if (mln_rbtree_null(rn, tcp_set)) return NULL;
     return (mln_lang_tcp_t *)mln_rbtree_node_data(rn);
 }
@@ -414,7 +414,7 @@ static void mln_lang_network_tcp_resource_remove(mln_lang_t *lang, int fd)
     mln_rbtree_t *tcp_set = mln_lang_resource_fetch(lang, "tcp");
     ASSERT(tcp_set != NULL);
     mln_tcp_conn_fd_set(&(tmp.conn), fd);
-    rn = mln_rbtree_root_search(tcp_set, &tmp);
+    rn = mln_rbtree_search(tcp_set, &tmp);
     if (mln_rbtree_null(rn, tcp_set)) return;
     mln_rbtree_delete(tcp_set, rn);
     mln_rbtree_node_free(tcp_set, rn);
@@ -1798,7 +1798,7 @@ static mln_lang_udp_t *mln_lang_network_udp_resource_fetch(mln_lang_t *lang, int
     mln_rbtree_t *udp_set = mln_lang_resource_fetch(lang, "udp");
     ASSERT(udp_set != NULL);
     tmp.fd = fd;
-    rn = mln_rbtree_root_search(udp_set, &tmp);
+    rn = mln_rbtree_search(udp_set, &tmp);
     if (mln_rbtree_null(rn, udp_set)) return NULL;
     return (mln_lang_udp_t *)mln_rbtree_node_data(rn);
 }
@@ -1810,7 +1810,7 @@ static void mln_lang_network_udp_resource_remove(mln_lang_t *lang, int fd)
     mln_rbtree_t *udp_set = mln_lang_resource_fetch(lang, "udp");
     ASSERT(udp_set != NULL);
     tmp.fd = fd;
-    rn = mln_rbtree_root_search(udp_set, &tmp);
+    rn = mln_rbtree_search(udp_set, &tmp);
     if (mln_rbtree_null(rn, udp_set)) return;
     mln_rbtree_delete(udp_set, rn);
     mln_rbtree_node_free(udp_set, rn);

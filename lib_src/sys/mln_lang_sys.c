@@ -3499,7 +3499,7 @@ static int mln_lang_sys_print_array_cmp(const void *addr1, const void *addr2)
 
 static void mln_lang_sys_print_array(mln_lang_array_t *arr, mln_rbtree_t *check)
 {
-    mln_rbtree_node_t *rn = mln_rbtree_root_search(check, arr);
+    mln_rbtree_node_t *rn = mln_rbtree_search(check, arr);
     if (!mln_rbtree_null(rn, check)) {
         mln_log(none, "[...]");
         return;

@@ -222,7 +222,7 @@ static mln_json_t *mln_lang_json_encode_generate_array(mln_lang_array_t *array)
     M_JSON_SET_TYPE_ARRAY(json);
     for (i = 0; i < n; ++i) {
         elem.index = i;
-        rn = mln_rbtree_root_search(array->elems_index, &elem);
+        rn = mln_rbtree_search(array->elems_index, &elem);
         if (mln_rbtree_null(rn, array->elems_index)) {
             mln_json_free(json);
             return NULL;

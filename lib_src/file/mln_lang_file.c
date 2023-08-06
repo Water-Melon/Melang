@@ -983,9 +983,9 @@ static mln_lang_var_t *mln_lang_close_process(mln_lang_ctx_t *ctx)
     tree = mln_lang_ctx_resource_fetch(ctx, "file_fd");
 #if defined(WIN32)
     int fd = val->data.i;
-    rn = mln_rbtree_root_search(tree, (void *)fd);
+    rn = mln_rbtree_search(tree, (void *)fd);
 #else
-    rn = mln_rbtree_root_search(tree, (void *)(val->data.i));
+    rn = mln_rbtree_search(tree, (void *)(val->data.i));
 #endif
     if (mln_rbtree_null(rn, tree)) {
         mln_lang_errmsg(ctx, "Invalid file descriptor.");
