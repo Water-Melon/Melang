@@ -175,9 +175,7 @@ static int mln_lang_msgqueue_resource_register(mln_lang_ctx_t *ctx)
         fattr.cmp = (fheap_cmp)mln_lang_mq_wait_cmp;
         fattr.copy = (fheap_copy)mln_lang_mq_wait_copy;
         fattr.key_free = NULL;
-        fattr.min_val = &mq_wait_min;
-        fattr.min_val_size = sizeof(mq_wait_min);
-        if ((mq_timeout_set = mln_fheap_new(&fattr)) == NULL) {
+        if ((mq_timeout_set = mln_fheap_new(&mq_wait_min, &fattr)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
         }
