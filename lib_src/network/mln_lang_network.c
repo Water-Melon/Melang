@@ -404,7 +404,7 @@ static mln_lang_tcp_t *mln_lang_network_tcp_resource_fetch(mln_lang_t *lang, int
     mln_tcp_conn_fd_set(&(tmp.conn), fd);
     rn = mln_rbtree_search(tcp_set, &tmp);
     if (mln_rbtree_null(rn, tcp_set)) return NULL;
-    return (mln_lang_tcp_t *)mln_rbtree_node_data(rn);
+    return (mln_lang_tcp_t *)mln_rbtree_node_data_get(rn);
 }
 
 static void mln_lang_network_tcp_resource_remove(mln_lang_t *lang, int fd)
@@ -1800,7 +1800,7 @@ static mln_lang_udp_t *mln_lang_network_udp_resource_fetch(mln_lang_t *lang, int
     tmp.fd = fd;
     rn = mln_rbtree_search(udp_set, &tmp);
     if (mln_rbtree_null(rn, udp_set)) return NULL;
-    return (mln_lang_udp_t *)mln_rbtree_node_data(rn);
+    return (mln_lang_udp_t *)mln_rbtree_node_data_get(rn);
 }
 
 static void mln_lang_network_udp_resource_remove(mln_lang_t *lang, int fd)

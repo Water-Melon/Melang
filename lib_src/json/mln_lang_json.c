@@ -227,7 +227,7 @@ static mln_json_t *mln_lang_json_encode_generate_array(mln_lang_array_t *array)
             mln_json_free(json);
             return NULL;
         }
-        var = ((mln_lang_array_elem_t *)mln_rbtree_node_data(rn))->value;
+        var = ((mln_lang_array_elem_t *)mln_rbtree_node_data_get(rn))->value;
         type = mln_lang_var_val_type_get(var);
         switch (type) {
             case M_LANG_VAL_TYPE_NIL:
@@ -309,7 +309,7 @@ static int mln_lang_json_encode_obj_iterate_handler(mln_rbtree_node_t *node, voi
     mln_string_t *k, *dup;
     mln_lang_var_t *var;
     mln_json_t *jparent = (mln_json_t *)udata, *j, *kj;
-    mln_lang_array_elem_t *lae = (mln_lang_array_elem_t *)mln_rbtree_node_data(node);
+    mln_lang_array_elem_t *lae = (mln_lang_array_elem_t *)mln_rbtree_node_data_get(node);
     if (mln_lang_var_val_type_get(lae->key) != M_LANG_VAL_TYPE_STRING || \
         (k = lae->key->val->data.s) == NULL)
     {
@@ -658,7 +658,7 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_rbt
 static int mln_lang_json_decode_array_iterate_handler(mln_rbtree_node_t *node, void *udata)
 {
     int rc = 0;
-    mln_json_t *json = (mln_json_t *)mln_rbtree_node_data(node);
+    mln_json_t *json = (mln_json_t *)mln_rbtree_node_data_get(node);
     struct mln_lang_json_scan_s *ljs = (struct mln_lang_json_scan_s *)udata;
     mln_lang_var_t kvar;
     mln_lang_val_t kval;
