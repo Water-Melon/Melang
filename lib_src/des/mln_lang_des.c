@@ -5,17 +5,9 @@
 #include <stdlib.h>
 #include "mln_lang_des.h"
 #include "mln_des.h"
-#include "mln_core.h"
+#include "mln_defs.h"
 #include "mln_conf.h"
-
-#ifdef __DEBUG__
-#include <assert.h>
-#define ASSERT(x) assert(x)
-#else
-#define ASSERT(x);
-#endif
-
-static int melon_init_flag = 0;
+#include "mln_log.h"
 
 static int mln_lang_des(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_des_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
@@ -23,39 +15,9 @@ static int mln_lang_3des_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_des_process(mln_lang_ctx_t *ctx);
 static mln_lang_var_t *mln_lang_3des_process(mln_lang_ctx_t *ctx);
 
-static int mln_lang_des_global_init(void)
+mln_lang_var_t *init(mln_lang_ctx_t *ctx, mln_conf_t *cf)
 {
-    mln_conf_t *cf;
-    mln_conf_domain_t *cd;
-
-    cf = mln_conf();
-    if (cf == NULL) return 0;
-    cd = cf->search(cf, "main");
-    if (cd == NULL) return 0;
-    cd->remove(cd, "trace_mode");
-    cd->remove(cd, "framework");
-
-    return 0;
-}
-
-mln_lang_var_t *init(mln_lang_ctx_t *ctx)
-{
-    if (!melon_init_flag) {
-        struct mln_core_attr cattr;
-        cattr.argc = 0;
-        cattr.argv = NULL;
-        cattr.global_init = mln_lang_des_global_init;
-#if !defined(WINNT)
-        cattr.main_thread = NULL;
-        cattr.master_process = NULL;
-        cattr.worker_process = NULL;
-#endif
-        if (mln_core_init(&cattr) < 0) {
-            fprintf(stderr, "framework init failed.\n");
-            return NULL;
-        }
-        melon_init_flag = 1;
-    }
+    mln_log_init(cf);
     mln_lang_var_t *obj = mln_lang_var_create_obj(ctx, NULL, NULL);
     if (obj == NULL) {
         mln_lang_errmsg(ctx, "No memory.");

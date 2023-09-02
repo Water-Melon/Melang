@@ -3,17 +3,11 @@
  * Copyright (C) Niklaus F.Schen.
  */
 #include "mln_lang_mysql.h"
-#include "mln_core.h"
+#include "mln_defs.h"
 #include "mln_conf.h"
+#include "mln_log.h"
 
 #ifdef MLN_MYSQL
-
-#ifdef __DEBUG__
-#include <assert.h>
-#define ASSERT(x) assert(x)
-#else
-#define ASSERT(x);
-#endif
 
 MLN_CHAIN_FUNC_DECLARE(mln_lang_mysql, mln_lang_mysql_t, static inline void,);
 MLN_CHAIN_FUNC_DEFINE(mln_lang_mysql, mln_lang_mysql_t, static inline void, prev, next);
@@ -1304,41 +1298,9 @@ static int mln_lang_mysql(mln_lang_ctx_t *ctx)
     return 0;
 }
 
-static int melon_init_flag = 0;
-
-static int mln_lang_mysql_global_init(void)
+mln_lang_var_t *init(mln_lang_ctx_t *ctx, mln_conf_t *cf)
 {
-    mln_conf_t *cf;
-    mln_conf_domain_t *cd;
-
-    cf = mln_conf();
-    if (cf == NULL) return 0;
-    cd = cf->search(cf, "main");
-    if (cd == NULL) return 0;
-    cd->remove(cd, "trace_mode");
-    cd->remove(cd, "framework");
-
-    return 0;
-}
-
-mln_lang_var_t *init(mln_lang_ctx_t *ctx)
-{
-    if (!melon_init_flag) {
-        struct mln_core_attr cattr;
-        cattr.argc = 0;
-        cattr.argv = NULL;
-        cattr.global_init = mln_lang_mysql_global_init;
-#if !defined(WINNT)
-        cattr.main_thread = NULL;
-        cattr.master_process = NULL;
-        cattr.worker_process = NULL;
-#endif
-        if (mln_core_init(&cattr) < 0) {
-            fprintf(stderr, "framework init failed.\n");
-            return NULL;
-        }
-        melon_init_flag = 1;
-    }
+    mln_log_init(cf);
     mln_string_t s = mln_string("Mysql");
     mln_lang_var_t *ret_var = mln_lang_var_create_string(ctx, &s, NULL);
     if (ret_var == NULL) {

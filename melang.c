@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <pthread.h>
-#include "mln_core.h"
+#include "mln_framework.h"
 #include "mln_string.h"
 #include "mln_lang.h"
 #include "mln_lex.h"
@@ -31,7 +31,6 @@ struct mln_thread_args_s {
 
 static int mln_signal(mln_lang_t *lang);
 static int mln_clear(mln_lang_t *lang);
-static int mln_global_init(void);
 static void mln_params_check(int argc, char *argv[]);
 static void mln_run_all(int argc, char *argv[]);
 static void mln_task_checker(mln_event_t *ev, void *data);
@@ -50,6 +49,7 @@ __thread mln_fd_node_t *t_node;
 
 int main(int argc, char *argv[])
 {
+    struct mln_rbtree_attr rbattr;
 #if defined(WIN32)
     WSADATA wsaData = {0};
     int rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -60,86 +60,8 @@ int main(int argc, char *argv[])
 #endif
     mln_params_check(argc, argv);
 
-    struct mln_core_attr cattr;
-    cattr.argc = argc;
-    cattr.argv = argv;
-    cattr.global_init = mln_global_init;
-#if !defined(WIN32)
-    cattr.main_thread = NULL;
-    cattr.worker_process = NULL;
-    cattr.master_process = NULL;
-#endif
-    if (mln_core_init(&cattr) < 0) {
-        fprintf(stderr, "init failed.\n");
-        return -1;
-    }
-
-    mln_run_all(argc, argv);
-
-#if defined(WIN32)
-    WSACleanup();
-#endif
-    return 0;
-}
-
-static int mln_global_init(void)
-{
-    mln_string_t path = mln_string("/tmp/.melang.log");
-    mln_conf_t *cf = mln_conf();
-    mln_conf_domain_t *cd = cf->search(cf, "main");
-    mln_conf_cmd_t *cc;
-    mln_conf_item_t *ci;
-    struct mln_rbtree_attr rbattr;
-
-    cc = cd->search(cd, "daemon");
-    if (cc == NULL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci = cc->search(cc, 1);
-    if (ci == NULL || ci->type != CONF_BOOL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci->val.b = 0;
-
-    cc = cd->search(cd, "framework");
-    if (cc == NULL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci = cc->search(cc, 1);
-    if (ci == NULL || ci->type != CONF_BOOL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci->val.b = 0;
-
-    cc = cd->search(cd, "worker_proc");
-    if (cc == NULL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci = cc->search(cc, 1);
-    if (ci == NULL || ci->type != CONF_INT) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci->val.i = 1;
-
-    cc = cd->search(cd, "log_path");
-    if (cc == NULL) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    ci = cc->search(cc, 1);
-    if (ci == NULL || ci->type != CONF_STR) {
-        fprintf(stderr, "Invalid configuration.\n");
-        return -1;
-    }
-    mln_string_free(ci->val.s);
-    if ((ci->val.s = mln_string_dup(&path)) == NULL) {
-        fprintf(stderr, "No memory.\n");
+    if (mln_log_init(NULL) < 0) {
+        fprintf(stderr, "init log failed.\n");
         return -1;
     }
 
@@ -157,6 +79,12 @@ static int mln_global_init(void)
         fprintf(stderr, "Init fd tree mutex failed.\n");
         return -1;
     }
+
+    mln_run_all(argc, argv);
+
+#if defined(WIN32)
+    WSACleanup();
+#endif
     return 0;
 }
 
