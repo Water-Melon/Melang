@@ -226,7 +226,7 @@ static int mln_lang_json_encode_generate_array(mln_lang_array_t *array, mln_json
                 ASSERT(0);
                 break;
         }
-        if (M_JSON_IS_NONE(&j)) continue;
+        if (mln_json_is_none(&j)) continue;
 
         if (mln_json_array_append(json, &j) < 0) {
             mln_json_destroy(&j);
@@ -305,7 +305,7 @@ static int mln_lang_json_encode_obj_iterate_handler(mln_rbtree_node_t *node, voi
             ASSERT(0);
             break;
     }
-    if (M_JSON_IS_NONE(&j)) return 0;
+    if (mln_json_is_none(&j)) return 0;
 
     mln_json_string_init(&kj, mln_string_ref(k));
     if (mln_json_obj_update(jparent, &kj, &j) < 0) {
@@ -396,19 +396,19 @@ static mln_lang_var_t *mln_lang_json_decode_process(mln_lang_ctx_t *ctx)
             return NULL;
         }
     } else {
-        if (M_JSON_IS_OBJECT(&json)) {
+        if (mln_json_is_object(&json)) {
             rc = mln_lang_json_decode_obj(ctx, array, &(json.data.m_j_obj));
-        } else if (M_JSON_IS_ARRAY(&json)) {
+        } else if (mln_json_is_array(&json)) {
             rc = mln_lang_json_decode_array(ctx, array, &(json.data.m_j_array));
-        } else if (M_JSON_IS_STRING(&json)) {
+        } else if (mln_json_is_string(&json)) {
             rc = mln_lang_json_decode_string(ctx, array, json.data.m_j_string, NULL);
-        } else if (M_JSON_IS_NUMBER(&json)) {
+        } else if (mln_json_is_number(&json)) {
             rc = mln_lang_json_decode_number(ctx, array, json.data.m_j_number, NULL);
-        } else if (M_JSON_IS_TRUE(&json)) {
+        } else if (mln_json_is_true(&json)) {
             rc = mln_lang_json_decode_true(ctx, array, NULL);
-        } else if (M_JSON_IS_FALSE(&json)) {
+        } else if (mln_json_is_false(&json)) {
             rc = mln_lang_json_decode_false(ctx, array, NULL);
-        } else if (M_JSON_IS_NULL(&json)) {
+        } else if (mln_json_is_null(&json)) {
             rc = mln_lang_json_decode_null(ctx, array, NULL);
         } else { /*M_JSON_IS_NONE*/
             /*do nothing*/
@@ -458,7 +458,7 @@ static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data)
     kval.type = M_LANG_VAL_TYPE_STRING;
     kval.ref = 1;
 
-    if (M_JSON_IS_OBJECT(&(kv->val))) {
+    if (mln_json_is_object(&(kv->val))) {
         mln_lang_array_t *tmpa;
         mln_lang_var_t *array_val, var;
         mln_lang_val_t val;
@@ -486,7 +486,7 @@ static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data)
             mln_lang_array_free(tmpa);
             return -1;
         }
-    } else if (M_JSON_IS_ARRAY(&(kv->val))) {
+    } else if (mln_json_is_array(&(kv->val))) {
         mln_lang_array_t *tmpa;
         mln_lang_var_t *array_val, var;
         mln_lang_val_t val;
@@ -514,15 +514,15 @@ static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data)
             mln_lang_array_free(tmpa);
             return -1;
         }
-    } else if (M_JSON_IS_STRING(&(kv->val))) {
+    } else if (mln_json_is_string(&(kv->val))) {
         rc = mln_lang_json_decode_string(ljs->ctx, ljs->array, kv->val.data.m_j_string, &kvar);
-    } else if (M_JSON_IS_NUMBER(&(kv->val))) {
+    } else if (mln_json_is_number(&(kv->val))) {
         rc = mln_lang_json_decode_number(ljs->ctx, ljs->array, kv->val.data.m_j_number, &kvar);
-    } else if (M_JSON_IS_TRUE(&(kv->val))) {
+    } else if (mln_json_is_true(&(kv->val))) {
         rc = mln_lang_json_decode_true(ljs->ctx, ljs->array, &kvar);
-    } else if (M_JSON_IS_FALSE(&(kv->val))) {
+    } else if (mln_json_is_false(&(kv->val))) {
         rc = mln_lang_json_decode_false(ljs->ctx, ljs->array, &kvar);
-    } else if (M_JSON_IS_NULL(&(kv->val))) {
+    } else if (mln_json_is_null(&(kv->val))) {
         rc = mln_lang_json_decode_null(ljs->ctx, ljs->array, &kvar);
     } else { /*M_JSON_IS_NONE*/
         /*do nothing*/
@@ -553,7 +553,7 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_arr
         kval.type = M_LANG_VAL_TYPE_INT;
         kval.ref = 1;
 
-        if (M_JSON_IS_OBJECT(el)) {
+        if (mln_json_is_object(el)) {
             if ((tmpa = mln_lang_array_new(ctx)) == NULL) {
                 return -1;
             }
@@ -578,7 +578,7 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_arr
                 mln_lang_array_free(tmpa);
                 return -1;
             }
-        } else if (M_JSON_IS_ARRAY(el)) {
+        } else if (mln_json_is_array(el)) {
             if ((tmpa = mln_lang_array_new(ctx)) == NULL) {
                 return -1;
             }
@@ -603,19 +603,19 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_arr
                 mln_lang_array_free(tmpa);
                 return -1;
             }
-        } else if (M_JSON_IS_STRING(el)) {
+        } else if (mln_json_is_string(el)) {
             if (mln_lang_json_decode_string(ctx, array, el->data.m_j_string, &kvar) < 0)
                 return -1;
-        } else if (M_JSON_IS_NUMBER(el)) {
+        } else if (mln_json_is_number(el)) {
             if (mln_lang_json_decode_number(ctx, array, el->data.m_j_number, &kvar) < 0)
                 return -1;
-        } else if (M_JSON_IS_TRUE(el)) {
+        } else if (mln_json_is_true(el)) {
             if (mln_lang_json_decode_true(ctx, array, &kvar) < 0)
                 return -1;
-        } else if (M_JSON_IS_FALSE(el)) {
+        } else if (mln_json_is_false(el)) {
             if (mln_lang_json_decode_false(ctx, array, &kvar) < 0)
                 return -1;
-        } else if (M_JSON_IS_NULL(el)) {
+        } else if (mln_json_is_null(el)) {
             if (mln_lang_json_decode_null(ctx, array, &kvar) < 0)
                 return -1;
         } else { /*M_JSON_IS_NONE*/
