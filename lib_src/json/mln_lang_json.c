@@ -19,7 +19,7 @@ static int mln_lang_json_encode_obj_iterate_handler(mln_rbtree_node_t *node, voi
 static int mln_lang_json_decode_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_json_decode_process(mln_lang_ctx_t *ctx);
 static inline int
-mln_lang_json_decode_obj(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_hash_t *obj);
+mln_lang_json_decode_obj(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_rbtree_t *obj);
 static inline int
 mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_array_t *a);
 static inline int
@@ -32,7 +32,7 @@ static inline int
 mln_lang_json_decode_false(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lang_var_t *key);
 static inline int
 mln_lang_json_decode_null(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lang_var_t *key);
-static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data);
+static int mln_lang_json_decode_obj_scan(mln_rbtree_node_t *node, void *data);
 
 
 mln_lang_var_t *init(mln_lang_ctx_t *ctx, mln_conf_t *cf)
@@ -397,13 +397,13 @@ static mln_lang_var_t *mln_lang_json_decode_process(mln_lang_ctx_t *ctx)
         }
     } else {
         if (mln_json_is_object(&json)) {
-            rc = mln_lang_json_decode_obj(ctx, array, &(json.data.m_j_obj));
+            rc = mln_lang_json_decode_obj(ctx, array, mln_json_object_data_get(&json));
         } else if (mln_json_is_array(&json)) {
-            rc = mln_lang_json_decode_array(ctx, array, &(json.data.m_j_array));
+            rc = mln_lang_json_decode_array(ctx, array, mln_json_array_data_get(&json));
         } else if (mln_json_is_string(&json)) {
-            rc = mln_lang_json_decode_string(ctx, array, json.data.m_j_string, NULL);
+            rc = mln_lang_json_decode_string(ctx, array, mln_json_string_data_get(&json), NULL);
         } else if (mln_json_is_number(&json)) {
-            rc = mln_lang_json_decode_number(ctx, array, json.data.m_j_number, NULL);
+            rc = mln_lang_json_decode_number(ctx, array, mln_json_number_data_get(&json), NULL);
         } else if (mln_json_is_true(&json)) {
             rc = mln_lang_json_decode_true(ctx, array, NULL);
         } else if (mln_json_is_false(&json)) {
@@ -431,21 +431,21 @@ struct mln_lang_json_scan_s {
 };
 
 static int
-mln_lang_json_decode_obj(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_hash_t *obj)
+mln_lang_json_decode_obj(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_rbtree_t *obj)
 {
     struct mln_lang_json_scan_s ljs;
     ljs.ctx = ctx;
     ljs.array = array;
-    if (mln_hash_iterate(obj, mln_lang_json_decode_obj_scan, &ljs) < 0) {
+    if (mln_rbtree_iterate(obj, mln_lang_json_decode_obj_scan, &ljs) < 0) {
         return -1;
     }
     return 0;
 }
 
-static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data)
+static int mln_lang_json_decode_obj_scan(mln_rbtree_node_t *node, void *data)
 {
     int rc = 0;
-    mln_json_kv_t *kv = (mln_json_kv_t *)val;
+    mln_json_kv_t *kv = (mln_json_kv_t *)mln_rbtree_node_data_get(node);
     struct mln_lang_json_scan_s *ljs = (struct mln_lang_json_scan_s *)data;
     mln_lang_var_t kvar;
     mln_lang_val_t kval;
@@ -454,7 +454,7 @@ static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data)
     kvar.val = &kval;
     kvar.in_set = NULL;
     kvar.prev = kvar.next = NULL;
-    kval.data.s = (mln_string_t *)key;
+    kval.data.s = mln_json_string_data_get(&(kv->key));
     kval.type = M_LANG_VAL_TYPE_STRING;
     kval.ref = 1;
 
@@ -466,7 +466,7 @@ static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data)
             return -1;
         }
         ++(tmpa->ref);
-        if ((rc = mln_lang_json_decode_obj(ljs->ctx, tmpa, &(kv->val.data.m_j_obj))) < 0) {
+        if ((rc = mln_lang_json_decode_obj(ljs->ctx, tmpa, mln_json_object_data_get(&(kv->val)))) < 0) {
             mln_lang_array_free(tmpa);
             return rc;
         }
@@ -494,7 +494,7 @@ static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data)
             return -1;
         }
         ++(tmpa->ref);
-        if ((rc = mln_lang_json_decode_array(ljs->ctx, tmpa, &(kv->val.data.m_j_array))) < 0) {
+        if ((rc = mln_lang_json_decode_array(ljs->ctx, tmpa, mln_json_array_data_get(&(kv->val)))) < 0) {
             mln_lang_array_free(tmpa);
             return rc;
         }
@@ -515,9 +515,9 @@ static int mln_lang_json_decode_obj_scan(void *key, void *val, void *data)
             return -1;
         }
     } else if (mln_json_is_string(&(kv->val))) {
-        rc = mln_lang_json_decode_string(ljs->ctx, ljs->array, kv->val.data.m_j_string, &kvar);
+        rc = mln_lang_json_decode_string(ljs->ctx, ljs->array, mln_json_string_data_get(&(kv->val)), &kvar);
     } else if (mln_json_is_number(&(kv->val))) {
-        rc = mln_lang_json_decode_number(ljs->ctx, ljs->array, kv->val.data.m_j_number, &kvar);
+        rc = mln_lang_json_decode_number(ljs->ctx, ljs->array, mln_json_number_data_get(&(kv->val)), &kvar);
     } else if (mln_json_is_true(&(kv->val))) {
         rc = mln_lang_json_decode_true(ljs->ctx, ljs->array, &kvar);
     } else if (mln_json_is_false(&(kv->val))) {
@@ -558,7 +558,7 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_arr
                 return -1;
             }
             ++(tmpa->ref);
-            if (mln_lang_json_decode_obj(ctx, tmpa, &(el->data.m_j_obj)) < 0) {
+            if (mln_lang_json_decode_obj(ctx, tmpa, mln_json_object_data_get(el)) < 0) {
                 mln_lang_array_free(tmpa);
                 return -1;
             }
@@ -583,7 +583,7 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_arr
                 return -1;
             }
             ++(tmpa->ref);
-            if (mln_lang_json_decode_array(ctx, tmpa, &(el->data.m_j_array)) < 0) {
+            if (mln_lang_json_decode_array(ctx, tmpa, mln_json_array_data_get(el)) < 0) {
                 mln_lang_array_free(tmpa);
                 return -1;
             }
@@ -604,10 +604,10 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_arr
                 return -1;
             }
         } else if (mln_json_is_string(el)) {
-            if (mln_lang_json_decode_string(ctx, array, el->data.m_j_string, &kvar) < 0)
+            if (mln_lang_json_decode_string(ctx, array, mln_json_string_data_get(el), &kvar) < 0)
                 return -1;
         } else if (mln_json_is_number(el)) {
-            if (mln_lang_json_decode_number(ctx, array, el->data.m_j_number, &kvar) < 0)
+            if (mln_lang_json_decode_number(ctx, array, mln_json_number_data_get(el), &kvar) < 0)
                 return -1;
         } else if (mln_json_is_true(el)) {
             if (mln_lang_json_decode_true(ctx, array, &kvar) < 0)
@@ -625,7 +625,7 @@ mln_lang_json_decode_array(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_arr
     return 0;
 }
 
-static int
+static inline int
 mln_lang_json_decode_string(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_string_t *s, mln_lang_var_t *key)
 {
     mln_lang_var_t *array_val, var;
@@ -647,7 +647,7 @@ mln_lang_json_decode_string(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_st
     return 0;
 }
 
-static int
+static inline int
 mln_lang_json_decode_number(mln_lang_ctx_t *ctx, mln_lang_array_t *array, double num, mln_lang_var_t *key)
 {
     mln_lang_var_t *array_val, var;
@@ -675,7 +675,7 @@ mln_lang_json_decode_number(mln_lang_ctx_t *ctx, mln_lang_array_t *array, double
     return 0;
 }
 
-static int
+static inline int
 mln_lang_json_decode_true(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lang_var_t *key)
 {
     mln_lang_var_t *array_val, var;
@@ -697,7 +697,7 @@ mln_lang_json_decode_true(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lang
     return 0;
 }
 
-static int
+static inline int
 mln_lang_json_decode_false(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lang_var_t *key)
 {
     mln_lang_var_t *array_val, var;
@@ -719,13 +719,9 @@ mln_lang_json_decode_false(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lan
     return 0;
 }
 
-static int
+static inline int
 mln_lang_json_decode_null(mln_lang_ctx_t *ctx, mln_lang_array_t *array, mln_lang_var_t *key)
 {
-    mln_lang_var_t *array_val;
-    if ((array_val = mln_lang_array_get(ctx, array, key)) == NULL) {
-        return -1;
-    }
-    return 0;
+    return mln_lang_array_get(ctx, array, key) == NULL? -1: 0;
 }
 
