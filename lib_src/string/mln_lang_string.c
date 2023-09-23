@@ -6,7 +6,7 @@
 #include "mln_lang_str.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "mln_defs.h"
+#include "mln_utils.h"
 #include "mln_conf.h"
 #include "mln_log.h"
 

@@ -4,7 +4,7 @@
  */
 #include "mln_lang_aes.h"
 #include "mln_aes.h"
-#include "mln_defs.h"
+#include "mln_utils.h"
 #include "mln_conf.h"
 #include "mln_log.h"
 

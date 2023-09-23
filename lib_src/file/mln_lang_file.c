@@ -9,7 +9,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include "mln_defs.h"
+#include "mln_utils.h"
 #include "mln_conf.h"
 #include "mln_log.h"
 

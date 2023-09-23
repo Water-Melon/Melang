@@ -10,7 +10,7 @@
 #include "mln_lex.h"
 #include "mln_cron.h"
 #include "mln_log.h"
-#include "mln_defs.h"
+#include "mln_utils.h"
 #include "mln_conf.h"
 
 static int mln_lang_sys(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);

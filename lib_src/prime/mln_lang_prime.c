@@ -5,7 +5,7 @@
 
 #include "mln_lang_prime.h"
 #include "mln_prime_generator.h"
-#include "mln_defs.h"
+#include "mln_utils.h"
 #include "mln_conf.h"
 #include "mln_log.h"
 

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "mln_lang_des.h"
 #include "mln_des.h"
-#include "mln_defs.h"
+#include "mln_utils.h"
 #include "mln_conf.h"
 #include "mln_log.h"
 

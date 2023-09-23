@@ -5,7 +5,7 @@
 #include "mln_lang_md5.h"
 #include "mln_md5.h"
 #include "mln_conf.h"
-#include "mln_defs.h"
+#include "mln_utils.h"
 #include "mln_log.h"
 
 static int mln_lang_md5(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
