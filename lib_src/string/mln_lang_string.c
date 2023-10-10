@@ -736,13 +736,14 @@ static mln_lang_var_t *mln_reg_match_process(mln_lang_ctx_t *ctx)
 {
     mln_lang_val_t *val1, *val2;
     mln_lang_var_t *ret_var;
-    mln_string_t v1 = mln_string("s1"), v2 = mln_string("s2");
+    mln_string_t v1 = mln_string("s1"), v2 = mln_string("s2"), *s;
     mln_lang_symbol_node_t *sym;
     mln_lang_array_t *array;
     mln_lang_var_t *array_val;
     mln_lang_var_t var;
     mln_lang_val_t val;
-    mln_reg_match_t *scan, *head = NULL, *tail = NULL;
+    mln_reg_match_result_t *res;
+    int n;
 
     if ((sym = mln_lang_symbol_node_search(ctx, &v1, 1)) == NULL) {
         ASSERT(0);
@@ -767,7 +768,12 @@ static mln_lang_var_t *mln_reg_match_process(mln_lang_ctx_t *ctx)
     }
     val2 = sym->data.var->val;
 
-    if (mln_reg_match(val1->data.s, val2->data.s, &head, &tail) <= 0) {
+    if ((res = mln_reg_match_result_new(M_LANG_STRING_REGEXP_PREALLOC)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    if ((n = mln_reg_match(val1->data.s, val2->data.s, res)) <= 0) {
+        mln_reg_match_result_free(res);
         if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return NULL;
@@ -776,15 +782,16 @@ static mln_lang_var_t *mln_reg_match_process(mln_lang_ctx_t *ctx)
     }
 
     if ((ret_var = mln_lang_var_create_array(ctx, NULL)) == NULL) {
-        mln_reg_match_result_free(head);
+        mln_reg_match_result_free(res);
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
     array = ret_var->val->data.array;
-    for (scan = head; scan != NULL; scan = scan->next) {
+    s = mln_reg_match_result_get(res);
+    for (--n; n >= 0; --n) {
         if ((array_val = mln_lang_array_get(ctx, array, NULL)) == NULL) {
             mln_lang_var_free(ret_var);
-            mln_reg_match_result_free(head);
+            mln_reg_match_result_free(res);
             mln_lang_errmsg(ctx, "No memory.");
             return NULL;
         }
@@ -793,17 +800,17 @@ static mln_lang_var_t *mln_reg_match_process(mln_lang_ctx_t *ctx)
         var.val = &val;
         var.in_set = NULL;
         var.prev = var.next = NULL;
-        val.data.s = &(scan->data);
+        val.data.s = &s[n];
         val.type = M_LANG_VAL_TYPE_STRING;
         val.ref = 1;
         if (mln_lang_var_value_set(ctx, array_val, &var) < 0) {
             mln_lang_var_free(ret_var);
-            mln_reg_match_result_free(head);
+            mln_reg_match_result_free(res);
             mln_lang_errmsg(ctx, "No memory.");
             return NULL;
         }
     }
-    mln_reg_match_result_free(head);
+    mln_reg_match_result_free(res);
     return ret_var;
 }
 

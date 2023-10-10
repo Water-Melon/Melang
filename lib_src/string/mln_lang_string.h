@@ -8,6 +8,8 @@
 #include "mln_lang.h"
 #include "mln_regexp.h"
 
+#define M_LANG_STRING_REGEXP_PREALLOC  32
+
 typedef struct mln_lang_string_pos_s {
     struct mln_lang_string_pos_s *prev;
     struct mln_lang_string_pos_s *next;
