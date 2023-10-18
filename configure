@@ -150,6 +150,7 @@ echo "LIBBASE64	= base64.dll" >> Makefile
 echo "LIBDES		= des.dll" >> Makefile
 echo "LIBFILE		= file.dll" >> Makefile
 echo "LIBJSON		= json.dll" >> Makefile
+echo "LIBHTTP		= http.dll" >> Makefile
 echo "LIBMATRIX	= matrix.dll" >> Makefile
 echo "LIBMD5		= md5.dll" >> Makefile
 echo "LIBMQ		= mq.dll" >> Makefile
@@ -166,6 +167,7 @@ echo "LIBBASE64	= base64.so" >> Makefile
 echo "LIBDES		= des.so" >> Makefile
 echo "LIBFILE		= file.so" >> Makefile
 echo "LIBJSON		= json.so" >> Makefile
+echo "LIBHTTP		= http.so" >> Makefile
 echo "LIBMATRIX	= matrix.so" >> Makefile
 echo "LIBMD5		= md5.so" >> Makefile
 echo "LIBMQ		= mq.so" >> Makefile
@@ -184,6 +186,7 @@ echo "LIBBASE64OBJS	= objs/mln_lang_base64.o" >> Makefile
 echo "LIBDESOBJS	= objs/mln_lang_des.o" >> Makefile
 echo "LIBFILEOBJS	= objs/mln_lang_file.o" >> Makefile
 echo "LIBJSONOBJS	= objs/mln_lang_json.o" >> Makefile
+echo "LIBHTTPOBJS	= objs/mln_lang_http.o" >> Makefile
 echo "LIBMATRIXOBJS	= objs/mln_lang_matrix.o" >> Makefile
 echo "LIBMD5OBJS	= objs/mln_lang_md5.o" >> Makefile
 echo "LIBMQOBJS	= objs/mln_lang_msgqueue.o" >> Makefile
@@ -199,15 +202,17 @@ echo ".PHONY :	compile all install clean" >> Makefile
 echo "compile: PREPARE \$(MELANGOBJS) \$(MELANG) COMPILECLEAN" >> Makefile
 echo "lib:     PREPARE \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
 echo "         \$(LIBMATRIXOBJS) \$(LIBMD5OBJS) \$(LIBMQOBJS) \$(LIBMYSQLOBJS) \$(LIBNETWORKOBJS) \$(LIBPRIMEOBJS) \\" >> Makefile
-echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \\" >> Makefile
+echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \$(LIBHTTPOBJS) \\" >> Makefile
 echo "         \$(LIBAES) \$(LIBBASE64) \$(LIBDES) \$(LIBFILE) \$(LIBJSON) \$(LIBMATRIX) \$(LIBMD5) \\" >> Makefile
 echo "         \$(LIBMQ) \$(LIBMYSQL) \$(LIBNETWORK) \$(LIBPRIME) \$(LIBRC) \$(LIBSHA) \$(LIBSTR) \$(LIBSYS) \\" >> Makefile
+echo "         \$(LIBHTTP) \\" >> Makefile
 echo "         COMPILECLEAN" >> Makefile
 echo "all:     PREPARE \$(MELANGOBJS) \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
 echo "         \$(LIBMATRIXOBJS) \$(LIBMD5OBJS) \$(LIBMQOBJS) \$(LIBMYSQLOBJS) \$(LIBNETWORKOBJS) \$(LIBPRIMEOBJS) \\" >> Makefile
-echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \\" >> Makefile
+echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \$(LIBHTTPOBJS) \\" >> Makefile
 echo "         \$(MELANG) \$(LIBAES) \$(LIBBASE64) \$(LIBDES) \$(LIBFILE) \$(LIBJSON) \$(LIBMATRIX) \$(LIBMD5) \\" >> Makefile
 echo "         \$(LIBMQ) \$(LIBMYSQL) \$(LIBNETWORK) \$(LIBPRIME) \$(LIBRC) \$(LIBSHA) \$(LIBSTR) \$(LIBSYS) \\" >> Makefile
+echo "         \$(LIBHTTP) \\" >> Makefile
 echo "         COMPILECLEAN" >> Makefile
 echo "clean:" >> Makefile
 echo "	rm -fr objs libs bin Makefile" >> Makefile
@@ -257,6 +262,12 @@ else
 	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
 echo "\$(LIBJSON) : \$(LIBJSONOBJS)" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+fi
+echo "\$(LIBHTTP) : \$(LIBHTTPOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
 	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
@@ -339,6 +350,8 @@ echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_file.o : lib_src/file/mln_lang_file.c lib_src/file/mln_lang_file.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_json.o : lib_src/json/mln_lang_json.c lib_src/json/mln_lang_json.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_http.o : lib_src/http/mln_lang_http.c lib_src/http/mln_lang_http.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_matrix.o : lib_src/matrix/mln_lang_matrix.c lib_src/matrix/mln_lang_matrix.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
