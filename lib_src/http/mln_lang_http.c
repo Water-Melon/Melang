@@ -448,6 +448,7 @@ static inline int mln_lang_http_parse_request_result_build_uri(mln_lang_ctx_t *c
 static inline int mln_lang_http_parse_request_result_build_args(mln_lang_ctx_t *ctx, mln_lang_array_t *arr, mln_http_t *http)
 {
     mln_string_t key = mln_string("args");
+    mln_string_t empty = mln_string("");
     mln_string_t *args = mln_http_args_get(http);
     mln_lang_var_t *_new, *v;
 
@@ -461,6 +462,8 @@ static inline int mln_lang_http_parse_request_result_build_args(mln_lang_ctx_t *
         mln_lang_errmsg(ctx, "No memory.");
         return -1;
     }
+
+    if (args == NULL) args = &empty;
 
     if ((_new = mln_lang_var_create_string(ctx, args, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -1112,12 +1115,14 @@ static inline int mln_lang_http_create_process_generate_response_code(mln_lang_c
         mln_lang_errmsg(ctx, "No memory.");
         return -1;
     }
-    if (mln_lang_var_val_type_get(v) != M_LANG_VAL_TYPE_INT) {
+    if (mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_NIL) {
+        mln_http_status_set(http, 200);
+    } else if (mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_INT) {
+        mln_http_status_set(http, mln_lang_var_val_get(v)->data.i);
+    } else {
         mln_lang_errmsg(ctx, "'code' should be an integer.");
         return -1;
     }
-
-    mln_http_status_set(http, mln_lang_var_val_get(v)->data.i);
 
     return 0;
 }
