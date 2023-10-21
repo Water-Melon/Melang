@@ -532,6 +532,17 @@ static mln_lang_var_t *mln_lang_network_tcp_listen_process(mln_lang_ctx_t *ctx)
         }
         return ret_var;
     }
+#if !defined(WIN32)
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+        mln_lang_tcp_free(tcp);
+        freeaddrinfo(res);
+        if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+            mln_lang_errmsg(ctx, "No memory.");
+            return NULL;
+        }
+        return ret_var;
+    }
+#endif
     if (bind(fd, res->ai_addr, res->ai_addrlen) < 0) {
         mln_lang_tcp_free(tcp);
         freeaddrinfo(res);
@@ -1952,6 +1963,17 @@ static mln_lang_var_t *mln_lang_network_udp_create_process(mln_lang_ctx_t *ctx)
             }
             return ret_var;
         }
+#if !defined(WIN32)
+        if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+            mln_lang_udp_free(udp);
+            freeaddrinfo(res);
+            if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+                mln_lang_errmsg(ctx, "No memory.");
+                return NULL;
+            }
+            return ret_var;
+        }
+#endif
         if (bind(fd, res->ai_addr, res->ai_addrlen) < 0) {
             mln_lang_udp_free(udp);
             freeaddrinfo(res);

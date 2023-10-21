@@ -173,6 +173,7 @@ cba
 
 net = Import('net');
 mq = Import('mq');
+sys = Import('sys');
 
 listenfd = net.tcp_listen('127.0.0.1', '1234');
 for (i = 0; i < 2; ++i) {
@@ -180,6 +181,9 @@ for (i = 0; i < 2; ++i) {
 }
 while (1) {
     fd = net.tcp_accept(listenfd);
+    if (!(sys.is_int(fd)))
+        continue;
+    fi
     mq.send('test', fd);
 }
 ```
