@@ -1197,8 +1197,8 @@ Input:
 
 Return value:
 
-- `false` if failed.
-- The command output on succeed.
+- On Windows, this function only return `nil`.
+- On UNIX-like system, `false` on failure, otherwise is the command output.
 
 Example:
 

@@ -12,6 +12,9 @@
 #include "mln_log.h"
 #include "mln_utils.h"
 #include "mln_conf.h"
+#if defined(WIN32)
+#include "mln_utils.h"
+#endif
 
 static int mln_lang_sys(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx);
@@ -91,14 +94,12 @@ static int mln_lang_sys_time_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
 static mln_lang_var_t *mln_lang_sys_time_process(mln_lang_ctx_t *ctx);
 static int mln_lang_sys_cron_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_sys_cron_process(mln_lang_ctx_t *ctx);
-#if !defined(WIN32)
 static mln_lang_sys_exec_t *mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, mln_rbtree_t *tree, int fd, mln_s64_t size_limit);
 static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se);
 static int mln_lang_sys_exec_cmp(mln_lang_sys_exec_t *se1, mln_lang_sys_exec_t *se2);
 static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx);
 static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data);
-#endif
 static int mln_lang_sys_print_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_sys_print_process(mln_lang_ctx_t *ctx);
 static int mln_lang_sys_print_array_cmp(const void *addr1, const void *addr2);
@@ -158,9 +159,7 @@ static int mln_lang_sys(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
     if (mln_lang_sys_isdir_handler(ctx, obj) < 0) goto err;
     if (mln_lang_sys_time_handler(ctx, obj) < 0) goto err;
     if (mln_lang_sys_cron_handler(ctx, obj) < 0) goto err;
-#if !defined(WIN32)
     if (mln_lang_sys_exec_handler(ctx, obj) < 0) goto err;
-#endif
     if (mln_lang_sys_print_handler(ctx, obj) < 0) goto err;
     if (mln_lang_sys_msleep_handler(ctx, obj) < 0) goto err;
     return 0;
@@ -172,7 +171,6 @@ err:
 static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
 {
     mln_sys_msleep_t *s;
-#if !defined(WIN32)
     mln_rbtree_t *tree;
     struct mln_rbtree_attr rbattr;
 
@@ -192,7 +190,6 @@ static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
             return -1;
         }
     }
-#endif
     if ((s = mln_lang_ctx_resource_fetch(ctx, "sys_msleep")) == NULL) {
         if ((s = mln_sys_msleep_new(ctx)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
@@ -3079,7 +3076,7 @@ static mln_lang_var_t *mln_lang_sys_cron_process(mln_lang_ctx_t *ctx)
     return ret_var;
 }
 
-#if !defined(WIN32)
+
 static mln_lang_sys_exec_t *mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, mln_rbtree_t *tree, int fd, mln_s64_t size_limit)
 {
     mln_lang_sys_exec_t *se;
@@ -3106,7 +3103,7 @@ static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se)
     mln_event_fd_set(se->ctx->lang->ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
     mln_chain_pool_release_all(se->head);
     mln_tcp_conn_destroy(&se->conn);
-    close(fd);
+    mln_socket_close(fd);
     mln_alloc_free(se);
 }
 
@@ -3179,7 +3176,6 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
     mln_lang_sys_exec_t *se;
     mln_rbtree_node_t *rn;
     mln_rbtree_t *tree;
-    pid_t pid;
     int fds[2];
 
     if ((sym = mln_lang_symbol_node_search(ctx, &v1, 1)) == NULL) {
@@ -3211,7 +3207,11 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
+#if defined(WIN32)
+    if ((ret_var = mln_lang_var_create_nil(ctx, NULL)) == NULL) {
+#else
     if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+#endif
         mln_lang_errmsg(ctx, "No memory.");
         return NULL;
     }
@@ -3220,6 +3220,8 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         return ret_var;
     }
 
+#if !defined(WIN32)
+    pid_t pid;
     signal(SIGCHLD, SIG_IGN);
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0) {
         mln_lang_errmsg(ctx, "create socket pair failed.");
@@ -3227,10 +3229,10 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     if ((pid = fork()) > 0) {
-        close(fds[1]);
+        mln_socket_close(fds[1]);
         if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize)) == NULL) {
             mln_lang_errmsg(ctx, "create socket pair failed.");
-            close(fds[0]);
+            mln_socket_close(fds[0]);
             mln_lang_var_free(ret_var);
             return NULL;
         }
@@ -3255,24 +3257,68 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
          * which means a freed memory structure will be visited again.
          * so segment fault happened.
          */
-        close(fds[0]);
+        mln_socket_close(fds[0]);
         close(1);
         close(2);
         int rc = dup(fds[1]);
         rc = dup(fds[1]);
         if (rc < 0) rc = 0;
-        close(fds[1]);
+        mln_socket_close(fds[1]);
         signal(SIGCHLD, SIG_DFL);
         if (execl("/bin/sh", "sh", "-c", (char *)cmd->data, (char *)0) < 0) {
             exit(127);
         }
     } else {
         mln_lang_errmsg(ctx, "fork failed.");
-        close(fds[0]);
-        close(fds[1]);
+        mln_socket_close(fds[0]);
+        mln_socket_close(fds[1]);
         mln_lang_var_free(ret_var);
         return NULL;
     }
+#else
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0) {
+        mln_lang_errmsg(ctx, "create socket pair failed.");
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    if (!CreateProcess(NULL, (char *)cmd->data, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+        mln_lang_errmsg(ctx, "CreateProcess failed.");
+        mln_socket_close(fds[0]);
+        mln_socket_close(fds[1]);
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    mln_socket_close(fds[1]);
+    if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize)) == NULL) {
+        mln_lang_errmsg(ctx, "create socket pair failed.");
+        mln_socket_close(fds[0]);
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
+    if (mln_event_fd_set(ctx->lang->ev, fds[0], M_EV_RECV|M_EV_NONBLOCK, M_EV_UNLIMITED, se, mln_lang_sys_exec_read_handler) < 0) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_sys_exec_free(se);
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
+    if ((rn = mln_rbtree_node_new(tree, se)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_sys_exec_free(se);
+        mln_lang_var_free(ret_var);
+        return NULL;
+    }
+    mln_rbtree_insert(tree, rn);
+    se->rn = rn;
+#endif
 
     mln_lang_ctx_suspend(ctx);
     return ret_var;
@@ -3342,7 +3388,6 @@ static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data)
     mln_lang_mutex_unlock(ctx->lang);
 }
 
-#endif
 
 static int mln_lang_sys_print_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
 {
