@@ -16,6 +16,10 @@ typedef struct {
     mln_chain_t           *tail;
     mln_rbtree_t          *tree;
     mln_rbtree_node_t     *rn;
+    mln_s64_t              pid;
+    mln_string_t          *cmd;
+    mln_u32_t              running:1;
+    mln_u32_t              padding:31;
 } mln_lang_sys_exec_t;
 
 struct mln_sys_diff_s {

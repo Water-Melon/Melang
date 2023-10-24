@@ -1187,18 +1187,22 @@ Output:
 Execute shell command in Melang.
 
 ```
-sys.exec(cmd, bufsize);
+sys.exec(cmd, bufsize, pid);
 ```
+
+Description: Execute shell command or list all running commands.
 
 Input:
 
-- `cmd` - shell command string.
+- `cmd` - shell command string. If `cmd` is `nil`, this function will return a list of running commands.
 - `bufsize` - the limit size of the command output. if `<0` or omitted, it means no limitation.
+- `pid` - is an output argument. After this function returned, the child process id will be given in this variable.
 
 Return value:
 
 - On Windows, this function only return `nil`.
 - On UNIX-like system, `false` on failure, otherwise is the command output.
+- On both kinds of system, return a list of running commands if `cmd` is `nil`.
 
 Example:
 

@@ -94,11 +94,14 @@ static int mln_lang_sys_time_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
 static mln_lang_var_t *mln_lang_sys_time_process(mln_lang_ctx_t *ctx);
 static int mln_lang_sys_cron_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_sys_cron_process(mln_lang_ctx_t *ctx);
-static mln_lang_sys_exec_t *mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, mln_rbtree_t *tree, int fd, mln_s64_t size_limit);
+static mln_lang_sys_exec_t *
+mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, mln_rbtree_t *tree, int fd, mln_s64_t size_limit, mln_s64_t pid, mln_string_t *cmd);
 static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se);
 static int mln_lang_sys_exec_cmp(mln_lang_sys_exec_t *se1, mln_lang_sys_exec_t *se2);
 static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx);
+static inline mln_lang_var_t *mln_lang_sys_exec_process_info(mln_lang_ctx_t *ctx);
+static int mln_lang_sys_exec_process_info_iterate(mln_rbtree_node_t *node, void *udata);
 static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data);
 static int mln_lang_sys_print_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_sys_print_process(mln_lang_ctx_t *ctx);
@@ -174,8 +177,8 @@ static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
     mln_rbtree_t *tree;
     struct mln_rbtree_attr rbattr;
 
-    if ((tree = mln_lang_ctx_resource_fetch(ctx, "sys_exec")) == NULL) {
-        rbattr.pool = ctx->pool;
+    if ((tree = mln_lang_resource_fetch(ctx->lang, "sys_exec")) == NULL) {
+        rbattr.pool = ctx->lang->pool;
         rbattr.pool_alloc = (rbtree_pool_alloc_handler)mln_alloc_m;
         rbattr.pool_free = (rbtree_pool_free_handler)mln_alloc_free;
         rbattr.cmp = (rbtree_cmp)mln_lang_sys_exec_cmp;
@@ -184,7 +187,7 @@ static int mln_lang_sys_resource_register(mln_lang_ctx_t *ctx)
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
         }
-        if (mln_lang_ctx_resource_register(ctx, "sys_exec", tree, (mln_lang_resource_free)mln_rbtree_free) < 0) {
+        if (mln_lang_resource_register(ctx->lang, "sys_exec", tree, (mln_lang_resource_free)mln_rbtree_free) < 0) {
             mln_lang_errmsg(ctx, "No memory.");
             mln_rbtree_free(tree);
             return -1;
@@ -3077,7 +3080,8 @@ static mln_lang_var_t *mln_lang_sys_cron_process(mln_lang_ctx_t *ctx)
 }
 
 
-static mln_lang_sys_exec_t *mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, mln_rbtree_t *tree, int fd, mln_s64_t size_limit)
+static mln_lang_sys_exec_t *
+mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, mln_rbtree_t *tree, int fd, mln_s64_t size_limit, mln_s64_t pid, mln_string_t *cmd)
 {
     mln_lang_sys_exec_t *se;
     if ((se = (mln_lang_sys_exec_t *)mln_alloc_m(ctx->pool, sizeof(mln_lang_sys_exec_t))) == NULL) {
@@ -3093,6 +3097,9 @@ static mln_lang_sys_exec_t *mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, mln_rbtre
     se->head = se->tail = NULL;
     se->tree = tree;
     se->rn = NULL;
+    se->pid = pid;
+    se->cmd = mln_string_ref(cmd);
+    se->running = 1;
     return se;
 }
 
@@ -3104,6 +3111,8 @@ static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se)
     mln_chain_pool_release_all(se->head);
     mln_tcp_conn_destroy(&se->conn);
     mln_socket_close(fd);
+    if (se->cmd != NULL) mln_string_free(se->cmd);
+    if (se->running) kill(se->pid, SIGTERM);
     mln_alloc_free(se);
 }
 
@@ -3120,6 +3129,7 @@ static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
     mln_string_t funcname = mln_string("exec");
     mln_string_t v1 = mln_string("cmd");
     mln_string_t v2 = mln_string("bufsize");
+    mln_string_t v3 = mln_string("pid");
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_sys_exec_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         return -1;
@@ -3148,6 +3158,18 @@ static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         return -1;
     }
     mln_lang_func_detail_arg_append(func, var);
+    if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    if ((var = mln_lang_var_new(ctx, &v3, M_LANG_VAR_REFER, val, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_val_free(val);
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    mln_lang_func_detail_arg_append(func, var);
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -3168,8 +3190,8 @@ static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
 
 static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
 {
-    mln_lang_var_t *ret_var = NULL;
-    mln_string_t v1 = mln_string("cmd"), v2 = mln_string("bufsize");
+    mln_lang_var_t *ret_var = NULL, *pid_var;
+    mln_string_t v1 = mln_string("cmd"), v2 = mln_string("bufsize"), v3 = mln_string("pid");
     mln_lang_symbol_node_t *sym;
     mln_string_t *cmd;
     mln_s64_t bufsize;
@@ -3177,13 +3199,21 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
     mln_rbtree_node_t *rn;
     mln_rbtree_t *tree;
     int fds[2];
+    mln_s64_t pid;
 
     if ((sym = mln_lang_symbol_node_search(ctx, &v1, 1)) == NULL) {
         ASSERT(0);
         mln_lang_errmsg(ctx, "Argument 1 missing.");
         return NULL;
     }
-    if (sym->type != M_LANG_SYMBOL_VAR || mln_lang_var_val_type_get(sym->data.var) != M_LANG_VAL_TYPE_STRING) {
+    if (sym->type != M_LANG_SYMBOL_VAR) {
+        mln_lang_errmsg(ctx, "Invalid type of argument 1.");
+        return NULL;
+    }
+    if (mln_lang_var_val_type_get(sym->data.var) == M_LANG_VAL_TYPE_NIL) {
+        return mln_lang_sys_exec_process_info(ctx);
+    }
+    if (mln_lang_var_val_type_get(sym->data.var) != M_LANG_VAL_TYPE_STRING) {
         mln_lang_errmsg(ctx, "Invalid type of argument 1.");
         return NULL;
     }
@@ -3207,6 +3237,17 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
+    if ((sym = mln_lang_symbol_node_search(ctx, &v3, 1)) == NULL) {
+        ASSERT(0);
+        mln_lang_errmsg(ctx, "Argument 3 missing.");
+        return NULL;
+    }
+    if (sym->type != M_LANG_SYMBOL_VAR) {
+        mln_lang_errmsg(ctx, "Invalid type of argument 3.");
+        return NULL;
+    }
+    pid_var = sym->data.var;
+
 #if defined(WIN32)
     if ((ret_var = mln_lang_var_create_nil(ctx, NULL)) == NULL) {
 #else
@@ -3216,12 +3257,11 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
 
-    if ((tree = mln_lang_ctx_resource_fetch(ctx, "sys_exec")) == NULL) {
+    if ((tree = mln_lang_resource_fetch(ctx->lang, "sys_exec")) == NULL) {
         return ret_var;
     }
 
 #if !defined(WIN32)
-    pid_t pid;
     signal(SIGCHLD, SIG_IGN);
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0) {
         mln_lang_errmsg(ctx, "create socket pair failed.");
@@ -3230,7 +3270,8 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
     }
     if ((pid = fork()) > 0) {
         mln_socket_close(fds[1]);
-        if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize)) == NULL) {
+        mln_lang_var_set_int(pid_var, pid);
+        if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize, pid, cmd)) == NULL) {
             mln_lang_errmsg(ctx, "create socket pair failed.");
             mln_socket_close(fds[0]);
             mln_lang_var_free(ret_var);
@@ -3294,11 +3335,13 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         mln_lang_var_free(ret_var);
         return NULL;
     }
+    pid = (mln_s64_t)(pi.dwProcessId);
+    mln_lang_var_set_int(pid_var, pid);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
 
     mln_socket_close(fds[1]);
-    if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize)) == NULL) {
+    if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize, pid, cmd)) == NULL) {
         mln_lang_errmsg(ctx, "create socket pair failed.");
         mln_socket_close(fds[0]);
         mln_lang_var_free(ret_var);
@@ -3322,6 +3365,64 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
 
     mln_lang_ctx_suspend(ctx);
     return ret_var;
+}
+
+static inline mln_lang_var_t *mln_lang_sys_exec_process_info(mln_lang_ctx_t *ctx)
+{
+    mln_lang_var_t *ret_var;
+    mln_lang_array_t *arr;
+    mln_rbtree_t *tree;
+
+    if ((ret_var = mln_lang_var_create_array(ctx, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    arr = mln_lang_var_val_get(ret_var)->data.array;
+
+    if ((tree = mln_lang_resource_fetch(ctx->lang, "sys_exec")) == NULL) {
+        return ret_var;
+    }
+
+    if (mln_rbtree_iterate(tree, mln_lang_sys_exec_process_info_iterate, arr) < 0) {
+        return NULL;
+    }
+    return ret_var;
+}
+
+static int mln_lang_sys_exec_process_info_iterate(mln_rbtree_node_t *node, void *udata)
+{
+    mln_lang_var_t *v, *_new;
+    mln_string_t cmd_key = mln_string("command");
+    mln_string_t pid_key = mln_string("pid");
+    mln_lang_array_t *arr = (mln_lang_array_t *)udata;
+    mln_lang_sys_exec_t *se = (mln_lang_sys_exec_t *)mln_rbtree_node_data_get(node);
+    mln_lang_ctx_t *ctx = arr->ctx;
+
+    if ((_new = mln_lang_var_create_string(ctx, &cmd_key, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    v = mln_lang_array_get(ctx, arr, _new);
+    mln_lang_var_free(_new);
+    if (v == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    mln_lang_var_set_string(v, mln_string_ref(se->cmd));
+
+    if ((_new = mln_lang_var_create_string(ctx, &pid_key, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    v = mln_lang_array_get(ctx, arr, _new);
+    mln_lang_var_free(_new);
+    if (v == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    mln_lang_var_set_int(v, se->pid);
+
+    return 0;
 }
 
 static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data)
@@ -3376,11 +3477,13 @@ static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data)
                     mln_lang_ctx_set_ret_var(ctx, ret_var);
                 }
             }
+            se->running = 0;
             mln_rbtree_delete(se->tree, se->rn);
             mln_rbtree_node_free(se->tree, se->rn);
             mln_lang_ctx_continue(ctx);
         }
     } else { /*M_C_ERROR*/
+        se->running = 0;
         mln_rbtree_delete(se->tree, se->rn);
         mln_rbtree_node_free(se->tree, se->rn);
         mln_lang_ctx_continue(ctx);
