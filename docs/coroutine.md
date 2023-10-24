@@ -16,20 +16,22 @@ $ ./melang a.mln b.mln ...
 Besides this way, there is a function named *eval* to start a new script task in the current thread to execute a piece of code.
 
 ```
-Eval(val, data, in_string);
+Eval(val, data, in_string, alias);
 ```
 
-If *in_string* is true, *val* is the script code, otherwise *val* is the script file path.
+If `in_string` is true, `val` is the script code, otherwise `val` is the script file path.
 
-*data* will be passed to the new script task. If we want to use *data* in new task, we can use the variable named *EVAL_DATA* which is an internal variable added by *eval*.
+`data` will be passed to the new script task. If we want to use `data` in new task, we can use the variable named `EVAL_DATA` which is an internal variable added by `Eval`.
 
-*data* not support all data types, it just supports:
+`data` not support all data types, it just supports:
 
 - integer
 - real
 - boolean
 - nil
 - string
+
+`alias` is the name to be indicated to the new coroutine task, and it can be omitted if it doesn't need a name.
 
 e.g.
 
@@ -58,9 +60,20 @@ aaa
 ...
 ```
 
+There is the same problem as shown in [preprocess](https://water-melon.github.io/Melang/preprocess.html). If `val` is a file path, it will follow the same rules as `include`'s.
 
 
-There is the same problem as shown in [preprocess](https://water-melon.github.io/Melang/preprocess.html). If *val* is a file path, it will follow the same rules as *include*'s.
+
+Melang also provide a function to kill running coroutine task.
+
+```
+Kill(alias);
+```
+
+`alias` is the name that given by function `Eval`.
+
+This function always return `nil`.
+
 
 
 

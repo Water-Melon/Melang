@@ -228,7 +228,7 @@ static void mln_run_all(int argc, char *argv[])
             continue;
         }
         mln_string_nset(&path, argv[i], strlen(argv[i]));
-        mln_lang_job_new(lang, M_INPUT_T_FILE, &path, NULL, NULL);
+        mln_lang_job_new(lang, NULL, M_INPUT_T_FILE, &path, NULL, NULL);
     }
 
     if (mln_event_timer_set(ev, 1, lang, mln_task_checker) < 0) {
