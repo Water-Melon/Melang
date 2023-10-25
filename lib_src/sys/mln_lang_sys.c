@@ -3472,6 +3472,8 @@ static int mln_lang_sys_exec_process_info_iterate(mln_rbtree_node_t *node, void 
     mln_lang_var_t *v, *_new;
     mln_string_t cmd_key = mln_string("command");
     mln_string_t pid_key = mln_string("pid");
+    mln_string_t alias_key = mln_string("alias");
+    mln_string_t *dup, *alias, alias_dfl_value = mln_string("");
     mln_lang_array_t *arr = (mln_lang_array_t *)udata;
     mln_lang_sys_exec_t *se = (mln_lang_sys_exec_t *)mln_rbtree_node_data_get(node);
     mln_lang_ctx_t *ctx = arr->ctx;
@@ -3499,6 +3501,27 @@ static int mln_lang_sys_exec_process_info_iterate(mln_rbtree_node_t *node, void 
         return -1;
     }
     mln_lang_var_set_int(v, se->pid);
+
+    if ((_new = mln_lang_var_create_string(ctx, &alias_key, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    v = mln_lang_array_get(ctx, arr, _new);
+    mln_lang_var_free(_new);
+    if (v == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    if (se->ctx->alias != NULL) {
+        alias = se->ctx->alias;
+    } else {
+        alias = &alias_dfl_value;
+    }
+    if ((dup = mln_string_pool_dup(ctx->pool, alias)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    mln_lang_var_set_string(v, alias);
 
     return 0;
 }
