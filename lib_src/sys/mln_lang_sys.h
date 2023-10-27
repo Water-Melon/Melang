@@ -9,17 +9,23 @@
 
 typedef struct {
     mln_lang_ctx_t        *ctx;
-    mln_tcp_conn_t         conn;
-    mln_s64_t              size_limit;
-    mln_s64_t              cur_size;
-    mln_chain_t           *head;
-    mln_chain_t           *tail;
-    mln_rbtree_t          *tree;
-    mln_rbtree_node_t     *rn;
-    mln_s64_t              pid;
-    mln_string_t          *cmd;
-    mln_u32_t              running:1;
-    mln_u32_t              padding:31;
+    int                    fd;
+} mln_lang_ctx_sys_exec_t;
+
+typedef struct {
+    mln_lang_ctx_t          *ctx;
+    mln_tcp_conn_t           conn;
+    mln_s64_t                size_limit;
+    mln_s64_t                cur_size;
+    mln_chain_t             *head;
+    mln_chain_t             *tail;
+    mln_rbtree_t            *tree;
+    mln_rbtree_node_t       *rn;
+    mln_s64_t                pid;
+    mln_string_t            *cmd;
+    mln_lang_ctx_sys_exec_t *cse;
+    mln_u32_t                running:1;
+    mln_u32_t                padding:31;
 } mln_lang_sys_exec_t;
 
 struct mln_sys_diff_s {
