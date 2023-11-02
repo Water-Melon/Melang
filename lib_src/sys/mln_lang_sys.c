@@ -15,6 +15,8 @@
 #include "mln_tools.h"
 #if defined(WIN32)
 #include "mln_utils.h"
+#else
+#include <pwd.h>
 #endif
 
 static int mln_lang_sys(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
@@ -3267,6 +3269,10 @@ static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
     mln_string_t v1 = mln_string("cmd");
     mln_string_t v2 = mln_string("bufsize");
     mln_string_t v3 = mln_string("pid");
+#if !defined(WIN32)
+    mln_string_t v4 = mln_string("user");
+    mln_string_t v5 = mln_string("group");
+#endif
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_sys_exec_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         return -1;
@@ -3307,6 +3313,32 @@ static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         return -1;
     }
     mln_lang_func_detail_arg_append(func, var);
+#if !defined(WIN32)
+    if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    if ((var = mln_lang_var_new(ctx, &v4, M_LANG_VAR_REFER, val, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_val_free(val);
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    mln_lang_func_detail_arg_append(func, var);
+    if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    if ((var = mln_lang_var_new(ctx, &v5, M_LANG_VAR_REFER, val, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_val_free(val);
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    mln_lang_func_detail_arg_append(func, var);
+#endif
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
         mln_lang_func_detail_free(func);
@@ -3338,7 +3370,43 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
     mln_rbtree_t *tree;
     int fds[2];
     mln_s64_t pid;
+#if !defined(WIN32)
+    mln_string_t *user, *grp;
+    mln_string_t v4 = mln_string("user");
+    mln_string_t v5 = mln_string("group");
+#endif
 
+#if !defined(WIN32)
+    if ((sym = mln_lang_symbol_node_search(ctx, &v4, 1)) == NULL) {
+        ASSERT(0);
+        mln_lang_errmsg(ctx, "Argument 4 missing.");
+        return NULL;
+    }
+    if (sym->type != M_LANG_SYMBOL_VAR) {
+        mln_lang_errmsg(ctx, "Invalid type of argument 4.");
+        return NULL;
+    }
+    if (mln_lang_var_val_type_get(sym->data.var) == M_LANG_VAL_TYPE_STRING) {
+        user = mln_lang_var_val_get(sym->data.var)->data.s;
+    } else {
+        user = NULL;
+    }
+
+    if ((sym = mln_lang_symbol_node_search(ctx, &v5, 1)) == NULL) {
+        ASSERT(0);
+        mln_lang_errmsg(ctx, "Argument 5 missing.");
+        return NULL;
+    }
+    if (sym->type != M_LANG_SYMBOL_VAR) {
+        mln_lang_errmsg(ctx, "Invalid type of argument 5.");
+        return NULL;
+    }
+    if (mln_lang_var_val_type_get(sym->data.var) == M_LANG_VAL_TYPE_STRING) {
+        grp = mln_lang_var_val_get(sym->data.var)->data.s;
+    } else {
+        grp = NULL;
+    }
+#endif
     if ((sym = mln_lang_symbol_node_search(ctx, &v1, 1)) == NULL) {
         ASSERT(0);
         mln_lang_errmsg(ctx, "Argument 1 missing.");
@@ -3449,6 +3517,41 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         if (rc < 0) rc = 0;
         mln_socket_close(fds[1]);
         signal(SIGCHLD, SIG_DFL);
+
+        struct passwd pwd, *res = NULL;
+        char buf[1024];
+        int n;
+
+        if (user != NULL) {
+            if (getpwnam_r((const char *)(user->data), &pwd, buf, sizeof(buf)-1, &res) || res == NULL) {
+                n = snprintf(buf, sizeof(buf)-1, "user [%s] %s\n", (char *)(user->data), strerror(errno));
+                buf[n] = 0;
+                mln_lang_errmsg(ctx, buf);
+                exit(127);
+            }
+            if (setuid(pwd.pw_uid) < 0) {
+                n = snprintf(buf, sizeof(buf)-1, "setuid [%s] %s\n", (char *)(user->data), strerror(errno));
+                buf[n] = 0;
+                mln_lang_errmsg(ctx, buf);
+                exit(127);
+            }
+            if (grp == NULL) grp = user;
+        }
+        if (grp != NULL) {
+            if (getpwnam_r((const char *)(grp->data), &pwd, buf, sizeof(buf)-1, &res) || res == NULL) {
+                n = snprintf(buf, sizeof(buf)-1, "user [%s] %s\n", (char *)(grp->data), strerror(errno));
+                buf[n] = 0;
+                mln_lang_errmsg(ctx, buf);
+                exit(127);
+            }
+            if (setgid(pwd.pw_gid) < 0) {
+                n = snprintf(buf, sizeof(buf)-1, "setgid [%s] %s\n", (char *)(grp->data), strerror(errno));
+                buf[n] = 0;
+                mln_lang_errmsg(ctx, buf);
+                exit(127);
+            }
+        }
+
         if (execl("/bin/sh", "sh", "-c", (char *)cmd->data, (char *)0) < 0) {
             exit(127);
         }
