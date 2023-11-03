@@ -351,25 +351,28 @@ static mln_lang_var_t *mln_lang_open_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     free(path);
-
-    tree = mln_lang_ctx_resource_fetch(ctx, "file_fd");
+    if (val->data.i >= 0) {
+        tree = mln_lang_ctx_resource_fetch(ctx, "file_fd");
 #if defined(WIN32)
-    int fd = val->data.i;
-    if ((rn = mln_rbtree_node_new(tree, (void *)fd)) == NULL) {
+        int fd = val->data.i;
+        if ((rn = mln_rbtree_node_new(tree, (void *)fd)) == NULL) {
 #else
-    if ((rn = mln_rbtree_node_new(tree, (void *)(val->data.i))) == NULL) {
+        if ((rn = mln_rbtree_node_new(tree, (void *)(val->data.i))) == NULL) {
 #endif
-        mln_lang_errmsg(ctx, "No memory.");
-        close(val->data.i);
-        return NULL;
-    }
-    mln_rbtree_insert(tree, rn);
+            mln_lang_errmsg(ctx, "No memory.");
+            close(val->data.i);
+            return NULL;
+        }
+        mln_rbtree_insert(tree, rn);
 
-    if (val->data.i < 0) {
-        ret_var = mln_lang_var_create_false(ctx, NULL);
+        if (val->data.i < 0) {
+            ret_var = mln_lang_var_create_false(ctx, NULL);
+        } else {
+            mln_lang_val_not_modify_set(val);
+            ret_var = mln_lang_var_create_true(ctx, NULL);
+        }
     } else {
-        mln_lang_val_not_modify_set(val);
-        ret_var = mln_lang_var_create_true(ctx, NULL);
+        ret_var = mln_lang_var_create_false(ctx, NULL);
     }
     if (ret_var == NULL) {
         mln_lang_errmsg(ctx, "No memory.");

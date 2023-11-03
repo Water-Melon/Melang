@@ -3535,7 +3535,6 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
                 mln_lang_errmsg(ctx, buf);
                 exit(127);
             }
-            if (grp == NULL) grp = user;
         }
         if (grp != NULL) {
             if (getpwnam_r((const char *)(grp->data), &pwd, buf, sizeof(buf)-1, &res) || res == NULL) {
