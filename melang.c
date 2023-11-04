@@ -47,8 +47,8 @@ static mln_fd_node_t *head = NULL;
 static mln_fd_node_t *tail = NULL;
 static pthread_mutex_t lock;
 __thread mln_fd_node_t *t_node;
-static mln_conf_item_t daemon_conf;
 #if !defined(WIN32)
+static mln_conf_item_t daemon_conf;
 static int daemon_flag = 0;
 #endif
 

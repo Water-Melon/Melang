@@ -35,7 +35,7 @@ dl=""
 libmelonPath=`./path_generator /usr/local/melon`
 libPath=`./path_generator /usr/local/lib/melang_dynamic`
 if ! case $os in MINGW*) false;; esac; then
-    installPath=`./path_generator "$HOME/melang-0.5.0"`
+    installPath=`./path_generator "$HOME/melang-0.6.0"`
     libmelonPath=`./path_generator "$HOME/libmelon"`
     libPath=`./path_generator $HOME/lib/melang_dynamic`
 elif [ $os == 'Darwin' ]; then

@@ -3219,7 +3219,18 @@ static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se)
     mln_tcp_conn_destroy(&se->conn);
     mln_socket_close(fd);
     if (se->cmd != NULL) mln_string_free(se->cmd);
-    if (se->running) kill(se->pid, SIGTERM);
+    if (se->running) {
+#if defined(WIN32)
+        HANDLE handle = NULL;
+        handle = OpenProcess(PROCESS_TERMINATE, FALSE, se->pid);
+        if (handle != NULL) {
+            TerminateProcess(handle, 0);
+            CloseHandle(handle);
+        }
+#else
+        kill(se->pid, SIGTERM);
+#endif
+    }
     mln_alloc_free(se);
 }
 
