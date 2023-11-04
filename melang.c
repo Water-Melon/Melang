@@ -15,6 +15,7 @@
 #include "mln_conf.h"
 #include "mln_iothread.h"
 #include "mln_rbtree.h"
+#include "mln_tools.h"
 
 typedef struct mln_fd_node_s {
     pthread_t             tid;
@@ -46,6 +47,10 @@ static mln_fd_node_t *head = NULL;
 static mln_fd_node_t *tail = NULL;
 static pthread_mutex_t lock;
 __thread mln_fd_node_t *t_node;
+static mln_conf_item_t daemon_conf;
+#if !defined(WIN32)
+static int daemon_flag = 0;
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -64,6 +69,36 @@ int main(int argc, char *argv[])
         fprintf(stderr, "init log failed.\n");
         return -1;
     }
+#if !defined(WIN32)
+    if (daemon_flag) {
+        mln_conf_t *cf;
+        mln_conf_cmd_t *cc;
+        mln_conf_domain_t *cd;
+        if ((cf = mln_conf()) == NULL) {
+            mln_log(error, "Configuration error.\n");
+            return -1;
+        }
+        if ((cd = cf->search(cf, "main")) == NULL) {
+            mln_log(error, "Configuration error.\n");
+            return -1;
+        }
+        if ((cc = cd->search(cd, "daemon")) == NULL) {
+            if ((cc = cd->insert(cd, "daemon")) == NULL) {
+                mln_log(error, "insert configuration command 'daemon' failed.\n");
+                return -1;
+            }
+        }
+        daemon_conf.type = CONF_BOOL;
+        daemon_conf.val.b = 1;
+        if (cc->update(cc, &daemon_conf, 1) < 0) {
+            mln_log(error, "update configuration command 'daemon' failed.\n");
+            return -1;
+        }
+        if (mln_daemon() < 0) {
+            return -1;
+        }
+    }
+#endif
 
     rbattr.pool = NULL;
     rbattr.pool_alloc = NULL;
@@ -99,8 +134,17 @@ static void mln_params_check(int argc, char *argv[])
             printf("\tmelang <script-file> ...\n");
             printf("\t-v\t\t\tshow version\n");
             printf("\t-t=number_of_threads\tspecify the number of threads. Default is 1\n");
+#if !defined(WIN32)
+            printf("\t-d\t\t\trunning as a daemon process\n");
+#endif
         } else if (!strncmp(argv[i], "-t=", 3)) {
             /* do nothing */
+        } else if (!strcmp(argv[i], "-d")) {
+#if defined(WIN32)
+            fprintf(stderr, "-d is not supported on Windows\n");
+#else
+            daemon_flag = 1;
+#endif
         } else {
             if ((fd = open(argv[i], O_RDONLY)) < 0) {
                 fprintf(stderr, "File %s cannot be read, %s\n", argv[i], strerror(errno));

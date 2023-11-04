@@ -5,7 +5,7 @@
 
 
 
-Melang is a script Language of step-sharing scheduling coroutine in single thread or multi-thread. It is only support on UNIX/Linux.
+Melang is a script Language of time-sharing scheduling coroutine in single thread or multi-thread. It is only support on UNIX/Linux.
 
 
 
