@@ -13,9 +13,10 @@ Melang supports these operators as shown below:
 | \>>  <<                                      | left to right         |
 | \+  -                                        | left to right         |
 | \*  /  %                                     | left to right         |
+| !                                            | -                     |
 | ++  --  (suffix)                             | -                     |
 | []  .                                        | left to right         |
-| \-  ~  !  &  $  ()  ++  -- (prefix)          | -                     |
+| \-  ~  &  $  ()  ++  -- (prefix)             | -                     |
 
 These operators are listed by priority from low to high.
 
