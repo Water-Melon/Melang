@@ -1328,3 +1328,40 @@ sys.msleep(1000); //1 second
 ```
 
 
+
+##### path
+
+For the path given by the parameter, escape the starting @ symbol to the current directory path of the script.
+
+```
+sys.path(path);
+```
+
+Input:
+
+- `path` - A path string that starts with @.
+
+Return value:
+
+- The path after translation.
+
+Example:
+
+```
+// xxx/test.m
+
+sys = Import('sys');
+
+sys.path('@/a.m');
+```
+
+Run script
+```
+melang xxx/test.m
+```
+
+The output is
+```
+xxx/a.m
+```
+

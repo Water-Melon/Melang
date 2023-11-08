@@ -126,6 +126,8 @@ static void mln_sys_msleep_free(mln_sys_msleep_t *s);
 static int mln_lang_sys_msleep_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static mln_lang_var_t *mln_lang_sys_msleep_process(mln_lang_ctx_t *ctx);
 static void mln_lang_sys_msleep_timeout_handler(mln_event_t *ev, void *data);
+static int mln_lang_sys_path_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+static mln_lang_var_t *mln_lang_sys_path_process(mln_lang_ctx_t *ctx);
 
 mln_lang_var_t *init(mln_lang_ctx_t *ctx, mln_conf_t *cf)
 {
@@ -179,6 +181,7 @@ static int mln_lang_sys(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
     if (mln_lang_sys_exec_handler(ctx, obj) < 0) goto err;
     if (mln_lang_sys_print_handler(ctx, obj) < 0) goto err;
     if (mln_lang_sys_msleep_handler(ctx, obj) < 0) goto err;
+    if (mln_lang_sys_path_handler(ctx, obj) < 0) goto err;
     return 0;
 
 err:
@@ -4074,5 +4077,103 @@ static void mln_lang_sys_msleep_timeout_handler(mln_event_t *ev, void *data)
     s->timer = NULL;
     mln_lang_ctx_continue(s->ctx);
     mln_lang_mutex_unlock(s->ctx->lang);
+}
+
+
+static int mln_lang_sys_path_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj)
+{
+    mln_lang_val_t *val;
+    mln_lang_var_t *var;
+    mln_lang_func_detail_t *func;
+    mln_string_t funcname = mln_string("path");
+    mln_string_t v1 = mln_string("path");
+    if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_sys_path_process, NULL, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return -1;
+    }
+    if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    if ((var = mln_lang_var_new(ctx, &v1, M_LANG_VAR_NORMAL, val, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_val_free(val);
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    mln_lang_func_detail_arg_append(func, var);
+    if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    if ((var = mln_lang_var_new(ctx, &funcname, M_LANG_VAR_NORMAL, val, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_val_free(val);
+        return -1;
+    }
+    if (mln_lang_set_member_add(ctx->pool, obj->members, var) < 0) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_var_free(var);
+        return -1;
+    }
+    return 0;
+}
+
+static mln_lang_var_t *mln_lang_sys_path_process(mln_lang_ctx_t *ctx)
+{
+    mln_lang_var_t *ret_var = NULL;
+    mln_string_t v1 = mln_string("path");
+    mln_lang_symbol_node_t *sym;
+    mln_string_t *path, *dup;
+    mln_u8ptr_t p;
+    int n;
+
+    if ((sym = mln_lang_symbol_node_search(ctx, &v1, 1)) == NULL) {
+        ASSERT(0);
+        mln_lang_errmsg(ctx, "Argument 1 missing.");
+        return NULL;
+    }
+    if (sym->type != M_LANG_SYMBOL_VAR || mln_lang_var_val_type_get(sym->data.var) != M_LANG_VAL_TYPE_STRING) {
+        mln_lang_errmsg(ctx, "Invalid type of argument 1.");
+        return NULL;
+    }
+    path = mln_lang_var_val_get(sym->data.var)->data.s;
+
+    if (path->len && path->data[0] == '@') {
+        if (ctx->filename == NULL) {
+again:
+            if ((dup = mln_string_pool_alloc(ctx->pool, path->len + 1)) == NULL) {
+                mln_lang_errmsg(ctx, "No memory.");
+                return NULL;
+            }
+            dup->data[0] = (mln_u8_t)'.';
+            dup->data[1] = (mln_u8_t)'/';
+            memcpy(dup->data + 2, path->data + 1, path->len - 1);
+        } else {
+            p = (mln_u8ptr_t)strrchr((const char *)(ctx->filename->data), '/');
+            if (p == NULL) goto again;
+
+            n = p - ctx->filename->data;
+            if ((dup = mln_string_pool_alloc(ctx->pool, path->len + n)) == NULL) {
+                mln_lang_errmsg(ctx, "No memory.");
+                return NULL;
+            }
+            memcpy(dup->data, ctx->filename->data, n);
+            dup->data[n++] = '/';
+            memcpy(dup->data + n, path->data + 1, path->len - 1);
+        }
+        ret_var = mln_lang_var_create_ref_string(ctx, dup, NULL);
+        mln_string_free(dup);
+    } else {
+        ret_var = mln_lang_var_create_ref_string(ctx, path, NULL);
+    }
+
+    if (ret_var == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        return NULL;
+    }
+    return ret_var;
 }
 
