@@ -5,6 +5,7 @@
 #ifndef __MLN_LANG_MSGQUEUE_H
 #define __MLN_LANG_MSGQUEUE_H
 
+#include "mln_utils.h"
 #include "mln_fheap.h"
 #include "mln_lang.h"
 
@@ -54,4 +55,7 @@ typedef struct mln_lang_ctx_mq_topic_s {
     mln_lang_mq_msg_t             *msg_tail;
 } mln_lang_ctx_mq_topic_t;
 
+
+extern int mln_lang_msgqueue_impl(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
+extern mln_lang_var_t *mln_lang_mq_msg_set(mln_lang_ctx_t *ctx, mln_string_t *qname, int type, void *data);
 #endif

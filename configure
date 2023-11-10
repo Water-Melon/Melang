@@ -136,7 +136,7 @@ echo "# Copyright (C) Niklaus F.Schen." >> Makefile
 echo "#" >> Makefile
 echo "CC	= $cc" >> Makefile
 echo "MCC	= $mcc" >> Makefile
-echo "FLAGS           = -I$libmelonPath/include -c -Wall $debug -Werror -O3 -fPIC" >> Makefile
+echo "FLAGS           = -I$libmelonPath/include -Ilib_src -c -Wall $debug -Werror -O3 -fPIC" >> Makefile
 if [ $wasm -eq 1 ]; then
     echo "MFLAGS          = -I$libmelonPath/include -c $debug -O3 $llvm_flag -s -mmutable-globals -mnontrapping-fptoint -msign-ext -Wemcc" >> Makefile
     echo "MELANG          = melang.wasm" >> Makefile
@@ -189,11 +189,11 @@ echo "LIBJSONOBJS	= objs/mln_lang_json.o" >> Makefile
 echo "LIBHTTPOBJS	= objs/mln_lang_http.o" >> Makefile
 echo "LIBMATRIXOBJS	= objs/mln_lang_matrix.o" >> Makefile
 echo "LIBMD5OBJS	= objs/mln_lang_md5.o" >> Makefile
-echo "LIBMQOBJS	= objs/mln_lang_msgqueue.o" >> Makefile
+echo "LIBMQOBJS	        = objs/mln_lang_msgqueue.o objs/mln_lang_msgqueue_impl.o" >> Makefile
 echo "LIBMYSQLOBJS	= objs/mln_lang_mysql.o" >> Makefile
 echo "LIBNETWORKOBJS	= objs/mln_lang_network.o" >> Makefile
 echo "LIBPRIMEOBJS	= objs/mln_lang_prime.o" >> Makefile
-echo "LIBRCOBJS	= objs/mln_lang_rc.o" >> Makefile
+echo "LIBRCOBJS	        = objs/mln_lang_rc.o" >> Makefile
 echo "LIBSHAOBJS	= objs/mln_lang_sha.o" >> Makefile
 echo "LIBSTROBJS	= objs/mln_lang_string.o" >> Makefile
 echo "LIBSYSOBJS	= objs/mln_lang_sys.o" >> Makefile
@@ -327,7 +327,7 @@ if ! case $os in MINGW*) false;; esac; then
 else
 	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
 fi
-echo "\$(LIBSYS) : \$(LIBSYSOBJS)" >> Makefile
+echo "\$(LIBSYS) : \$(LIBSYSOBJS) objs/mln_lang_msgqueue_impl.o" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
 	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
@@ -356,6 +356,8 @@ echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_matrix.o : lib_src/matrix/mln_lang_matrix.c lib_src/matrix/mln_lang_matrix.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_md5.o : lib_src/md5/mln_lang_md5.c lib_src/md5/mln_lang_md5.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_msgqueue_impl.o : lib_src/msgqueue/mln_lang_msgqueue_impl.c lib_src/msgqueue/mln_lang_msgqueue.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_msgqueue.o : lib_src/msgqueue/mln_lang_msgqueue.c lib_src/msgqueue/mln_lang_msgqueue.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile

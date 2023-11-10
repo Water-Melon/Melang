@@ -1218,7 +1218,7 @@ Output:
 Execute shell command in Melang.
 
 ```
-sys.exec(cmd, bufsize, pid, uid, gid);
+sys.exec(cmd, bufsize, pid, uid, gid, qname);
 ```
 
 Description: Execute shell command or list all running commands.
@@ -1230,6 +1230,7 @@ Input:
 - `pid` - is an output argument. After this function returned, the child process id will be given in this variable.
 - `user` - the user of the child process. It is optional.
 - `group` - the group of the child process. It is optional, and if it is omitted and `user` is given, then the group of the child process will be identical with `user`.
+- `qname` - the message queue name that the output of new process can be retrieved from this message queue by function `mq.recv` which is in the message queue module.
 
 Return value:
 

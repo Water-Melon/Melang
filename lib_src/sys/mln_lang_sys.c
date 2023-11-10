@@ -13,6 +13,7 @@
 #include "mln_utils.h"
 #include "mln_conf.h"
 #include "mln_tools.h"
+#include "msgqueue/mln_lang_msgqueue.h"
 #if defined(WIN32)
 #include "mln_utils.h"
 #else
@@ -106,6 +107,7 @@ mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, \
                       mln_s64_t size_limit, \
                       mln_s64_t pid, \
                       mln_string_t *cmd, \
+                      mln_string_t *qname, \
                       mln_lang_ctx_sys_exec_t *cse);
 static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se);
 static int mln_lang_sys_exec_cmp(mln_lang_sys_exec_t *se1, mln_lang_sys_exec_t *se2);
@@ -3190,6 +3192,7 @@ mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, \
                       mln_s64_t size_limit, \
                       mln_s64_t pid, \
                       mln_string_t *cmd, \
+                      mln_string_t *qname, \
                       mln_lang_ctx_sys_exec_t *cse)
 {
     mln_lang_sys_exec_t *se;
@@ -3209,6 +3212,7 @@ mln_lang_sys_exec_new(mln_lang_ctx_t *ctx, \
     se->pid = pid;
     se->cmd = mln_string_ref(cmd);
     se->cse = cse;
+    se->qname = qname == NULL? NULL: mln_string_ref(qname);
     se->running = 1;
     return se;
 }
@@ -3234,6 +3238,7 @@ static void mln_lang_sys_exec_free(mln_lang_sys_exec_t *se)
         kill(se->pid, SIGTERM);
 #endif
     }
+    if (se->qname != NULL) mln_string_free(se->qname);
     mln_alloc_free(se);
 }
 
@@ -3286,6 +3291,7 @@ static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
 #if !defined(WIN32)
     mln_string_t v4 = mln_string("user");
     mln_string_t v5 = mln_string("group");
+    mln_string_t v6 = mln_string("qname");
 #endif
     if ((func = mln_lang_func_detail_new(ctx, M_FUNC_INTERNAL, mln_lang_sys_exec_process, NULL, NULL)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -3352,6 +3358,18 @@ static int mln_lang_sys_exec_handler(mln_lang_ctx_t *ctx, mln_lang_object_t *obj
         return -1;
     }
     mln_lang_func_detail_arg_append(func, var);
+    if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_NIL, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    if ((var = mln_lang_var_new(ctx, &v6, M_LANG_VAR_REFER, val, NULL)) == NULL) {
+        mln_lang_errmsg(ctx, "No memory.");
+        mln_lang_val_free(val);
+        mln_lang_func_detail_free(func);
+        return -1;
+    }
+    mln_lang_func_detail_arg_append(func, var);
 #endif
     if ((val = mln_lang_val_new(ctx, M_LANG_VAL_TYPE_FUNC, func)) == NULL) {
         mln_lang_errmsg(ctx, "No memory.");
@@ -3384,10 +3402,12 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
     mln_rbtree_t *tree;
     int fds[2];
     mln_s64_t pid;
+    mln_string_t *qname = NULL;
 #if !defined(WIN32)
     mln_string_t *user, *grp;
     mln_string_t v4 = mln_string("user");
     mln_string_t v5 = mln_string("group");
+    mln_string_t v6 = mln_string("qname");
 #endif
 
 #if !defined(WIN32)
@@ -3419,6 +3439,19 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         grp = mln_lang_var_val_get(sym->data.var)->data.s;
     } else {
         grp = NULL;
+    }
+
+    if ((sym = mln_lang_symbol_node_search(ctx, &v6, 1)) == NULL) {
+        ASSERT(0);
+        mln_lang_errmsg(ctx, "Argument 6 missing.");
+        return NULL;
+    }
+    if (sym->type != M_LANG_SYMBOL_VAR) {
+        mln_lang_errmsg(ctx, "Invalid type of argument 6.");
+        return NULL;
+    }
+    if (mln_lang_var_val_type_get(sym->data.var) == M_LANG_VAL_TYPE_STRING) {
+        qname = mln_lang_var_val_get(sym->data.var)->data.s;
     }
 #endif
     if ((sym = mln_lang_symbol_node_search(ctx, &v1, 1)) == NULL) {
@@ -3496,7 +3529,7 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         mln_lang_var_set_int(pid_var, pid);
         ASSERT(cse->fd == -1);
         cse->fd = fds[0];
-        if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize, pid, cmd, cse)) == NULL) {
+        if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize, pid, cmd, qname, cse)) == NULL) {
             mln_lang_errmsg(ctx, "create socket pair failed.");
             mln_socket_close(fds[0]);
             mln_lang_var_free(ret_var);
@@ -3602,7 +3635,7 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
     mln_socket_close(fds[1]);
     ASSERT(cse->fd == -1);
     cse->fd = fds[0];
-    if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize, pid, cmd, cse)) == NULL) {
+    if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize, pid, cmd, qname, cse)) == NULL) {
         mln_lang_errmsg(ctx, "create socket pair failed.");
         mln_socket_close(fds[0]);
         mln_lang_var_free(ret_var);
@@ -3729,14 +3762,32 @@ static void mln_lang_sys_exec_read_handler(mln_event_t *ev, int fd, void *data)
     mln_lang_ctx_t *ctx = se->ctx;
     mln_lang_var_t *ret_var;
     mln_u8ptr_t p;
-    mln_string_t s;
+    mln_string_t s, *tmp;
+    mln_size_t size;
 
     mln_lang_mutex_lock(ctx->lang);
     int rc = mln_tcp_conn_recv(&se->conn, M_C_TYPE_MEMORY);
     if (rc == M_C_FINISH || rc == M_C_NOTYET || rc == M_C_CLOSED) {
         if (mln_tcp_conn_head(&se->conn, M_C_RECV) != NULL) {
-            start = c = mln_tcp_conn_remove(&se->conn, M_C_RECV);
-            for (; c != NULL; c = c->next) {
+            start = mln_tcp_conn_remove(&se->conn, M_C_RECV);
+
+            if (se->qname != NULL) {
+                for (size = 0, c = start; c != NULL; c = c->next) {
+                    size += mln_buf_size(c->buf);
+                }
+                if ((tmp = mln_string_pool_alloc(ctx->lang->pool, size)) == NULL) {
+                    goto goon;
+                }
+                for (size = 0, c = start; c != NULL; c = c->next) {
+                    memcpy(tmp->data + size, c->buf->pos, mln_buf_size(c->buf));
+                    size += mln_buf_size(c->buf);
+                }
+                mln_lang_var_free(mln_lang_mq_msg_set(ctx, se->qname, M_LANG_VAL_TYPE_STRING, tmp));
+                mln_string_free(tmp);
+            }
+
+goon:
+            for (c = start; c != NULL; c = c->next) {
                 if (se->size_limit >= 0 && se->cur_size+mln_buf_size(c->buf) >= se->size_limit) {
                     if (se->size_limit > 0) {
                         last = c;

@@ -24,6 +24,7 @@ typedef struct {
     mln_s64_t                pid;
     mln_string_t            *cmd;
     mln_lang_ctx_sys_exec_t *cse;
+    mln_string_t            *qname;
     mln_u32_t                running:1;
     mln_u32_t                padding:31;
 } mln_lang_sys_exec_t;
