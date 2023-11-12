@@ -840,8 +840,10 @@ static mln_lang_var_t *mln_lang_network_tcp_recv_process(mln_lang_ctx_t *ctx)
         mln_lang_var_free(ret_var);
         return NULL;
     }
-    if (tcp->timeout != M_EV_UNLIMITED)
+    tcp->timeout = timeout;
+    if (tcp->timeout != M_EV_UNLIMITED) {
         mln_event_fd_timeout_handler_set(tcp->lang->ev, fd, tcp, mln_lang_network_tcp_timeout_handler);
+    }
 
     tcp->recving = 1;
     mln_lang_ctx_tcp_resource_add(ctx, tcp);
@@ -1330,8 +1332,9 @@ static mln_lang_var_t *mln_lang_network_tcp_shutdown_process(mln_lang_ctx_t *ctx
                     tcp->sending = 0;
                     tcp->send_closed = 1;
                     mln_event_fd_set(tcp->lang->ev, fd, M_EV_RECV|M_EV_NONBLOCK|M_EV_ONESHOT, tcp->timeout, tcp, mln_lang_network_tcp_recv_handler);
-                    if (tcp->timeout != M_EV_UNLIMITED)
+                    if (tcp->timeout != M_EV_UNLIMITED) {
                         mln_event_fd_timeout_handler_set(tcp->lang->ev, fd, tcp, mln_lang_network_tcp_timeout_handler);
+                    }
                 } else {
                     mln_event_fd_set(tcp->lang->ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
                     mln_lang_ctx_continue(tcp->ctx);
@@ -1526,8 +1529,9 @@ static void mln_lang_network_tcp_accept_handler(mln_event_t *ev, int fd, void *d
     if ((connfd = accept(fd, (struct sockaddr *)addr, &len)) < 0) {
         if (errno == EINTR) {
             mln_event_fd_set(ev, fd, M_EV_RECV|M_EV_NONBLOCK|M_EV_ONESHOT, tcp->timeout, tcp, mln_lang_network_tcp_accept_handler);
-            if (tcp->timeout >= 0)
+            if (tcp->timeout >= 0) {
                 mln_event_fd_timeout_handler_set(ev, fd, tcp, mln_lang_network_tcp_timeout_handler);
+            }
             mln_lang_mutex_unlock(lang);
             return;
         }
