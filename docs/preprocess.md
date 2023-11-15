@@ -48,6 +48,9 @@ e.g.
 
 ```
 #include "~/lib.mln"
+// or load all files in a directory
+#include "~/"
+//files that are in sub-directories or prefixed by '.' will not be included
 ```
 
 The path should follow these rules:
