@@ -22,7 +22,7 @@ static inline int mln_lang_http_parse_request_result_build_version(mln_lang_ctx_
 static inline int mln_lang_http_parse_request_result_build_uri(mln_lang_ctx_t *ctx, mln_lang_array_t *arr, mln_http_t *http);
 static inline int mln_lang_http_parse_request_result_build_args(mln_lang_ctx_t *ctx, mln_lang_array_t *arr, mln_http_t *http);
 static inline int mln_lang_http_parse_result_build_headers(mln_lang_ctx_t *ctx, mln_lang_array_t *arr, mln_http_t *http);
-static int mln_lang_http_parse_result_build_headers_iterate(void *k, void *v, void *udata);
+static int mln_lang_http_parse_result_build_headers_iterate(mln_hash_t *h, void *k, void *v, void *udata);
 static inline int mln_lang_http_parse_result_build_body(mln_lang_ctx_t *ctx, mln_lang_array_t *arr, mln_http_t *http);
 static inline int mln_lang_http_parse_response_result_build(mln_lang_ctx_t *ctx, mln_http_t *http, mln_lang_array_t *arr);
 static inline int mln_lang_http_parse_response_result_build_version(mln_lang_ctx_t *ctx, mln_lang_array_t *arr, mln_http_t *http);
@@ -514,7 +514,7 @@ static inline int mln_lang_http_parse_result_build_headers(mln_lang_ctx_t *ctx, 
     return 0;
 }
 
-static int mln_lang_http_parse_result_build_headers_iterate(void *k, void *v, void *udata)
+static int mln_lang_http_parse_result_build_headers_iterate(mln_hash_t *h, void *k, void *v, void *udata)
 {
     mln_lang_array_t *arr = (mln_lang_array_t *)udata;
     mln_lang_ctx_t *ctx = arr->ctx;
