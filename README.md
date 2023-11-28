@@ -43,6 +43,20 @@ melang -h //help information
 melang a.mln b.mln ... //execute melang files
 ```
 
+**Example**
+```
+//example.m
+
+sys = Import('sys');
+sys.print("Hello World!");
+```
+```
+melang example.m
+```
+The output is:
+```
+Hello World!
+```
 
 
 ### License
@@ -55,5 +69,5 @@ Copyright (c) 2018-present, Niklaus F. Schen
 
 ### Document
 
-Please visit [Pages](https://water-melon.github.io/Melang/) to get more information.
+Please refer to [Official Site](https://melang.org) for more details.
 
