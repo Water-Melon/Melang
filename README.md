@@ -59,6 +59,11 @@ Hello World!
 ```
 
 
+### Applications
+
+[Meproc](https://github.com/MelonCTech/Meproc): a cross-platform process management and supervision service.
+
+
 ### License
 
 [BSD-3-Clause License](https://github.com/Water-Melon/Melang/blob/master/LICENSE)
@@ -67,7 +72,6 @@ Copyright (c) 2018-present, Niklaus F. Schen
 
 
 
-### Document
+### Documentation
 
 Please refer to [Official Site](https://melang.org) for more details.
-
