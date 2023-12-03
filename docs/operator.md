@@ -22,33 +22,68 @@ These operators are listed by priority from low to high.
 
 
 
-e.g.
+### Examples
 
-Try to execute these statements, and guess their results.
+Here, it is assumed that you have already installed Melang and all its library files (installed using the `make all` command).
+
+The `sys.print` will output the contents of the parameter to the terminal.
 
 ```
-sys = import('sys');
+sys = Import('sys');
 
-i = 1, 2, 3; //guess i = ?, you can use function sys.print to output on your terminal
-sys.print(i);
+i = 1, 2, 3;
+sys.print(i); // 1
 
-i += 1; //increase 1
+i += 1;
+sys.print(i); // 2
 
 b = i == 2; //b is a boolean value
+sys.print(b); // true
 
-i = i | 1; //guess i = ?
+i = i | 1;
+sys.print(i); // 3
 
-i++;
+sys.print(i++); // 3
 
---i;
+sys.print(++i); // 5
 
-//Instantiate a human object
-human {
+sys.print(i--); // 5
+
+sys.print(--i); // 3
+
+sys.print(i == 3 && 100 || 50); // 100
+
+human { // set definition
   name;
   age;
 }
-friend = $human; //friend is an object
+friend = $human; //instantiate a human object
 friend.name = 'Alex';
 friend.age = 18;
+sys.print(friend.name); // Alex
+sys.print(friend.age); // 18
+
+sys.print(!friend.age); //false
+
+arr = [1, 2, 3];
+sys.print(arr[2]); // 3
+```
+
+The output is:
+
+```
+1
+2
+true
+3
+3
+5
+5
+3
+100
+Alex
+18
+false
+3
 ```
 

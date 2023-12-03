@@ -18,7 +18,7 @@ Reactive programming is based on two functions:
 
 But these functions are bound with interpreter tightly, so they won't be achieved in library.
 
-Calling *watch* to trace a variable, a callback function will be called after the variable's value changed.
+Calling `watch` to trace a variable, a callback function will be called after the variable's value changed.
 
 e.g.
 
@@ -46,9 +46,9 @@ hello
 hello
 ```
 
-As we can see in this example, if `watch` is called, *handler* will be called when *a*'s value changed.
+As we can see in this example, if `watch` is called, `handler` will be called when `a`'s value changed.
 
-We should note that *handler* is a function, its parameter supports reference. So in this example, *newValue* and *userData* are not references. So every modification on *userData* can not affect on the outer scope variable as we wish.
+We should note that `handler` is a function, its parameter supports reference. In this example, `newValue` and `userData` are not references. So every modification on `userData` can not affect on the outer scope variable as we wish.
 
 So let's fix this problem.
 
@@ -78,11 +78,11 @@ world
 
 
 
-If we don't want to trace this variable any more, we can use *Unwatch* to stop tracing.
+If we don't want to trace this variable any more, we can use `Unwatch` to stop tracing.
 
 ```
 Unwatch(a);
 a = 13;
 ```
 
-*handler* won't be called any more, and nothing will be printed on terminal.
+`handler` won't be called any more, and nothing will be printed on terminal.

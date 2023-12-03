@@ -33,14 +33,14 @@ human {
 }
 ```
 
-*human* is a set name. It has some properties: *name, age, gender, score*. And one method: *init*.
+`human` is a set name. It has some properties: `name`, `age`, `gender`, `score`. And one method: `init`.
 
 In this example, you can see:
 
 - property definition just need a name
-- method definition has a special local variable named *this*
+- method definition has a special local variable named `this`
 
-*this* is an internal variable in method. It is a reference to set's object.
+`this` is an built-in variable in method. It is a reference to set's object.
 
 
 
@@ -51,9 +51,9 @@ Now we have two questions:
 
 Set is an abstract definition and object is a instantiated Set.
 
-As shown above, set *human* is a definition. It defines some basic attributes of a human.
+As shown above, `human` is a set definition. It defines some basic attributes of a human.
 
-So if there is a boy named Tom, and he also has these attributes, then he is an instance of set *human*, which means Tom is an object of set *human*.
+So if there is a boy named Tom, and he also has these attributes, then he is an instance of `human`, which means Tom is an object of set `human`.
 
 So how to instantiate a set object?
 
@@ -61,9 +61,9 @@ So how to instantiate a set object?
 Tom = $human;
 ```
 
-That's done. Now, we have a variable named *Tom*, and that is an object of set *human*.
+That's done. Now, we have a variable named `Tom`, and that is an object of set `human`.
 
-Now, we can visit *Tom*'s properties and methods.
+Now, we can visit `Tom`'s properties and methods.
 
 ```
 sys = Import('sys');
@@ -73,10 +73,10 @@ Tom.init('Tom Moore', 8, 'male');
 sys.print(Tom.name);
 ```
 
-The first line is calling method *init*, this method initiates object *Tom*'s properties.
+The first line is calling method `init`, this method initiates object `Tom`'s properties.
 
-The last line outputs *Tom*'s name.
+The last line outputs `Tom`'s name.
 
-And we can see, if we want to visit an object's property or method, we need to use operator *.* (dot). Left of operator . is an object and right is object's property or method.
+And we can see, if we want to access an object's property or method, we need to use operator `.` (dot). Left of operator `.` is an object and right is object's property or method.
 
-Back to the topic *this*. In this example, *this* is a reference of object *Tom*. So modifications on *this* will directly affect on *Tom*. So the result of the last one statement is 'Tom Moore'.
+Back to the topic `this`. In this example, `this` is a reference of object `Tom`. So modifications on `this` will directly affect on `Tom`. So the output of the last one statement is `Tom Moore`.

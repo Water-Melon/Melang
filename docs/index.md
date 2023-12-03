@@ -18,6 +18,8 @@ Now, let's start our journey.
 
 ### Contents
 
+[Installation](https://water-melon.github.io/Melang/installation.html)
+
 [Data types](https://water-melon.github.io/Melang/datatype.html)
 
 [Operators](https://water-melon.github.io/Melang/operator.html)

@@ -12,7 +12,7 @@ Like preprocess in C, Melang supports simple preprocess.
 #undef NAME //undefine macro
 ```
 
-*Name* is equivalent to 'John'. Melang just simply replace 'NAME' with 'John' in code.
+`Name` is equivalent to `'John'`. Melang just simply replace `NAME` with `'John'` in code.
 
 
 
@@ -32,15 +32,15 @@ Like preprocess in C, Melang supports simple preprocess.
 #endif
 ```
 
-In example A, if *NAME* is defined, code A will be executed.
+In example A, if `NAME` is defined, code A will be executed.
 
-In example B, if NAME is defined, code B will be executed, otherwise execute code C.
+In example B, if `NAME` is defined, code B will be executed, otherwise execute code C.
 
 
 
 #### include
 
-Just like *include* in C, Melang also support it to load some script files into a file.
+Just like `include` in C, Melang also support it to load some script files into the current file.
 
 **Note: the included file must be quoted by double quotes.**
 
@@ -57,11 +57,11 @@ The path should follow these rules:
 
 - if path is an absolute path, just try to load it.
 
-- if path is not a absolute path, interpreter will search for file in the following order:
+- if path is not an absolute path, interpreter will search for file in the following order:
 
   1. if there is the file in current directory, just load it.
-  2. if there is a environment variable named *MELANG_PATH* which points to some directories, interpreter will search for file in them. If interpreter cannot find file, an error would be occurred.
-  3. if step 1 and step 2 are failed, interpreter will search for file in */usr/lib/melang/*.
+  2. if there is a environment variable named `MELANG_PATH` which points to some directories, interpreter will search for file in them.
+  3. if step 1 and step 2 are failed, interpreter will search for file in `/usr/lib/melang/` (This path can be changed during the installation of Melon by passing parameters to the `configure`.).
 
   If failed, an error would be occurred.
 
@@ -73,6 +73,6 @@ Another example:
 #include "@/b.m"
 ```
 
-`@` is a special char stands for base directory of current file (`a.m`). So its value is `/xxx/yyy'.
+`@` is a special char stands for base directory of current file (`a.m`). So its value is `/xxx/yyy`.
 
 So `/xxx/yyy/b.m` will be included in `a.m`.

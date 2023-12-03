@@ -20,12 +20,16 @@ In this example, first line is a statement, and second one is a statement too. A
 ```
 a = 1, c = 3;
 b = 2;
+
+// function definition
 @c() {
   return 1;
 }
+
+//set definition
 @d {
   p = 1;
-  @q () {
+  @q () { //another function definition
     return 2;
   }
 }

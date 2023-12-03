@@ -12,6 +12,7 @@ But every value has its type. Types in Melang are shown below:
 - array
 - set
 - object
+- function
 
 
 
@@ -43,10 +44,30 @@ d = ['age': 18, 'name': 'Mr. M'];
 human {
   name;
   age;
+  @run () { // this is a method definition.
+    //...
+  }
 }
 
 //value of o is an object or instance of set human.
 o = $human;
+
+//access object properties
+o.name;
+o.age = 1;
+
+//accessing non-existent object properties
+o.gender // nil will be given
+o.phone_number = 123; // the value of the new property `phone_number` has been set to 123.
+
+//here is a function definition
+@foo()
+{
+  //...
+}
+
+// and here is a function call
+foo();
 ```
 
 
@@ -61,9 +82,9 @@ a = [1, 2, 3];
 a[0]; //array[index]
 ```
 
-*a[0]* is getting the first element *1* in array *a*. And *a[2]* is the last element *3*.
+`a[0]` retrieves the first element `1` from the array `a`, while `a[2]` retrieves the last element `3`.
 
-If the index is greater than or equal to array length, *nil* will be got.
+If the index is greater than or equal to the array length, `nil` will be given.
 
 
 
@@ -73,10 +94,10 @@ There is another kind of array named *dict*.
 d = ['name': 'Tom', 'age': 18];
 ```
 
-Now if we want to access the element which *key* is *name*, we can do it in this way:
+Now if we want to access the element which *key* is `name`, we can do it in this way:
 
 ```
 d['name']; //dict[key]
 ```
 
-If *key* is not in this dict,  *nil* will be got.
+If *key* is not in this dict,  `nil` will be given.

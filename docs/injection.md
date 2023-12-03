@@ -8,9 +8,9 @@ Human {
 someone = $Human;
 ```
 
-Now, we have a set *Human* without any property or method, and an object of *Human* named *someone*.
+Now, we have a set `Human` without any property or method, and an object of `Human` named `someone`.
 
-So as a human, *someone* must has age. Let's add for it.
+So as a human, `someone` must has age. Let's add for it.
 
 ```
 sys = Import('sys');
@@ -18,9 +18,9 @@ someone.age = 20;
 sys.print(someone.age);
 ```
 
-OK, done. Now *20* will be printed on terminal.
+OK, done. Now `20` will be printed on terminal.
 
-Let's add a method for *someone*.
+Let's add a method for `someone`.
 
 ```
 @printAge()
@@ -33,7 +33,7 @@ someone.print = printAge;
 someone.print();
 ```
 
-*printAge* is a function not object method, but it can be treated as an object method by injection. In a common function, *this* is *nil*. So if call *printAge* directly, interpreter will throw an error.
+`printAge` is a function not object method, but it can be treated as an object method by injection. In a regular function, `this` is `nil`. So if call `printAge` directly, interpreter will throw an error.
 
 
 
@@ -46,9 +46,9 @@ sys = Import('sys');
 sys.setter(object, name, value);
 ```
 
-use *sys.setter* to inject property or method into an object. Its return value is the same as argument *value*.
+use `sys.setter` to inject property or method into an object. Its return value is the same as argument `value`.
 
-Let's add a *name* in *someone*.
+Let's add a `name` in `someone`.
 
 ```
 sys = Import('sys');
@@ -65,7 +65,7 @@ Jason
 Jason
 ```
 
-Let's add a method in *someone* to print name.
+Let's add a method in `someone` to print name.
 
 ```
 Sys = Import('sys');
@@ -104,4 +104,4 @@ The output is:
 Jason
 ```
 
-But if you try to access a nonexistent property by this function, interperter will throw an error.
+But if you try to access a non-existent property by this function, interperter will throw an error.

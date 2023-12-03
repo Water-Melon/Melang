@@ -19,11 +19,11 @@ Syntax:
 }
 ```
 
-*funcname* is the name of function, it has to follow the rule:
+`funcname` is the name of function, it has to follow the rule:
 
 > start with letter or underscore and the rest part can be number, letter or underscore.
 
-*parameters* is a series of variables, like: *name*, *age* or anything you need.
+`parameters` is a series of variables, like: `name`, `age` or anything you need.
 
 e.g.
 
@@ -34,7 +34,7 @@ e.g.
 }
 ```
 
-Here is a function named *plus*. It has two parameters named *a* and *b*. And its function is to calculate the sum of two parameters.
+Here is a function named `plus`. It has two parameters named `a` and `b`. And its function is to calculate the sum of these two parameters.
 
 
 
@@ -46,9 +46,9 @@ Syntax:
 funcname(arguments);
 ```
 
-*funcname* is the name of defined function.
+`funcname` is the name of defined function.
 
-*arguments* is a series of values.
+`arguments` is a series of values.
 
 e.g.
 
@@ -56,7 +56,7 @@ e.g.
 plus(1, 2);
 ```
 
-*plus* is the *funcname*, and 1, 2 correspond to parameter *a* and *b*.
+`plus` is the *funcname*, and `1` and `2` correspond to parameter `a` and `b`.
 
 
 
@@ -74,7 +74,7 @@ a = 0;
 a = foo(a);
 ```
 
-This program just modified *a* from 0 to 100, and that is what we wish it to be.
+This program just modified `a` from `0` to `100`, and that is what we wish it to be.
 
 But the last statement is a little bit clumsy. How to make it better?
 
@@ -88,9 +88,9 @@ a = 0;
 foo(a);
 ```
 
-We change function parameter *data* to be *&data*.
+We change function parameter `data` to be `&data`.
 
-Operator *&* makes argument *a* to be a reference variable named *data* in function *foo*. Every modification on *data* will directly effect on *a*.
+Operator `&` makes argument `a` to be a reference variable named `data` in function `foo`. Every modification on `data` will directly effect on `a`.
 
 > Note:
 >   1. & only can be used on the parameters of function definition.
@@ -109,7 +109,7 @@ Operator *&* makes argument *a* to be a reference variable named *data* in funct
 foo();
 ```
 
-This program will not report error. Because interperter will set *nil* to *data* automatically.
+This program will not report error. Because interperter will set `nil` to `data` automatically.
 
 
 
@@ -129,9 +129,7 @@ Let's see an example:
 @foo()();
 ```
 
-Guess what happened?
-
-'bar' will be printed on terminal.
+`bar` will be printed on terminal.
 
 It is possible because function definition is a statement. So we can define a function in another function's definition.
 
@@ -162,11 +160,9 @@ The result of this program is:
 argument list: this is a variable arguments example 
 ```
 
-The key point is variable *args*. It's a internal variable in Melang function.
+The key point is variable `args`. This is a built-in variable that exists only in functions where the number of actual parameters exceeds the number of formal parameters.
 
-It is an array to record every arguments passed to this function.
-
-> Function *sys.size* returns the number of array elements.
+This is an array used to record all actual parameter values that do not have corresponding formal parameters.
 
 
 

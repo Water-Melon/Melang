@@ -16,7 +16,7 @@ a = 'foo';
 a();
 ```
 
-As we can see, variable *a* is a string not function, but its value is a function name. So the last statement will output 'foo' on terminal.
+As we can see, variable `a` is a string but a function, but its value is a function name. The last statement will output `foo` on terminal, because function `foo` is called.
 
 Let's see a more complex example:
 
@@ -31,7 +31,7 @@ b = 'a';
 b();
 ```
 
-This example will output 'foo' on terminal either.
+This example will output `foo` on terminal either.
 
 
 
@@ -49,9 +49,9 @@ Tom = $s;
 sys.print(Tom);
 ```
 
-*s* is a string variable, and its value is a set name.
+`s` is a string variable, and its value is a set name.
 
-The output is *Object*. Which means, *Tom = $s;* is working. *Tom* is an object of set *human*.
+The output is `Object`. Which means, `Tom = $s;` is working. `Tom` is an object of set `human`.
 
 
 
@@ -83,7 +83,7 @@ The result of this program is:
 running
 ```
 
-The first part is a set reflection to instantiate an *human* object. And set object's *action* to be a string which is the method name *run*. And then call object method via object property.
+The first part is a set reflection to instantiate an `human` object. And set object's `action` to be a string which is the method name `run`. And then call object method via object property.
 
 > Note: The code shown below is not working.
 >

@@ -43,12 +43,12 @@ The result is:
 nil
 ```
 
- That is reasonable because interpreter just search *a* in current scope (in function *foo*), and it is not defined in this scope.
+ That is reasonable because interpreter just search `a` in current scope (in function *foo*), and it is not defined in this scope.
 
-But if we need a's value in foo, how to do?
+If we need to obtain the value of a global variable, then the global variable's name should begin with a capital letter.
 
 ```
-A = 1;
+A = 1; // global variable A
 @foo() {
   sys = Import('sys');
   sys.print(A);
@@ -61,10 +61,6 @@ Result is:
 ```
 1
 ```
-
-So here is the special rule:
-
-> If variable name start with an upper case character, it will be searched from current scope and outest scope.
 
 
 

@@ -37,13 +37,26 @@ $ make install
 
 After installed, you can execute these commands below:
 
-```
+```bash
 melang -v //show version
 melang -h //help information
 melang a.mln b.mln ... //execute melang files
 ```
 
-**Example**
+
+
+### Docker Image
+
+If you need to quickly start a Melang runtime environment, you can use this Docker image.
+
+```bash
+docker pull melonc/melon
+```
+
+
+
+### **Example**
+
 ```
 //example.m
 
@@ -59,9 +72,11 @@ Hello World!
 ```
 
 
+
 ### Applications
 
 [Meproc](https://github.com/MelonCTech/Meproc): a cross-platform process management and supervision service.
+
 
 
 ### License

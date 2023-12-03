@@ -2,7 +2,7 @@
 
 
 
-Pipe provides an approach to send a data set from C layer to script layer.
+The pipe provides a way for the C level to communicate with the script level.
 
 
 
@@ -27,7 +27,27 @@ This function will send a data set given by `...` to a specified script task by 
 Return value:
 
 - `0` on success
-- `-1` fails
+- `-1` on failure
+
+
+
+```c
+int mln_trace_recv_handler_set(mln_lang_ctx_pipe_recv_cb_t recv_handler);
+
+typedef int (*mln_lang_ctx_pipe_recv_cb_t)(mln_lang_ctx_t *, mln_lang_val_t *);
+```
+
+This function is used to receive data from the script level in C code.
+
+The parameters of `recv_handler`:
+
+- the first one is the script task context object.
+- the second one is the data sent from script level.
+
+Return value:
+
+- `0` on succes
+- `-1` on failure
 
 
 
@@ -44,6 +64,7 @@ This function is used to subscribe, unsubscribe and receive data from C layer.
 - `subscribe` starts to accept data set.
 - `unsubscribe` stop to accept data set.
 - `recv` receive data set.
+- `send` send data to C level.
 
 Return value:
 
