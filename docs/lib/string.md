@@ -20,7 +20,7 @@ str.bin2hex(bin);
 
 Input:
 
-- bin - a binary bytes string.
+- `bin` - a binary bytes string.
 
 Return value:
 
@@ -54,7 +54,7 @@ str.hex2bin(hex);
 
 Input:
 
-- hex - a hex string.
+- `hex` - a hex string.
 
 Return value:
 
@@ -87,7 +87,7 @@ str.bin2int(bin);
 
 Input:
 
-- bin - a binary bytes string.
+- `bin` - a binary bytes string.
 
 Return value:
 
@@ -120,7 +120,7 @@ str.int2bin(i);
 
 Input:
 
-- i - an integer.
+- `i` - an integer.
 
 Return value:
 
@@ -153,7 +153,7 @@ str.bin2real(bin);
 
 Input:
 
-- a binary bytes string.
+- `bin` - a binary bytes string.
 
 Return value:
 
@@ -183,7 +183,7 @@ str.real2bin(r);
 
 Input:
 
-- a real number.
+- `r` - a real number.
 
 Return value:
 
@@ -216,7 +216,7 @@ str.b2s(bin);
 
 Input:
 
-- a value whose type should be one of:
+- `bin` - a value whose type should be one of:
   - int
   - real
   - bool
@@ -252,7 +252,7 @@ str.s2b(s, type);
 
 Input:
 
-- s - a string.
+- `s` - a string.
 - type - a string whose value should be:
   - int
   - real
@@ -289,7 +289,7 @@ str.strlen(s);
 
 Input:
 
-- a string value.
+- `s` - a string value.
 
 Return value:
 
@@ -319,9 +319,9 @@ str.split(s, offset, len);
 
 Input:
 
-- s - a string value.
-- offset - an integer offset.
-- len - is optional. It should be a positive number or zero. If not set, *len* will be set as *string length - offset*.
+- `s` - a string value.
+- `offset` - an integer offset.
+- `len` - is optional. It should be a positive number or zero. If not set, `len` will be set as string length `offset`.
 
 Return value:
 
@@ -354,12 +354,12 @@ str.slice(s, seps);
 
 Input:
 
-- s - the input string.
-- seps - a set of characters, a string.
+- `s` - the input string.
+- `seps` - a set of characters, a string.
 
 Return value:
 
-- Returns an array of strings created by splitting the *s* parameter on boundaries formed by the *seps*.
+- Returns an array of strings created by splitting the *s* parameter on boundaries formed by the `seps`.
 
 Example:
 
@@ -388,12 +388,12 @@ kmp(s, pattern);
 
 Input:
 
-- s - the input string.
-- pattern - the matched string.
+- `s` - the input string.
+- `pattern` - the matched string.
 
 Return value:
 
-- the first occurrence offset on success, otherwise *nil* returned.
+- the first occurrence offset on success, otherwise `nil` returned.
 
 Example:
 
@@ -422,12 +422,12 @@ str.strstr(s, pattern);
 
 Input:
 
-- s - the input string.
-- pattern - the matched string.
+- `s` - the input string.
+- `pattern` - the matched string.
 
 Return value:
 
-- the first occurrence offset on success, otherwise *nil* returned.
+- the first occurrence offset on success, otherwise `nil` returned.
 
 Example:
 
@@ -456,13 +456,13 @@ str.strncmp(s1, s2, n);
 
 Input:
 
-- s1 - the first string.
-- s2 - the second string
-- n - number of characters to use in the comparison.
+- `s1` - the first string.
+- `s2` - the second string
+- `n` - number of characters to use in the comparison.
 
 Return value:
 
-- *true* returned on success, otherwise *false* returned.
+- `true` returned on success, otherwise `false` returned.
 
 Example:
 
@@ -491,12 +491,12 @@ str.strcmp(s1, s2);
 
 Input:
 
-- s1 - the first string.
-- s2 - the second string.
+- `s1` - the first string.
+- `s2` - the second string.
 
 Return value:
 
-- *true* returned on success, otherwise *false* returned.
+- `true` returned on success, otherwise `false` returned.
 
 Example:
 
@@ -525,15 +525,15 @@ str.strseqcmp(s1, s2);
 
 Input:
 
-- s1 - the first string.
-- s2 - the second string.
+- `s1` - the first string.
+- `s2` - the second string.
 
 Return value:
 
 - an integer:
-  - 1 - *s1* > *s2*
-  - -1 - *s1* < *s2*
-  - 0 - *s1* = *s2*
+  - `1` - *s1* > *s2*
+  - `-1` - *s1* < *s2*
+  - `0` - *s1* = *s2*
 
 Example:
 
@@ -562,12 +562,12 @@ str.reg_equal(exp, text);
 
 Input:
 
-- exp - the input regular expression.
-- text - the input text string.
+- `exp` - the input regular expression.
+- `text` - the input text string.
 
 Return value:
 
-- *true* if completely matched, otherwise *false* returned.
+- `true` if completely matched, otherwise `false` returned.
 
 Example:
 
@@ -598,12 +598,12 @@ str.reg_match(exp, text);
 
 Input:
 
-- exp - the input regular expression.
-- text - the input text string.
+- `exp` - the input regular expression.
+- `text` - the input text string.
 
 Return value:
 
-- an array that if matched anything, otherwise *false* returned.
+- an array that if matched anything, otherwise `false` returned.
 
 Example:
 

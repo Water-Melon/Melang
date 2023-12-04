@@ -20,7 +20,7 @@ p.prime(base);
 
 Input:
 
-- base - an integer number.
+- `base` - an integer number.
 
 Return value:
 

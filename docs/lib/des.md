@@ -20,9 +20,9 @@ d.des(data, key, op);
 
 Input:
 
-- data - string value and its length % 8 must be 0.
-- key - must be an integer value.
-- op - a string value to indicate function to encrypt or decrypt. It only has two values: *encode* and *decode*.
+- `data` - string value and its length % 8 must be 0.
+- `key` - must be an integer value.
+- `op` - a string value to indicate function to encrypt or decrypt. It only has two values: `encode` and `decode`.
 
 Return value:
 
@@ -61,9 +61,9 @@ des3(data, key1, key2, op);
 
 Input:
 
-- data - string value and its length % 8 must be 0.
-- key1, key2 - must be an integer value.
-- op - a string value to indicate function to encrypt or decrypt. It only has two values: *encode* and *decode*.
+- `data` - string value and its length % 8 must be 0.
+- `key1`, `key2` - must be an integer value.
+- `op` - a string value to indicate function to encrypt or decrypt. It only has two values: `encode` and `decode`.
 
 Return value:
 

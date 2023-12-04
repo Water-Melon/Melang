@@ -18,15 +18,15 @@ j.encode(array);
 
 Input:
 
-- array - must be an array (common array or dict).
+- `array` - must be an array (regular array or dict).
 
 Return value:
 
-- a encoded JSON string on success, otherwise *false* returned.
+- a encoded JSON string on success, otherwise `false` returned.
 
 Error:
 
-- An error will be occurred if encounter Invalid argument.
+- An error will be occurred if encounter invalid argument.
 
 
 
@@ -38,11 +38,11 @@ j.decode(s);
 
 Input:
 
-- s - must be a string.
+- `s` - must be a string.
 
 Return value:
 
-- a decoded JSON array on success, otherwise *false* returned.
+- a decoded JSON array on success, otherwise `false` returned.
 
 Error:
 

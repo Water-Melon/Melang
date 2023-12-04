@@ -20,14 +20,14 @@ sys.print(var);
 
 Input:
 
-- var - any type can be accepted.
-  - if *var* is array, array values will be printed.
-  - if *var* is function or object, only a string *function* or *object* will be printed.
-  - otherwise *var*'s value will be printed.
+- `var` - any type can be accepted.
+  - if `var` is an array, elements in array will be printed.
+  - if `var` is a function or object, only a string `function` or `object` will be printed.
+  - otherwise `var`'s value will be printed.
 
 Return value:
 
-- Always *true*.
+- Always `true`.
 
 
 
@@ -35,7 +35,7 @@ Return value:
 
 Output detail of the given argument.
 
-This is an internal function, not implemented in dynamic library.
+This is a built-in function, not implemented in dynamic library.
 
 ```
 Dump(var);
@@ -43,16 +43,16 @@ Dump(var);
 
 Input:
 
-- var - any type can be accepted.
-  - array - output all array values and array keys and more other details.
-  - object - output all properties detail information.
-  - other type - output detail information of *var*.
+- `var` - any type can be accepted.
+  - array - output all array elements and array keys and more details.
+  - object - output all properties' detail.
+  - other type - output details of `var`.
 
 Return value:
 
+- `nil`
 
-
-##### Example
+Example
 
 ```
 sys = Import('sys');
@@ -97,11 +97,11 @@ sys.size(&array);
 
 Input:
 
-- array - an array or dict.
+- `array` - an array or dict.
 
 Return value:
 
-- the length of *array*.
+- the length of `array`.
 
 Example:
 
@@ -129,11 +129,11 @@ sys.is_int(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
-- *true* if value is an integer, otherwise *false* returned.
+- `true` if value is an integer, otherwise `false` returned.
 
 Example:
 
@@ -163,11 +163,11 @@ sys.is_real(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
-- *true* if value is a real number, otherwise *false* returned.
+- `true` if value is a real number, otherwise `false` returned.
 
 Example:
 
@@ -197,11 +197,11 @@ sys.is_str(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
-- *true* if value is a string, otherwise *false* returned.
+- `true` if value is a string, otherwise `false` returned.
 
 Example:
 
@@ -227,11 +227,11 @@ sys.is_nil(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
-- *true* if value is *nil*, otherwise *false* returned.
+- `true` if value is `nil`, otherwise `false` returned.
 
 Example:
 
@@ -259,11 +259,11 @@ sys.is_bool(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
-- *true* if value is bool, otherwise *false* returned.
+- `true` if value is bool, otherwise `false` returned.
 
 Example:
 
@@ -291,11 +291,11 @@ is_obj(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
-- *true* if value is an object, otherwise *false* returned.
+- `true` if value is an object, otherwise `false` returned.
 
 Example:
 
@@ -325,11 +325,11 @@ sys.is_func(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
-- *true* if value is a function, otherwise *false* returned.
+- `true` if value is a function, otherwise `false` returned.
 
 Example:
 
@@ -358,11 +358,11 @@ sys.is_array(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
-- *true* if value is an array, otherwise *false* returned.
+- `true` if value is an array, otherwise `false` returned.
 
 Example:
 
@@ -384,7 +384,7 @@ true
 
 ##### int
 
-Get int value of a variable.
+Convert the variable to an integer value.
 
 ```
 sys.int(var);
@@ -392,7 +392,7 @@ sys.int(var);
 
 Input:
 
-- var - a variable whose type should be: *int, real, string*.
+- `var` - a variable whose type should be: `int`, `real`, `string`.
 
 Return value:
 
@@ -418,7 +418,7 @@ Output:
 
 ##### bool
 
-Get bool value of a variable.
+Convert the variable to a boolean value.
 
 ```
 sys.bool(var);
@@ -426,7 +426,7 @@ sys.bool(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
@@ -458,7 +458,7 @@ false
 
 ##### real
 
-Get real value of a variable.
+Convert the variable to a real number.
 
 ```
 sys.real(var);
@@ -466,7 +466,7 @@ sys.real(var);
 
 Input:
 
-- var - a variable whose type should be: *int, real, string*.
+- `var` - a variable whose type should be: `int`, `real`, `string`.
 
 Return value:
 
@@ -492,7 +492,7 @@ Output:
 
 ##### str
 
-Get string value of a variable.
+Convert the variable to a string.
 
 ```
 sys.str(var);
@@ -500,7 +500,7 @@ sys.str(var);
 
 Input:
 
-- var - a variable whose type should be: *int, bool, real, string*.
+- `var` - a variable whose type should be: `int`, `bool`, `real`, `string`.
 
 Return value:
 
@@ -528,7 +528,7 @@ Output:
 
 ##### obj
 
-Get object value of a variable.
+Convert the array or object to an object.
 
 ```
 sys.obj(var);
@@ -536,7 +536,7 @@ sys.obj(var);
 
 Input:
 
-- var - a variable whose type should be: *object, array*.
+- `var` - a variable whose type should be: `object`, `array`.
 
 Return value:
 
@@ -568,7 +568,7 @@ As we can see in output, common array will not generate any properties in object
 
 ##### array
 
-Get array value of a variable.
+Convert the array or object to an array.
 
 ```
 sys.array(var);
@@ -576,7 +576,7 @@ sys.array(var);
 
 Input:
 
-- var - a variable.
+- `var` - a variable.
 
 Return value:
 
@@ -618,11 +618,11 @@ sys.keys(&array);
 
 Input:
 
-- the input array.
+- `array` - the input array.
 
 Return value:
 
-- an array  of all the keys in *array*.
+- an array  of all non-integer keys in `array`.
 
 Example:
 
@@ -651,8 +651,8 @@ sys.merge(array1, array2);
 
 Input:
 
-- array1 - the first array;
-- array2 - the second array.
+- `array1` - the first array;
+- `array2` - the second array.
 
 Return value:
 
@@ -746,11 +746,11 @@ sys.type(var);
 
 Input:
 
-- var - the input argument. It can be any types but Set.
+- `var` - the input argument. It can be any types but Set.
 
 Return value:
 
-- type of *var*. If *var* is an object, Set name will be returned.
+- type of `var`. If `var` is an object, Set name will be returned.
 
 Example:
 
@@ -794,12 +794,12 @@ sys.getter(&obj, prop);
 
 Input:
 
-- obj - the input object.
-- prop - the property name string. ***prop* must exist in *obj*.**
+- `obj` - the input object.
+- `prop` - the property name string. ***prop* must exist in *obj*.**
 
 Return value:
 
-- The value of *prop* in *obj*.
+- The value of `prop` in `obj`.
 
 Example:
 
@@ -832,9 +832,9 @@ sys.setter(&obj, prop, &val);
 
 Input:
 
-- obj - the input object.
-- prop - the property name string.
-- val - the property value. This is an optional argument, *nil* as default.
+- `obj` - the input object.
+- `prop` - the property name string.
+- `val` - the property value. This is an optional argument, `nil` as default.
 
 Return value:
 
@@ -867,7 +867,7 @@ Output:
 
 Create a new coroutine and execute.
 
-This is an internal function.
+This is a built-in function.
 
 ```
 Eval(val, data, in_string, alias);
@@ -875,14 +875,14 @@ Eval(val, data, in_string, alias);
 
 Input:
 
-- val - a file path or a code string.
-- data - the data that we want to deliver to the new coroutine.
-- in_string - a optional argument. If is set and its value is *true*, *val* is a code string. Otherwise, *val* is a file path.
-- alias - the alias string of the new melang script task.
+- `val` - a file path or a code string.
+- `data` - the data that we want to deliver to the new coroutine.
+- `in_string` - a optional argument. If is set and its value is `true`, `val` is a code string. Otherwise, `val` is a file path.
+- `alias` - the alias string of the new melang script task.
 
 Return value:
 
-- always *nil*.
+- always `nil`.
 
 Example: visit [Coroutine Section](https://water-melon.github.io/Melang/coroutine.html).
 
@@ -898,12 +898,12 @@ sys.mkdir(path, mode);
 
 Input:
 
-- path - a directory path in file system.
-- mode - an optional argument. It's an integer indicating directory priorities, such as 0755.
+- `path` - a directory path in file system.
+- `mode` - an optional argument. It's an integer indicating directory priorities, such as `0755`.
 
 Return value:
 
-- *true* on success, otherwise *false*.
+- `true` on success, otherwise `false`.
 
 Example:
 
@@ -935,11 +935,11 @@ sys.remove(path);
 
 Input:
 
-- path - directory path.
+- `path` - directory path.
 
 Return value:
 
-- *true* on success, otherwise *false*.
+- `true` on success, otherwise `false`.
 
 Example:
 
@@ -967,11 +967,11 @@ sys.exist(path);
 
 Input:
 
-- path - file or directory path.
+- `path` - file or directory path.
 
 Return value:
 
-- *true* if exists, otherwise *false*.
+- `true` if exists, otherwise `false`.
 
 Example:
 
@@ -999,7 +999,7 @@ sys.lsdir(path);
 
 Input:
 
-- path - file or directory path.
+- `path` - file or directory path.
 
 Return value:
 
@@ -1031,11 +1031,11 @@ sys.isdir(path);
 
 Input:
 
-- path - file or directory path.
+- `path` - file or directory path.
 
 Return value:
 
-- *true* if is directory, otherwise *false*.
+- `true` if is directory, otherwise `false`.
 
 Example:
 
@@ -1061,7 +1061,7 @@ Get the current time seconds.
 sys.time();
 ```
 
-Input: -
+Input: *none*
 
 Return value:
 
@@ -1236,7 +1236,7 @@ Return value:
 
 - On Windows, this function only return `nil`.
 - On UNIX-like system, `false` on failure, otherwise is the command output.
-- On both kinds of system, return a list of running commands if `cmd` is `nil`.
+- On both kinds of systems, return a list of running commands if `cmd` is `nil`.
 
 Example:
 
@@ -1262,7 +1262,7 @@ etc
 
 Import dynamic library extension into current scope. Dynamic library may contain functions, collections, variables, etc.
 
-This is an internal function.
+This is a built-in function.
 
 ```
 Import(name);

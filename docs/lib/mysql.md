@@ -46,15 +46,15 @@ connect(host, port, dbname, username, password);
 
 Input:
 
-- host - a host string of MySQL server.
-- port - an integer port number that MySQL server listening.
-- dbname - string database name.
-- username - string username.
-- password - string password.
+- `host` - a host string of MySQL server.
+- `port` - an integer port number that MySQL server listening.
+- `dbname` - database name.
+- `username` - username.
+- `password` - password.
 
 Return value:
 
-- *true* on success, otherwise *false*.
+- `true` on success, otherwise `false`.
 
 Error:
 
@@ -74,7 +74,7 @@ Input: None.
 
 Return value:
 
-- always *nil*.
+- always `nil`.
 
 Error:
 
@@ -92,11 +92,11 @@ autocommit(mode);
 
 Input:
 
-- mode - a boolean value. Set *true* If want to auto commit, otherwise *false*.
+- `mode` - a boolean value. Set `true` If want to auto commit, otherwise `false`.
 
 Return value:
 
-- *true* on success, otherwise *false*.
+- `true` on success, otherwise `false`.
 
 Error:
 
@@ -116,7 +116,7 @@ Input: None.
 
 Return value:
 
-- *true* on success, otherwise *false*.
+- `true` on success, otherwise `false`.
 
 Error:
 
@@ -136,7 +136,7 @@ Input: None.
 
 Return value:
 
-- *true* on success, otherwise *false*.
+- `true` on success, otherwise `false`.
 
 Error:
 
@@ -156,7 +156,7 @@ Input: None.
 
 Return value:
 
-- a string error message returned on success, otherwise *false* returned.
+- a string error message returned on success, otherwise `false` returned.
 
 Error:
 
@@ -176,7 +176,7 @@ Input: None.
 
 Return value:
 
-- an integer error number returned on success, otherwise *false* returned.
+- an integer error number returned on success, otherwise `false` returned.
 
 Error:
 
@@ -194,12 +194,12 @@ execute(sql);
 
 Input:
 
-- sql - a string SQL.
+- `sql` - a SQL string.
 
 Return value:
 
 - Reading operation returns an array whose every element is also an array that is equivalent to a record in query results.
-- Writing operation returns a boolean value. *true* on success, otherwise *false*.
+- Writing operation returns a boolean value. `true` on success, otherwise `false`.
 
 Error:
 
@@ -209,7 +209,7 @@ Error:
 
 ##### Example
 
-There is a database named *test*, and there is a table *people* in it:
+There is a database named *test*, and there is a table `people` in it:
 
 ```sql
 CREATE TABLE `people` (

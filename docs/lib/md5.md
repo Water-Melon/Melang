@@ -20,11 +20,11 @@ m.md5(data);
 
 Input:
 
-- data - a string or an opened File object.
+- `data` - a string or an **opened** `File` object.
 
 Return value:
 
-- The digest of string or file content one success. If read file failed, *false* will be returned.
+- The digest of string or file content one success. If read file failed, `false` will be returned.
 
 Error:
 

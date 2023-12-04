@@ -1,6 +1,6 @@
 ### HTTP
 
-This HTTP library does not support chunk mode.
+This HTTP library does **not** support chunk mode.
 
 
 
@@ -20,7 +20,7 @@ http.parse(data);
 
 Input:
 
-- data - a raw HTTP string.
+- `data` - a raw HTTP string.
 
 Return value:
 
@@ -72,7 +72,7 @@ http.create(data);
 
 Input:
 
-- data - an array (dict) which is used to be constructed an HTTP string.
+- `data` - an array (dict) which is used to be constructed an HTTP string.
 
   Format (example):
 

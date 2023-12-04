@@ -18,8 +18,8 @@ rc.rc4(data, key);
 
 Input:
 
-- data - a string value which is a text or ciphertext.
-- key - a string value.
+- `data` - a string value which is a text or ciphertext.
+- `key` - a string value.
 
 Return value:
 

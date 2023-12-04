@@ -18,11 +18,11 @@ sha.sha1(data);
 
 Input:
 
-- data - a string or an opened File object.
+- `data` - a string or an opened File object.
 
 Return value:
 
-- a digest string of *data*.
+- a digest string of `data`.
 
 Error:
 
@@ -38,11 +38,11 @@ sha.sha1(data);
 
 Input:
 
-- data - a string or an opened File object.
+- `data` - a string or an opened File object.
 
 Return value:
 
-- a digest string of *data*.
+- a digest string of `data`.
 
 Error:
 

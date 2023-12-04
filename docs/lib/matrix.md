@@ -20,7 +20,7 @@ m.mul(array1, array2);
 
 Input:
 
-- *array1* and *array2* are dicts those format must be:
+- `array1` and `array2` are dicts those format must be:
 
   ```
   ['row': rownum, 'col': colnum, 'data':[...]]
@@ -84,7 +84,7 @@ m.inv(array);
 
 Input:
 
-- *array* - is a dict whose format follows the rules given in *mln_matrix_mul*.
+- `array` - is a dict whose format follows the rules as given in `mln_matrix_mul`.
 
 Return value:
 

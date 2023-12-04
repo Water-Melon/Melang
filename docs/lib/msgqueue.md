@@ -1,11 +1,11 @@
 ### Message Queue
 
 This document introduces a set of functions about message queue.
-Message queue is only working in a coroutine group in the same thread.
+Message queue is only working on a coroutine group in the same thread.
 
 There are two kinds of message: queue message and topic message.
 
-Melang supports many coroutines to listen the same queue. If message is a queue message, only one coroutine can get this message. If is topic message, every subscribed coroutine can receive this message.
+Melang supports many coroutines to listen the same queue. If a message is a queue message, only one coroutine can obtain this message. If it is a topic message, every subscribed coroutine can obtain this message.
 
 
 
@@ -27,11 +27,11 @@ mq.subscribe(qname);
 
 Input:
 
-- qname - a string queue name.
+- `qname` - a queue name string.
 
 Return value:
 
-- Always return *nil*.
+- Always return `nil`.
 
 Error:
 
@@ -49,11 +49,11 @@ mq.unsubscribe(qname);
 
 Input:
 
-- qname - a string queue name.
+- `qname` - a queue name string.
 
 Return value:
 
-- Always *nil*.
+- Always `nil`.
 
 Error:
 
@@ -71,13 +71,13 @@ mq.send(qname, msg, asTopic);
 
 Input:
 
-- qname - a string queue name.
-- msg - the message that we want to send. The type of this argument must be *integer, boolean, real or string*.
-- asTopic - if want to send queue message, this argument must be *false*, otherwise *true*. This is an optional argument. Omitted means *false*.
+- `qname` - a queue name string.
+- `msg` - the message that we want to send. The type of this argument must be *integer, boolean, real or string*.
+- `asTopic` - if want to send a queue message, this argument must be `false`, otherwise `true`. This is an optional argument. Omitted means `false`.
 
 Return value:
 
-- Always *nil*.
+- Always `nil`.
 
 Error:
 
@@ -93,12 +93,14 @@ mq.recv(qname, timeout);
 
 Input:
 
-- qname - a string queue name.
-- timeout - a positive integer or *nil*. If is positive integer, program will wait for *timeout* microseconds. If omitted or *nil*, prigram will wait until got a message.
+- `qname` - a queue name string.
+- `timeout` - a positive integer or `nil`. If it is a positive integer, program will wait for `timeout` microseconds. If it is zero, function returned immediately with `nil` as the return value. If it is omitted or a `nil`, prigram will wait until got a message.
 
 Return value:
 
 - A message.
+- `nil` on timeout
+- `false` on failure
 
 Error:
 

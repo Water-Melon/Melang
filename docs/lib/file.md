@@ -30,7 +30,7 @@ File {
 
 ##### fd
 
-fd is the file descriptor that is like an integer in C. But in Melang, this property is read-only. It will be set by method *open*. Usually, we don't have to access it.
+fd is the file descriptor that is like an integer in C. But in Melang, this property is read-only. It will be set by method `open`. Usually, we don't have to access it.
 
 
 
@@ -46,72 +46,72 @@ Open a file in the specified mode.
 
 Input:
 
-- path - this is a file path string.
+- `path` - this is a file path string.
 
-- op - a string that indicates the operation including *read*, *write* and *append*. Its value is composed of three parts:
+- `op` - a string that indicates the operation including *read*, *write* and *append*. Its value is composed of three parts:
 
-  - r - read
-  - w - write
-  - a - append
-  - \+ - not truncate
+  - `r` - read
+  - `w` - write
+  - `a` - append
+  - `+` - not truncate
 
   e.g.
 
-  - rw - read and write
-  - ra - read from the end of file
-  - aw - append to write
+  - `rw` - read and write
+  - `ra` - read from the end of file
+  - `aw` - append to write
 
-- prio - an integer indicates the file access authority, e.g. 0777. This argument only used on opening a nonexistent file. It is optional. If not given, 0644 will be set by default.
+- `prio` - an integer indicates the file access authority, e.g. `0777`. This argument only used on opening a nonexistent file. It is optional. If not given, `0644` will be set by default.
 
 Return value:
 
-- *true* will be returned on success, otherwise *false* returned and *errno* will be set.
+- `true` will be returned on success, otherwise `false` returned and `errno` will be set.
 
 
 
 ##### lseek
 
-Repositions the offset of the file descriptor to the argument *offset*, according to the directive *whence*.
+Repositions the offset of the file descriptor to the argument `offset`, according to the directive `whence`.
 
 Input:
 
-- offset - an integer offset.
-- whence - a string value including three values:
-  - begin - from the beginning of the file.
-  - current - from current position.
-  - end - from the end of the file.
+- `offset` - an integer offset.
+- `whence` - a string value including three values:
+  - `begin` - from the beginning of the file.
+  - `current` - from current position.
+  - `end` - from the end of the file.
 
 Return value:
 
-- *true* will be returned on success, otherwise *false* returned and *errno* will be set.
+- `true` will be returned on success, otherwise `false` returned and `errno` will be set.
 
 
 
 ##### read
 
-Read *nbytes* from current position of the openned file.
+Read `nbytes` from current position of the openned file.
 
 Input:
 
-- nbytes - an integer indicates how many bytes read in this time.
+- `nbytes` - an integer indicates how many bytes read in this time.
 
 Return value:
 
-- *nbytes* data in file will be returned on success, otherwise *false* returned and errno will be set.
+- `nbytes` data in file will be returned on success, otherwise `false` returned and `errno` will be set.
 
 
 
 ##### write
 
-Write *data* in the file.
+Write `data` in the file.
 
 Input:
 
-- data - must be a string.
+- `data` - must be a string.
 
 Return value:
 
-- the number of bytes written in file will be returned on success, otherwise *false* returned and errno will be set.
+- the number of bytes written in file will be returned on success, otherwise `false` returned and `errno` will be set.
 
 
 
@@ -123,7 +123,7 @@ Input: None
 
 Return value:
 
-- Always be *nil*.
+- Always be `nil`.
 
 
 
@@ -147,7 +147,7 @@ Input: None
 
 Return value:
 
-- an integer file bytes will be returned on success, otherwise *false* returned.
+- an integer file bytes will be returned on success, otherwise `false` returned.
 
 
 

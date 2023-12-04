@@ -18,8 +18,8 @@ b.base64(data, op);
 
 Input:
 
-- data - string type value.
-- op - a string value to indicate function to encode or decode. It only has two values: *encode* and *decode*.
+- `data` - string type value.
+- `op` - a string value to indicate function to encode or decode. It only has two values: `encode` and `decode`.
 
 Return value:
 
