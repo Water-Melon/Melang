@@ -48,6 +48,8 @@ Now, let's start our journey.
 
 [Pipe](https://water-melon.github.io/Melang/pipe.html)
 
+[Debugging](https://water-melon.github.io/Melang/debug.html)
+
 [Library](https://water-melon.github.io/Melang/library.html)
 
 
