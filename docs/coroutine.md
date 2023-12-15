@@ -33,6 +33,8 @@ If `in_string` is true, `val` will be the script code, otherwise `val` is the sc
 
 `alias` is the name to be indicated to the new coroutine task, and it can be omitted if it doesn't need a name.
 
+If `val` is `nil`, function will return an array of names of all named coroutines.
+
 e.g.
 
 ```

@@ -863,31 +863,6 @@ Output:
 
 
 
-##### eval
-
-Create a new coroutine and execute.
-
-This is a built-in function.
-
-```
-Eval(val, data, in_string, alias);
-```
-
-Input:
-
-- `val` - a file path or a code string.
-- `data` - the data that we want to deliver to the new coroutine.
-- `in_string` - a optional argument. If is set and its value is `true`, `val` is a code string. Otherwise, `val` is a file path.
-- `alias` - the alias string of the new melang script task.
-
-Return value:
-
-- always `nil`.
-
-Example: visit [Coroutine Section](https://water-melon.github.io/Melang/coroutine.html).
-
-
-
 ##### mkdir
 
 Create a directory.
