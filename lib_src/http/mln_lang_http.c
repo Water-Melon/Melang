@@ -823,9 +823,9 @@ static int mln_lang_http_create_process_body_handler(mln_http_t *http, mln_chain
     if (!s->len) return M_HTTP_RET_DONE;
 
     if (mln_http_field_get(http, &cl_key) == NULL) {
-#if defined(WIN32)
+#if defined(WIN32) && defined(__pentiumpro__)
         n = snprintf((char *)cl_buf, sizeof(cl_buf) - 1, "%I64u", s->len);
-#elif defined(i386) || defined(__arm__) || defined(__wasm__)
+#elif defined(WIN32) || defined(i386) || defined(__arm__) || defined(__wasm__)
         n = snprintf((char *)cl_buf, sizeof(cl_buf) - 1, "%llu", s->len);
 #else
         n = snprintf((char *)cl_buf, sizeof(cl_buf) - 1, "%lu", s->len);

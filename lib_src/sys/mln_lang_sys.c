@@ -666,9 +666,9 @@ static mln_lang_var_t *mln_lang_sys_str_process(mln_lang_ctx_t *ctx)
         mln_string_t s;
         switch (type) {
             case M_LANG_VAL_TYPE_INT:
-#if defined(WIN32)
+#if defined(WIN32) && defined(__pentiumpro__)
                 n = snprintf(buf, sizeof(buf)-1, "%I64d", val->data.i);
-#elif defined(i386) || defined(__arm__)
+#elif defined(WIN32) || defined(i386) || defined(__arm__)
                 n = snprintf(buf, sizeof(buf)-1, "%lld", val->data.i);
 #else
                 n = snprintf(buf, sizeof(buf)-1, "%ld", val->data.i);

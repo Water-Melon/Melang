@@ -82,7 +82,7 @@ static mln_lang_var_t *mln_lang_network_udp_recv_process(mln_lang_ctx_t *ctx);
 static void mln_lang_network_udp_recv_handler(mln_event_t *ev, int fd, void *data);
 static void mln_lang_network_udp_timeout_handler(mln_event_t *ev, int fd, void *data);
 
-#if defined(WIN32)
+#if defined(WIN32) && defined(__pentiumpro__)
 /*
  * Note
  * code in this if is copied and modified from webrtc
