@@ -88,14 +88,11 @@ static int mln_lang_msgqueue_resource_register(mln_lang_ctx_t *ctx)
         }
     }
     if ((mq_timeout_set = mln_lang_resource_fetch(ctx->lang, "mq_timeout")) == NULL) {
-        struct mln_fheap_attr fattr;
-        fattr.pool = NULL;
-        fattr.pool_alloc = NULL;
-        fattr.pool_free = NULL;
-        fattr.cmp = (fheap_cmp)mln_lang_mq_wait_cmp;
-        fattr.copy = (fheap_copy)mln_lang_mq_wait_copy;
-        fattr.key_free = NULL;
-        if ((mq_timeout_set = mln_fheap_new(&mq_wait_min, &fattr)) == NULL) {
+        if ((mq_timeout_set = mln_fheap_new_fast(&mq_wait_min, \
+                                                 (fheap_cmp)mln_lang_mq_wait_cmp, \
+                                                 (fheap_copy)mln_lang_mq_wait_copy, \
+                                                 NULL)) == NULL)
+        {
             mln_lang_errmsg(ctx, "No memory.");
             return -1;
         }
