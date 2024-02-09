@@ -208,7 +208,6 @@ static void mln_run_all(int argc, char *argv[])
     mln_string_t path;
     mln_event_t *ev;
     mln_lang_t *lang;
-    struct mln_iothread_attr tattr;
     mln_rbtree_node_t *rn;
     mln_fd_node_t *n;
     struct mln_thread_args_s args;
@@ -231,11 +230,7 @@ static void mln_run_all(int argc, char *argv[])
     args.t = &t;
 
     if (nth > 1) {
-        tattr.nthread = nth - 1;
-        tattr.entry = (mln_iothread_entry_t)mln_iothread_entry;
-        tattr.args = &args;
-        tattr.handler = mln_iothread_msg_handler;
-        if (mln_iothread_init(&t, &tattr) < 0) {
+        if (mln_iothread_init(&t, nth - 1, (mln_iothread_entry_t)mln_iothread_entry, &args, mln_iothread_msg_handler) < 0) {
             mln_log(error, "iothread init failed.\n");
             exit(1);
         }
