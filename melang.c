@@ -39,8 +39,8 @@ static mln_fd_node_t *mln_fd_node_new(void);
 static void mln_fd_node_free(mln_fd_node_t *n);
 static int mln_fd_node_cmp(const mln_fd_node_t *n1, const mln_fd_node_t *n2);
 static void mln_iothread_msg_handler(mln_iothread_t *t, mln_iothread_ep_type_t from, mln_iothread_msg_t *msg);
-MLN_CHAIN_FUNC_DECLARE(mln_fd_node, mln_fd_node_t, static inline void,);
-MLN_CHAIN_FUNC_DEFINE(mln_fd_node, mln_fd_node_t, static inline void, prev, next);
+MLN_CHAIN_FUNC_DECLARE(static inline, mln_fd_node, mln_fd_node_t,);
+MLN_CHAIN_FUNC_DEFINE(static inline, mln_fd_node, mln_fd_node_t, prev, next);
 
 static mln_rbtree_t *fd_tree = NULL;
 static mln_fd_node_t *head = NULL;

@@ -24,8 +24,8 @@
 static int mln_lang_network(mln_lang_ctx_t *ctx, mln_lang_object_t *obj);
 static int mln_lang_network_resource_register(mln_lang_ctx_t *ctx);
 /*tcp*/
-MLN_CHAIN_FUNC_DECLARE(mln_lang_tcp, mln_lang_tcp_t, static inline void,);
-MLN_CHAIN_FUNC_DEFINE(mln_lang_tcp, mln_lang_tcp_t, static inline void, prev, next);
+MLN_CHAIN_FUNC_DECLARE(static inline, mln_lang_tcp, mln_lang_tcp_t,);
+MLN_CHAIN_FUNC_DEFINE(static inline, mln_lang_tcp, mln_lang_tcp_t, prev, next);
 static void mln_lang_ctx_tcp_free(mln_lang_ctx_tcp_t *lct);
 static mln_lang_ctx_tcp_t *mln_lang_ctx_tcp_new(mln_lang_ctx_t *ctx);
 static int mln_lang_tcp_cmp(const mln_lang_tcp_t *lt1, const mln_lang_tcp_t *lt2);
@@ -58,8 +58,8 @@ static mln_lang_var_t *mln_lang_network_tcp_accept_process(mln_lang_ctx_t *ctx);
 static mln_lang_var_t *mln_lang_network_tcp_send_process(mln_lang_ctx_t *ctx);
 static mln_lang_var_t *mln_lang_network_tcp_recv_process(mln_lang_ctx_t *ctx);
 /*udp*/
-MLN_CHAIN_FUNC_DECLARE(mln_lang_udp, mln_lang_udp_t, static inline void,);
-MLN_CHAIN_FUNC_DEFINE(mln_lang_udp, mln_lang_udp_t, static inline void, prev, next);
+MLN_CHAIN_FUNC_DECLARE(static inline, mln_lang_udp, mln_lang_udp_t,);
+MLN_CHAIN_FUNC_DEFINE(static inline, mln_lang_udp, mln_lang_udp_t, prev, next);
 static int mln_lang_network_udp_resource_add(mln_lang_t *lang, mln_lang_udp_t *udp);
 static mln_lang_udp_t *mln_lang_network_udp_resource_fetch(mln_lang_t *lang, int fd);
 static void mln_lang_network_udp_resource_remove(mln_lang_t *lang, int fd);

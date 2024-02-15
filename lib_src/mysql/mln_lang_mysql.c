@@ -9,10 +9,10 @@
 
 #ifdef MLN_MYSQL
 
-MLN_CHAIN_FUNC_DECLARE(mln_lang_mysql, mln_lang_mysql_t, static inline void,);
-MLN_CHAIN_FUNC_DEFINE(mln_lang_mysql, mln_lang_mysql_t, static inline void, prev, next);
-MLN_CHAIN_FUNC_DECLARE(mln_lang_ctx, mln_lang_ctx_t, static inline void,);
-MLN_CHAIN_FUNC_DEFINE(mln_lang_ctx, mln_lang_ctx_t, static inline void, prev, next);
+MLN_CHAIN_FUNC_DECLARE(static inline, mln_lang_mysql, mln_lang_mysql_t,);
+MLN_CHAIN_FUNC_DEFINE(static inline, mln_lang_mysql, mln_lang_mysql_t, prev, next);
+MLN_CHAIN_FUNC_DECLARE(static inline, mln_lang_ctx, mln_lang_ctx_t,);
+MLN_CHAIN_FUNC_DEFINE(static inline, mln_lang_ctx, mln_lang_ctx_t, prev, next);
 
 static mln_lang_mysql_t *mln_lang_mysql_new(mln_lang_ctx_t *ctx, mln_string_t *db, mln_string_t *username, mln_string_t *password, mln_string_t *host, int port)
 {
