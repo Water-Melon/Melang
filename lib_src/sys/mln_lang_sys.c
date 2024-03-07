@@ -2571,7 +2571,7 @@ static inline int mln_sys_remove_is_dir(char * filename)
     struct stat buf;
     int ret = stat(filename,&buf);
     if (ret) return -1;
-    if(buf.st_mode & S_IFDIR) return 0;
+    if (S_ISDIR(buf.st_mode)) return 0;
     return 1;
 }
 
