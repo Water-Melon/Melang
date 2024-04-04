@@ -32,6 +32,7 @@ mysql_header_path=`./path_generator /usr/include/mysql`
 mysql_lib_path=`./path_generator /usr/lib64/mysql`
 mysql_lib=""
 dl=""
+c99=""
 libmelonPath=`./path_generator /usr/local/melon`
 libPath=`./path_generator /usr/local/lib/melang_dynamic`
 if ! case $os in MINGW*) false;; esac; then
@@ -64,6 +65,7 @@ do
         echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
         echo -e "\t--enable-wasm"
         echo -e "\t--debug"
+        echo -e "\t--c99"
         exit 0
     fi
     param_prefix=`echo $param|cut -d '=' -f 1`
@@ -82,6 +84,8 @@ do
         mysql_enable=1
     elif [ $param_prefix == "--debug" ]; then
         debug=1
+    elif [ $param_prefix == "--c99" ]; then
+        c99="-std=c99 -DMLN_C99 -D_POSIX_C_SOURCE=200112L"
     elif [ $param_prefix == "--enable-wasm" ]; then
         wasm=1
         mcc="emcc"
@@ -136,12 +140,12 @@ echo "# Copyright (C) Niklaus F.Schen." >> Makefile
 echo "#" >> Makefile
 echo "CC	= $cc" >> Makefile
 echo "MCC	= $mcc" >> Makefile
-echo "FLAGS           = -I$libmelonPath/include -Ilib_src -c -Wall $debug -Werror -O3 -fPIC" >> Makefile
+echo "FLAGS           = -I$libmelonPath/include -Ilib_src -c -Wall $debug $c99 -Werror -O3 -fPIC" >> Makefile
 if [ $wasm -eq 1 ]; then
-    echo "MFLAGS          = -I$libmelonPath/include -c $debug -O3 $llvm_flag -s -mmutable-globals -mnontrapping-fptoint -msign-ext -Wemcc" >> Makefile
+    echo "MFLAGS          = -I$libmelonPath/include -c $debug $c99 -O3 $llvm_flag -s -mmutable-globals -mnontrapping-fptoint -msign-ext -Wemcc" >> Makefile
     echo "MELANG          = melang.wasm" >> Makefile
 else
-    echo "MFLAGS           = -I$libmelonPath/include -c -Wall $debug -Werror -O3 -fPIC" >> Makefile
+    echo "MFLAGS           = -I$libmelonPath/include -c -Wall $debug $c99 -Werror -O3 -fPIC" >> Makefile
     echo "MELANG          = melang" >> Makefile
 fi
 if ! case $os in MINGW*) false;; esac; then
@@ -223,115 +227,115 @@ echo "	test -d bin || mkdir bin" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
 	echo -en " \b"
 else
-	echo "	cp -f $libmelonPath/lib/libmelon.a ." >> Makefile
+	echo "	cp -f $libmelonPath/lib/libmelon_static.a ." >> Makefile
 fi
 echo "COMPILECLEAN :" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
 	echo -en " \b"
 else
-	echo "	rm -f libmelon.a" >> Makefile
+	echo "	rm -f libmelon_static.a" >> Makefile
 fi
 echo "\$(MELANG) : \$(MELANGOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
 	echo "	\$(MCC) -o bin/\$@ \$^ -static -O3 -L$libmelonPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32" >> Makefile
 else
-	echo "	\$(MCC) -o bin/\$@ \$^ -O3 -L. -lmelon -ldl -lpthread $mysql_lib" >> Makefile
+	echo "	\$(MCC) -o bin/\$@ \$^ -O3 -L. -lmelon_static -ldl -lpthread $mysql_lib" >> Makefile
 fi
 echo "\$(LIBAES) : \$(LIBAESOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBBASE64) : \$(LIBBASE64OBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBDES) : \$(LIBDESOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBFILE) : \$(LIBFILEOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBJSON) : \$(LIBJSONOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBHTTP) : \$(LIBHTTPOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBMATRIX) : \$(LIBMATRIXOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBMD5) : \$(LIBMD5OBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBMQ) : \$(LIBMQOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBMYSQL) : \$(LIBMYSQLOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBNETWORK) : \$(LIBNETWORKOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBPRIME) : \$(LIBPRIMEOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBRC) : \$(LIBRCOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBSHA) : \$(LIBSHAOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBSTR) : \$(LIBSTROBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "\$(LIBSYS) : \$(LIBSYSOBJS) objs/mln_lang_msgqueue_impl.o" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug -Wall -lpthread -lc -shared -fPIC -L. -lmelon" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
 echo "install:" >> Makefile
 echo "	test -d $libPath || mkdir -p $libPath" >> Makefile

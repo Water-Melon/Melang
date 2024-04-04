@@ -532,7 +532,7 @@ static mln_lang_var_t *mln_lang_network_tcp_listen_process(mln_lang_ctx_t *ctx)
         }
         return ret_var;
     }
-#if !defined(WIN32)
+#if !defined(WIN32) && !defined(MLN_C99)
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
         mln_lang_tcp_free(tcp);
         freeaddrinfo(res);
@@ -1967,7 +1967,7 @@ static mln_lang_var_t *mln_lang_network_udp_create_process(mln_lang_ctx_t *ctx)
             }
             return ret_var;
         }
-#if !defined(WIN32)
+#if !defined(WIN32) && !defined(MLN_C99)
         if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
             mln_lang_udp_free(udp);
             freeaddrinfo(res);
