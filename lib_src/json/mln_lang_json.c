@@ -389,7 +389,7 @@ static mln_lang_var_t *mln_lang_json_decode_process(mln_lang_ctx_t *ctx)
     }
     array = ret_var->val->data.array;
 
-    if (mln_json_decode(val->data.s, &json) < 0) {
+    if (mln_json_decode(val->data.s, &json, NULL) < 0) {
         mln_lang_var_free(ret_var);
         if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
