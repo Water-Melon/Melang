@@ -65,6 +65,8 @@ int main(int argc, char *argv[])
 #endif
     mln_params_check(argc, argv);
 
+    mln_conf_load();
+
     if (mln_log_init(NULL) < 0) {
         fprintf(stderr, "init log failed.\n");
         return -1;
