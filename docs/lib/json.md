@@ -42,7 +42,7 @@ Input:
 
 Return value:
 
-- a decoded JSON array on success, otherwise `false` returned.
+- a decoded array on success, otherwise `false` returned.
 
 Error:
 
@@ -65,7 +65,7 @@ sys.print(j.decode(json));
 The output is:
 
 ```
-{"age":18.000000,"name":"Tom","gender":"male"}
-[18.000000, Tom, male, ]
+{"name":"Tom","age":18,"gender":"male"}
+[Tom, 18, male, ]
 ```
 
