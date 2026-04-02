@@ -569,6 +569,10 @@ Return value:
 
 - `true` if completely matched, otherwise `false` returned.
 
+Supported regex syntax: `.` `*` `+` `?` `*?` `+?` `??` `{n,m}` `^` `$` `[abc]` `[a-z]` `[^abc]` `(...)` `(?:...)` `|` `\d` `\D` `\w` `\W` `\s` `\S` `\b` `\B` `\n` `\t` `\xHH` `(?i)` `\\`
+
+Note: `\w` matches `[a-zA-Z0-9_]`. The `(?i)` prefix enables case-insensitive matching. `\b` and `\B` are word boundary assertions. `*?`, `+?`, `??` are non-greedy (lazy) quantifiers. `(?:...)` is a non-capturing group. `\xHH` matches a character by hex code.
+
 Example:
 
 ```
@@ -577,6 +581,8 @@ sys = Import('sys');
 
 sys.print(str.reg_equal('.*', 'test'));
 sys.print(str.reg_equal('.*ed', 'test'));
+sys.print(str.reg_equal('(?i)hello', 'HELLO'));
+sys.print(str.reg_equal('\\btest\\b', 'test'));
 ```
 
 Output:
@@ -584,6 +590,8 @@ Output:
 ```
 true
 false
+true
+true
 ```
 
 
@@ -605,6 +613,8 @@ Return value:
 
 - an array that if matched anything, otherwise `false` returned.
 
+Supported regex syntax: same as `reg_equal` above.
+
 Example:
 
 ```
@@ -612,12 +622,14 @@ str = Import('str');
 sys = Import('sys');
 
 sys.print(str.reg_match('((this )*i(s)).*', 'this is a reg exp test.'));
+sys.print(str.reg_match('\\w+', 'hello_world 123'));
 ```
 
 Output:
 
 ```
 [this , s, this is, this is a reg exp test., ]
+[hello_world, 123, ]
 ```
 
 
