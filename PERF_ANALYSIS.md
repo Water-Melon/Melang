@@ -5,9 +5,23 @@
 | 引擎 | fib(30) wall time | 与 CPython 比 |
 | --- | --- | --- |
 | Melang VM (当前 master) | **0.43 s** | 4.7× 慢 |
+| Melang VM (perf/lang, 全档完成) | **~0.31 s** | 3.4× 慢 |
 | CPython 3 | 0.090 s | 1.0× (基准) |
 
 之前 PERF_CHANGES.md 中的 Linux/aarch64 数据是 0.59s (优化后)，VM commit 又优化到 0.44s — 与本次实测的 0.43s 一致，说明 commit 9a25c3b 已落地。
+
+> **进度更新（高成本档完成后）**：tagged-value (16-byte) 操作数栈
+> + DUP borrow bit 已落地。fib(30) 由 0.43s 降至约 0.31s，约 28%
+> 加速，与原始预算（数值循环 2–3×）的下界吻合 — 余下的差距主要
+> 来自 funccall 路径 (`mln_lang_stack_handler_funccall_run` /
+> `mln_lang_var_create_int` 等) 已被压缩到栈外，但函数边界本身
+> 仍是 ~30–40% 的剩余开销，不在本档计划内。
+>
+> **tagged-value 设计选择**：选用 16-byte tag+pad 而非 8-byte
+> NaN-boxing 的理由是可移植性 — aarch64 的 52-bit VA、MSVC 的
+> /fp:fast NaN payload 处理、以及严格别名规则下的 double↔u64 punning
+> 都在 NaN-boxing 路径上有坑。tag+pad 形式是 portable C99，在
+> Linux/Mac/MSYS2/MSVC 全部直接编译，无需平台分支。
 
 要追平 CPython（≈ 0.09 s），还需 **~4.7× 加速**。这是激进目标，但不是不可能。下面分析每个剩余瓶颈，按"性价比"排序。
 

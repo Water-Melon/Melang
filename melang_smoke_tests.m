@@ -122,4 +122,59 @@ Assert(acc == 60, 'watch accumulator');
 /* Eval */
 Eval('y = 7 + 3;', nil, true);
 
+/* Tagged-value operand stack regressions (high-cost-tier rework).
+ * These deliberately stress paths where the new tagged stack
+ * differs from the previous boxed-only stack:
+ *   - LOAD_LOCAL pushes a borrow rather than ref-counting.
+ *   - DUP copies the slot and stamps borrow=1.
+ *   - Hot int+int arithmetic stays unboxed end-to-end.
+ *   - Mixed int/real falls through value_take_var to apply_binop.
+ *   - String slots stay boxed; pass-through must not double-decref.
+ */
+@TV_dup_chain() {
+  /* a -> b -> c each LOAD_LOCAL the previous slot as a borrow. */
+  a = 5; b = a; c = b;
+  return a + b + c;
+}
+Assert(TV_dup_chain() == 15, 'tagged-value DUP/borrow chain');
+
+@TV_postfix() {
+  /* Postfix ++ pushes the OLD value of the slot as an unboxed int
+   * while the slot itself increments — exercises the borrow path on
+   * the old-value side of LOAD_LOCAL_INC. */
+  i = 10;
+  r = i++ + i;
+  return r;
+}
+Assert(TV_postfix() == 21, 'tagged-value postfix++');
+
+@TV_mixed_arith() {
+  /* int + real exercises the slow path: both operands materialize
+   * via value_take_var, apply_binop runs as before. */
+  return 1 + 2.5;
+}
+Assert(TV_mixed_arith() == 3.5, 'tagged-value int+real slow path');
+
+@TV_string_passthrough() {
+  /* String slots stay boxed under the tagged stack. Three pass-
+   * throughs and a concat must not over-decref. */
+  s = 'abc';
+  t = s;
+  u = t;
+  return u + 'def';
+}
+Assert(TV_string_passthrough() == 'abcdef', 'tagged-value string pass-through');
+
+@TV_array_sum() {
+  /* GET_INDEX returns an unboxed int; the running sum stays unboxed
+   * until it eventually escapes into the return path. */
+  a = [1, 2, 3, 4, 5];
+  s = 0;
+  for (i = 0; i < 5; i = i + 1) {
+    s = s + a[i];
+  }
+  return s;
+}
+Assert(TV_array_sum() == 15, 'tagged-value array sum');
+
 sys.print('all tests passed');
