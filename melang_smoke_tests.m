@@ -94,6 +94,22 @@ x = 1;
 inc(x);
 Assert(x == 101, 'ref param');
 
+/* mixed-ref / by-value parameter declaration.  Regression test for the
+ * funcdef_args_get type-leak bug: when the first declared parameter is
+ * &x, subsequent y, z were silently created as REFER and aliased back
+ * to the caller, so `b` and `c` were modified through y, z.  After the
+ * fix, only `a` (declared with &) propagates. */
+@mix(&a, b, c) {
+  a = a + 100;
+  b = b + 100;
+  c = c + 100;
+}
+ma = 1; mb = 2; mc = 3;
+mix(&ma, mb, mc);
+Assert(ma == 101, 'mixed ref decl: a propagates');
+Assert(mb == 2,   'mixed ref decl: b stays by-value');
+Assert(mc == 3,   'mixed ref decl: c stays by-value');
+
 /* Set / object */
 Point {
   x;
