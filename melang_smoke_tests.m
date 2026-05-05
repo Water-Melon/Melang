@@ -193,4 +193,56 @@ Assert(TV_string_passthrough() == 'abcdef', 'tagged-value string pass-through');
 }
 Assert(TV_array_sum() == 15, 'tagged-value array sum');
 
+/*
+ * Top-level / function-body VM-to-AST fallback regression.
+ *
+ * Function bodies whose loop nesting exceeds the VM compiler's bound
+ * (MLN_VM_MAX_LOOPS=16 in mln_lang_vm.c) bail out of vm_try_compile
+ * and run on the AST stack-walker instead.  Top-level code with the
+ * same shape used to crash the script with "VM: top-level cannot be
+ * compiled (internal error)"; a Melon-side fix flips
+ * ctx->vm_use_ast=1 and lets the AST walker drive ctx->stm
+ * transparently.  We exercise the function-body fallback path here
+ * — this is the case Melang utility code hits most often.
+ */
+@deep_loops() {
+  /* 17 nested while(1){...break;} loops force vm_state == -1; the
+   * AST fallback then runs the body and returns 'ok'. */
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) {
+  while (1) { return 'ok'; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  break; }
+  return 'unreachable';
+}
+Assert(deep_loops() == 'ok', 'deep-loops AST fallback');
+
 sys.print('all tests passed');
