@@ -6,34 +6,3 @@ objs
 libs
 bin
 Makefile
-
-# macOS finder metadata
-.DS_Store
-**/.DS_Store
-
-# Patches and summaries saved during perf experiments — kept locally
-# but not source-controlled.
-*.patch
-optimization-summary-mln_lang.h.txt
-
-# Single-letter scratch scripts (e.g. cc default output 'a', adhoc 'a.m').
-a
-a.m
-
-# Local feature-test stubs emitted by configure (kept locally but
-# never source-controlled).
-.path_generator.c
-path_generator
-.xcode
-.xcode.c
-
-# Per-platform build artefacts that survive when swapping host OS.
-libmelon_static.a
-libmelon_static.a.old
-*.macos-stale/
-*.macos-stale
-
-# fuse-mount unlink leftovers that surface when the host filesystem
-# can't actually delete an open file (virtiofs / SMB shares between
-# macOS host and Linux VM).
-.fuse_hidden*
