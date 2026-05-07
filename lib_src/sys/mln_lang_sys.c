@@ -3540,18 +3540,21 @@ static mln_lang_var_t *mln_lang_sys_exec_process(mln_lang_ctx_t *ctx)
         if ((se = mln_lang_sys_exec_new(ctx, tree, fds[0], bufsize, pid, cmd, qname, cse)) == NULL) {
             mln_lang_errmsg(ctx, "create socket pair failed.");
             mln_socket_close(fds[0]);
+            cse->fd = -1;
             mln_lang_var_free(ret_var);
             return NULL;
         }
         if (mln_event_fd_set(ctx->lang->ev, fds[0], M_EV_RECV|M_EV_NONBLOCK, M_EV_UNLIMITED, se, mln_lang_sys_exec_read_handler) < 0) {
             mln_lang_errmsg(ctx, "No memory.");
             mln_lang_sys_exec_free(se);
+            cse->fd = -1;
             mln_lang_var_free(ret_var);
             return NULL;
         }
         if ((rn = mln_rbtree_node_new(tree, se)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             mln_lang_sys_exec_free(se);
+            cse->fd = -1;
             mln_lang_var_free(ret_var);
             return NULL;
         }
