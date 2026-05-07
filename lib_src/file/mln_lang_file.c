@@ -347,6 +347,10 @@ static mln_lang_var_t *mln_lang_open_process(mln_lang_ctx_t *ctx)
     mln_lang_file_open_get_prio(prio, &mode);
     val->data.i = open(path, op, mode);
     if (mln_lang_file_set_errno(ctx, errno) < 0) {
+        if (val->data.i >= 0) {
+            close(val->data.i);
+            val->data.i = -1;
+        }
         free(path);
         return NULL;
     }
