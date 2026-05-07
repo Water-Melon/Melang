@@ -2587,12 +2587,21 @@ static int mln_sys_remove_delete_dir(char * dirname)
     }
     while((ptr = readdir(dir)) != NULL) {
         if (!strcmp(ptr->d_name, ".") || !strcmp(ptr->d_name, "..")) continue;
-        ret = snprintf(buf, sizeof(buf)-1, "%s/%s", dirname, ptr->d_name);
-        buf[ret] = 0;
+        ret = snprintf(buf, sizeof(buf), "%s/%s", dirname, ptr->d_name);
+        if (ret < 0 || (size_t)ret >= sizeof(buf)) {
+            (void)closedir(dir);
+            return -1;
+        }
         if (!(ret = mln_sys_remove_is_dir(buf))) {
-            if (mln_sys_remove_delete_dir(buf) < 0) return -1;
+            if (mln_sys_remove_delete_dir(buf) < 0) {
+                (void)closedir(dir);
+                return -1;
+            }
         } else if (ret == 1) {
-            if (unlink(buf)) return -1;
+            if (unlink(buf)) {
+                (void)closedir(dir);
+                return -1;
+            }
         }
     }
     (void)closedir(dir);
