@@ -2878,8 +2878,8 @@ static mln_lang_var_t *mln_lang_sys_lsdir_process(mln_lang_ctx_t *ctx)
     }
     val = mln_lang_var_val_get(sym->data.var);
 
-    stat((char *)val->data.s->data, &st);
-    if (!S_ISDIR(st.st_mode) || (dp = opendir((char *)val->data.s->data)) == NULL) {
+    if (stat((char *)val->data.s->data, &st) < 0 || !S_ISDIR(st.st_mode) ||
+        (dp = opendir((char *)val->data.s->data)) == NULL) {
         if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return NULL;
@@ -2965,8 +2965,7 @@ static mln_lang_var_t *mln_lang_sys_isdir_process(mln_lang_ctx_t *ctx)
     }
     val = mln_lang_var_val_get(sym->data.var);
 
-    stat((char *)val->data.s->data, &st);
-    if (S_ISDIR(st.st_mode)) {
+    if (stat((char *)val->data.s->data, &st) == 0 && S_ISDIR(st.st_mode)) {
         ret_var = mln_lang_var_create_true(ctx, NULL);
     } else {
         ret_var = mln_lang_var_create_false(ctx, NULL);
