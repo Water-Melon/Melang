@@ -64,6 +64,9 @@ do
         echo -e "\t--mysql_header_path=MYSQL_CLIENT_HREADER_PATH"
         echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
         echo -e "\t--enable-wasm"
+        echo -e "\t--enable-tls"
+        echo -e "\t--openssl-include=OPENSSL_HEADERS_DIR"
+        echo -e "\t--openssl-lib=OPENSSL_LIBRARY_DIR"
         echo -e "\t--debug"
         echo -e "\t--c99"
         exit 0
@@ -89,8 +92,22 @@ do
     elif [ $param_prefix == "--enable-wasm" ]; then
         wasm=1
         mcc="emcc"
+    elif [ $param_prefix == "--enable-tls" ]; then
+        tls_enable=1
+    elif [ $param_prefix == "--openssl-include" ]; then
+        openssl_include=`./path_generator $param_suffix`
+    elif [ $param_prefix == "--openssl-lib" ]; then
+        openssl_lib=`./path_generator $param_suffix`
     fi
 done
+
+#
+# Default state -- tls_enable controls the build of tls.so plus the
+# https_request branch inside http.so.  When disabled both .so files
+# still build but no TLS code is compiled in (the modules become a
+# stub that reports "rebuild Melon with --enable-tls" at Import time).
+#
+: ${tls_enable:=0}
 
 rm -f path_generator .path_generator.c
 
@@ -134,13 +151,64 @@ if [ $mysql_enable -eq 1 ]; then
 fi
 #test MySQL Asynchronous end------#
 
+#---------------------------------------------------------------------#
+# TLS detection                                                       #
+#---------------------------------------------------------------------#
+# tls.so and http.so's https_request use Melon's mln_tcp_conn TLS
+# support, which requires libmelon_static.a to have been built with
+# --enable-tls.  Mirror Melon's autoprobe: when --enable-tls is
+# specified, look for openssl/ssl.h in either an explicit override
+# (--openssl-include/-lib) or a list of common Homebrew layouts.  On
+# failure we fall back to a no-TLS build that still produces tls.so as
+# a stub.
+tls_flag=""
+tls_inc=""
+tls_lib=""
+tls_ldflags=""
+if [ $tls_enable -eq 1 ]; then
+    output="TLS\t\t\t[NOT support]"
+    for p in \
+        "$openssl_include" \
+        /opt/homebrew/opt/openssl@3 \
+        /usr/local/opt/openssl@3 \
+        /opt/homebrew/opt/openssl \
+        /usr/local/opt/openssl \
+        /opt/local
+    do
+        if [ -n "$p" ] && [ -f "$p/include/openssl/ssl.h" ]; then
+            tls_inc="-I$p/include"
+            tls_lib="-L$p/lib"
+            break
+        elif [ -n "$p" ] && [ -f "$p/openssl/ssl.h" ]; then
+            tls_inc="-I$p"
+        fi
+    done
+    if [ -n "$openssl_lib" ]; then
+        tls_lib="-L$openssl_lib"
+    fi
+    if [ -n "$OPENSSL_INCLUDE" ]; then tls_inc="-I$OPENSSL_INCLUDE"; fi
+    if [ -n "$OPENSSL_LIB" ];     then tls_lib="-L$OPENSSL_LIB";     fi
+    echo -e "#include <openssl/ssl.h>\nint main(void){SSL_CTX_new(TLS_method());return 0;}" > tls_probe.c
+    $cc $tls_inc -o tls_probe tls_probe.c $tls_lib -lssl -lcrypto 2>/dev/null
+    if [ "$?" = "0" ]; then
+        tls_flag="-DMLN_TLS $tls_inc"
+        tls_ldflags="$tls_lib -lssl -lcrypto"
+        output="TLS\t\t\t[OpenSSL]"
+    else
+        echo "Could not probe OpenSSL: pass --openssl-include and --openssl-lib if the headers are in a non-standard location."
+        echo "Falling back to a non-TLS build of tls.so / http.so."
+    fi
+    rm -f tls_probe tls_probe.c
+    echo -e $output
+fi
+
 # Generate Makefile
 echo "#" > Makefile
 echo "# Copyright (C) Niklaus F.Schen." >> Makefile
 echo "#" >> Makefile
 echo "CC	= $cc" >> Makefile
 echo "MCC	= $mcc" >> Makefile
-echo "FLAGS           = -I$libmelonPath/include -Ilib_src -c -Wall $debug $c99 -Werror -O3 -fPIC" >> Makefile
+echo "FLAGS           = -I$libmelonPath/include -Ilib_src $tls_flag -c -Wall $debug $c99 -Werror -O3 -fPIC" >> Makefile
 if [ $wasm -eq 1 ]; then
     echo "MFLAGS          = -I$libmelonPath/include -c $debug $c99 -O3 $llvm_flag -s -mmutable-globals -mnontrapping-fptoint -msign-ext -Wemcc" >> Makefile
     echo "MELANG          = melang.wasm" >> Makefile
@@ -165,6 +233,7 @@ echo "LIBRC		= rc.dll" >> Makefile
 echo "LIBSHA		= sha.dll" >> Makefile
 echo "LIBSTR		= str.dll" >> Makefile
 echo "LIBSYS		= sys.dll" >> Makefile
+echo "LIBTLS		= tls.dll" >> Makefile
 else
 echo "LIBAES		= aes.so" >> Makefile
 echo "LIBBASE64	= base64.so" >> Makefile
@@ -182,6 +251,7 @@ echo "LIBRC		= rc.so" >> Makefile
 echo "LIBSHA		= sha.so" >> Makefile
 echo "LIBSTR		= str.so" >> Makefile
 echo "LIBSYS		= sys.so" >> Makefile
+echo "LIBTLS		= tls.so" >> Makefile
 fi
 echo "" >> Makefile
 echo "MELANGOBJS	= objs/melang.o" >> Makefile
@@ -201,22 +271,23 @@ echo "LIBRCOBJS	        = objs/mln_lang_rc.o" >> Makefile
 echo "LIBSHAOBJS	= objs/mln_lang_sha.o" >> Makefile
 echo "LIBSTROBJS	= objs/mln_lang_string.o" >> Makefile
 echo "LIBSYSOBJS	= objs/mln_lang_sys.o" >> Makefile
+echo "LIBTLSOBJS	= objs/mln_lang_tls.o" >> Makefile
 echo "" >> Makefile
 echo ".PHONY :	compile all install clean" >> Makefile
 echo "compile: PREPARE \$(MELANGOBJS) \$(MELANG) COMPILECLEAN" >> Makefile
 echo "lib:     PREPARE \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
 echo "         \$(LIBMATRIXOBJS) \$(LIBMD5OBJS) \$(LIBMQOBJS) \$(LIBMYSQLOBJS) \$(LIBNETWORKOBJS) \$(LIBPRIMEOBJS) \\" >> Makefile
-echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \$(LIBHTTPOBJS) \\" >> Makefile
+echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \$(LIBHTTPOBJS) \$(LIBTLSOBJS) \\" >> Makefile
 echo "         \$(LIBAES) \$(LIBBASE64) \$(LIBDES) \$(LIBFILE) \$(LIBJSON) \$(LIBMATRIX) \$(LIBMD5) \\" >> Makefile
 echo "         \$(LIBMQ) \$(LIBMYSQL) \$(LIBNETWORK) \$(LIBPRIME) \$(LIBRC) \$(LIBSHA) \$(LIBSTR) \$(LIBSYS) \\" >> Makefile
-echo "         \$(LIBHTTP) \\" >> Makefile
+echo "         \$(LIBHTTP) \$(LIBTLS) \\" >> Makefile
 echo "         COMPILECLEAN" >> Makefile
 echo "all:     PREPARE \$(MELANGOBJS) \$(LIBAESOBJS) \$(LIBBASE64OBJS) \$(LIBDESOBJS) \$(LIBFILEOBJS) \$(LIBJSONOBJS) \\" >> Makefile
 echo "         \$(LIBMATRIXOBJS) \$(LIBMD5OBJS) \$(LIBMQOBJS) \$(LIBMYSQLOBJS) \$(LIBNETWORKOBJS) \$(LIBPRIMEOBJS) \\" >> Makefile
-echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \$(LIBHTTPOBJS) \\" >> Makefile
+echo "         \$(LIBRCOBJS) \$(LIBSHAOBJS) \$(LIBSTROBJS) \$(LIBSYSOBJS) \$(LIBHTTPOBJS) \$(LIBTLSOBJS) \\" >> Makefile
 echo "         \$(MELANG) \$(LIBAES) \$(LIBBASE64) \$(LIBDES) \$(LIBFILE) \$(LIBJSON) \$(LIBMATRIX) \$(LIBMD5) \\" >> Makefile
 echo "         \$(LIBMQ) \$(LIBMYSQL) \$(LIBNETWORK) \$(LIBPRIME) \$(LIBRC) \$(LIBSHA) \$(LIBSTR) \$(LIBSYS) \\" >> Makefile
-echo "         \$(LIBHTTP) \\" >> Makefile
+echo "         \$(LIBHTTP) \$(LIBTLS) \\" >> Makefile
 echo "         COMPILECLEAN" >> Makefile
 echo "clean:" >> Makefile
 echo "	rm -fr objs libs bin Makefile" >> Makefile
@@ -237,9 +308,9 @@ else
 fi
 echo "\$(MELANG) : \$(MELANGOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(MCC) -o bin/\$@ \$^ -static -O3 -L$libmelonPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32" >> Makefile
+	echo "	\$(MCC) -o bin/\$@ \$^ -static -O3 -L$libmelonPath/lib -llibmelon -lpthread $mysql_lib -lWs2_32 $tls_ldflags" >> Makefile
 else
-	echo "	\$(MCC) -o bin/\$@ \$^ -O3 -L. -lmelon_static -ldl -lpthread $mysql_lib" >> Makefile
+	echo "	\$(MCC) -o bin/\$@ \$^ -O3 -L. -lmelon_static -ldl -lpthread $mysql_lib $tls_ldflags" >> Makefile
 fi
 echo "\$(LIBAES) : \$(LIBAESOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
@@ -273,9 +344,9 @@ else
 fi
 echo "\$(LIBHTTP) : \$(LIBHTTPOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
-	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32 $tls_ldflags" >> Makefile
 else
-	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static $tls_ldflags" >> Makefile
 fi
 echo "\$(LIBMATRIX) : \$(LIBMATRIXOBJS)" >> Makefile
 if ! case $os in MINGW*) false;; esac; then
@@ -337,6 +408,12 @@ if ! case $os in MINGW*) false;; esac; then
 else
 	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static" >> Makefile
 fi
+echo "\$(LIBTLS) : \$(LIBTLSOBJS)" >> Makefile
+if ! case $os in MINGW*) false;; esac; then
+	echo "	\$(CC) -o libs/\$@ \$^ -static $debug $c99 -Wall -lpthread -shared -fPIC -L$libmelonPath/lib -llibmelon -lWs2_32 $tls_ldflags" >> Makefile
+else
+	echo "	\$(CC) -o libs/\$@ \$^ $debug $c99 -Wall -lpthread -lc -shared -fPIC -L. -lmelon_static $tls_ldflags" >> Makefile
+fi
 echo "install:" >> Makefile
 echo "	test -d $libPath || mkdir -p $libPath" >> Makefile
 echo "	test -d $installPath || mkdir -p $installPath" >> Makefile
@@ -382,6 +459,8 @@ echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_string.o : lib_src/string/mln_lang_string.c lib_src/string/mln_lang_string.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 echo "objs/mln_lang_sys.o : lib_src/sys/mln_lang_sys.c lib_src/sys/mln_lang_sys.h" >> Makefile
+echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
+echo "objs/mln_lang_tls.o : lib_src/tls/mln_lang_tls.c lib_src/tls/mln_lang_tls.h" >> Makefile
 echo "	\$(CC) \$(FLAGS) -o \$@ \$<" >> Makefile
 
 echo "Complete!"

@@ -116,6 +116,98 @@ Error:
 
 
 
+##### https_request
+
+End-to-end HTTPS client.  Available only when Melon and Melang are
+built with `--enable-tls` (see the
+[TLS module](https://water-melon.github.io/Melang/lib/tls.html)).
+The call drives the whole exchange — TCP connect, TLS handshake,
+request build (via `http.create`), encrypted send, encrypted recv,
+response parse (via `http.parse`) — in a single C state machine,
+suspending the script across each I/O wait so other coroutines on
+the same scheduler keep running.
+
+```
+http.https_request(args);
+```
+
+Input:
+
+- `args` - an array (dict) describing the request.  Recognised keys:
+  - `host` (required string) - server hostname or IP.
+  - `service` (required string) - port or service name, e.g.
+    `'443'`, `'https'`.
+  - `request` (required array) - request dict in the same shape as
+    `http.create` expects (`type`, `method`, `version`, `uri`,
+    `args`, `headers`, `body`).
+  - `timeout` (optional int / nil) - per-step timeout in
+    milliseconds.  `nil` (or omitted) means wait forever.
+  - `ca` (optional string) - path to a PEM CA bundle for peer
+    verification.  Ignored if `conf` is supplied.
+  - `verify` (optional bool) - require peer certificate
+    verification.  Defaults to `false`.  Ignored if `conf` is
+    supplied.
+  - `sni` (optional string) - SNI hostname.  Defaults to no SNI;
+    most public servers require this to be the request hostname.
+  - `verify_host` (optional string) - hostname to match the peer
+    certificate against (RFC 6125).
+  - `conf` (optional int) - a pre-built TLS conf handle from
+    `tls.conf_new`.  When provided, the call reuses the existing
+    `SSL_CTX` instead of allocating one per request, which is
+    significantly faster for repeated calls.
+
+Return value:
+
+- A response dict in the same shape as `http.parse` returns
+  (`type='response'`, `version`, `code`, `headers`, `body`) on
+  success.
+- `nil` on timeout.
+- `false` on any other failure (DNS, connect, TLS, parse).
+
+Errors:
+
+- Missing or wrong-typed required arguments throw an error and
+  terminate the current coroutine; other coroutines continue.
+
+
+
+##### Example: https_request
+
+```
+sys  = Import('sys');
+http = Import('http');
+
+resp = http.https_request([
+    'host':    'example.com',
+    'service': '443',
+    'sni':     'example.com',
+    'verify':  false,
+    'timeout': 15000,
+    'request': [
+        'type':    'request',
+        'method':  'GET',
+        'version': '1.1',
+        'uri':     '/',
+        'args':    '',
+        'headers': [
+            'Host':           'example.com',
+            'User-Agent':     'melang-https',
+            'Content-Length': '0',
+        ],
+        'body':    '',
+    ],
+]);
+
+if (resp == false || resp == nil) {
+    sys.print('HTTPS request failed');
+} else {
+    sys.print(resp['code']);
+    sys.print(resp['body']);
+} fi
+```
+
+
+
 ##### Example 1
 
 ```
