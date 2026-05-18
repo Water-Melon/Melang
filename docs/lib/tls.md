@@ -28,6 +28,40 @@ tls = Import('tls');
 
 
 
+### Concurrency model
+
+A TLS fd returned by `tls.accept` or `tls.connect` lives in the
+per-`mln_lang_t` connection table.  Once accept / connect has
+returned, the fd is **not** owned by the originating coroutine;
+any coroutine that holds the integer can call `tls.send / recv /
+handshake / close` on it (a common pattern is to spawn a worker
+via `Eval('handler.m', cfd, false, ...)` and hand the fd off).
+
+While one coroutine has a `send`, `recv`, `handshake`, or
+`shutdown` in flight on a given fd, a call from a second
+coroutine on the same fd **returns immediately**:
+
+- `tls.send`, `tls.recv`, `tls.handshake` -> return `false` and
+  set the error message *"Socket busy in another script task."*.
+- `tls.close` always succeeds (it simply drops the resource).
+
+The second coroutine is **not** queued or blocked.  If you want
+the second coroutine to wait, gate the call with `mq` or another
+synchronisation primitive at the script level.  Most code will
+not need this, because the natural pattern is "one coroutine
+owns one connection".
+
+Under `melang -t=N` the connection table is shared across all
+worker threads.  All accesses to it happen under the lang
+mutex, and individual `SSL` objects are serialised by the same
+busy-flag check above, so OpenSSL's "one thread per SSL at a
+time" requirement is upheld.  Configuration objects
+(`SSL_CTX` wrappers built by `tls.conf_new`) are internally
+thread-safe in OpenSSL >= 1.1.0 and may be shared across
+coroutines and across threads.
+
+
+
 ##### conf_new
 
 Build a reusable TLS configuration object.  An `mln_tcp_tls_conf_t`

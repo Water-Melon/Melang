@@ -1231,7 +1231,16 @@ typedef struct mln_lang_https_state_s {
     int                    linked;        /* on per-ctx https chain */
     int                    request_built; /* request chain appended to send queue */
     mln_tcp_conn_t         conn;
+    /*
+     * conf is non-NULL only when this state owns the wrapper
+     * (own_conf == 1).  Borrowed wrappers (own_conf == 0) are
+     * looked up by `conf_id` in the connect handler instead of
+     * being stored by pointer: a concurrent tls.conf_free between
+     * request submission and handler invocation would otherwise
+     * leave a dangling pointer.
+     */
     mln_tcp_tls_conf_t    *conf;
+    mln_s64_t              conf_id;
     mln_http_t            *http;
     mln_lang_array_t      *request;   /* not owned; lives in suspended ctx */
     /* Hostnames are copied to heap so any reshuffling of the ctx pool
@@ -1540,9 +1549,11 @@ static int mln_lang_https_advance_recv(mln_lang_https_state_t *st)
         if (rem != NULL)
             mln_tcp_conn_append_chain(&st->conn, rem, NULL, M_C_RECV);
     }
-    if (r == M_C_CLOSED && mln_tcp_conn_head(&st->conn, M_C_RECV) == NULL) {
-        return -1;
-    }
+    /* If the peer closed the connection we can never get more bytes.
+     * Whether the recv queue still has a partial tail or not, the
+     * response is truncated -- fail rather than busy-loop on a
+     * permanently-readable EOF fd. */
+    if (r == M_C_CLOSED) return -1;
     return mln_lang_https_arm(st, M_EV_RECV);
 }
 
@@ -1603,10 +1614,37 @@ static void mln_lang_https_connect_handler(mln_event_t *ev, int fd, void *data)
         return;
     }
 
-    /* TCP layer is up; upgrade to TLS.  tls_init internally reinitializes
-     * the tcp conn (creating a fresh pool), so any chains attached to a
-     * previous pool would be discarded -- we deliberately attach none. */
-    if (mln_tcp_conn_tls_init(&st->conn, fd, st->conf) < 0) {
+    /*
+     * TCP layer is up; upgrade to TLS.  Resolve the conf wrapper
+     * now, under the lang mutex.  For a borrowed conf this is the
+     * point at which we materialize the pointer from the per-lang
+     * rbtree -- if a concurrent tls.conf_free dropped the wrapper
+     * since the script submitted the request, fail cleanly instead
+     * of dereferencing a stale pointer.
+     */
+    mln_tcp_tls_conf_t *conf = st->conf;
+    if (conf == NULL) {
+        mln_rbtree_t *conf_set = mln_lang_resource_fetch(lang, "tls_conf");
+        if (conf_set != NULL) {
+            mln_lang_tls_conf_t tmp;
+            mln_rbtree_node_t *rn;
+            tmp.id = st->conf_id; tmp.conf = NULL;
+            rn = mln_rbtree_search(conf_set, &tmp);
+            if (!mln_rbtree_null(rn, conf_set)) {
+                mln_lang_tls_conf_t *node = mln_rbtree_node_data_get(rn);
+                conf = node->conf;
+            }
+        }
+        if (conf == NULL) {
+            mln_lang_https_resume_with(st, NULL);
+            mln_lang_mutex_unlock(lang);
+            return;
+        }
+    }
+    /* tls_init internally reinitializes the tcp conn (creating a
+     * fresh pool), so any chains attached to a previous pool would
+     * be discarded -- we deliberately attach none. */
+    if (mln_tcp_conn_tls_init(&st->conn, fd, conf) < 0) {
         /* On failure, tls_init has already destroyed the pool and set
          * it to NULL.  Mark have_conn=0 so we don't double-destroy and
          * leave the fd cleanup to the state free. */
@@ -1783,22 +1821,29 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
     }
 
     if (has_conf) {
+        /* Validate the handle here, but DO NOT capture the
+         * mln_tcp_tls_conf_t pointer: the user may legitimately call
+         * tls.conf_free(id) between this request and the connect
+         * handler firing, and storing the wrapper pointer would
+         * leave us with a dangling reference.  The handler will
+         * re-look-up the conf by id under the lang mutex; if the
+         * conf was freed in the interim, the request fails cleanly. */
         mln_rbtree_t *conf_set = mln_lang_resource_fetch(ctx->lang, "tls_conf");
+        int valid = 0;
         if (conf_set != NULL) {
             mln_lang_tls_conf_t tmp;
             mln_rbtree_node_t *rn;
             tmp.id = conf_id; tmp.conf = NULL;
             rn = mln_rbtree_search(conf_set, &tmp);
-            if (!mln_rbtree_null(rn, conf_set)) {
-                mln_lang_tls_conf_t *node = mln_rbtree_node_data_get(rn);
-                st->conf = node->conf;
-                st->own_conf = 0;
-            }
+            if (!mln_rbtree_null(rn, conf_set)) valid = 1;
         }
-        if (st->conf == NULL) {
+        if (!valid) {
             mln_lang_errmsg(ctx, "args.conf is not a valid TLS conf handle.");
             goto fail_arg;
         }
+        st->conf_id  = conf_id;
+        st->own_conf = 0;
+        st->conf     = NULL;  /* resolved in connect handler */
     } else {
         if ((v = mln_lang_https_arr_get(ctx, a, "ca")) != NULL
             && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_STRING)
