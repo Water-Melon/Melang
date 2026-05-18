@@ -428,6 +428,14 @@ static void mln_lang_ctx_tls_free(mln_lang_ctx_tls_t *lct)
         mln_lang_tls_chain_del(&lct->head, &lct->tail, lt);
         mln_event_fd_set(lt->lang->ev, mln_tcp_conn_fd_get(&lt->conn),
                          M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+        /* If this coroutine vanished mid-accept the request bag is no
+         * longer reachable through any event registration; reclaim it
+         * now so a subsequent tls.accept on the same listen lt does
+         * not overwrite (and leak) the stale bag pointer. */
+        if (lt->accept_req != NULL) {
+            free(lt->accept_req);
+            lt->accept_req = NULL;
+        }
         lt->ctx = NULL;
         lt->sending = lt->recving = lt->shutting = 0;
     }
