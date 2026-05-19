@@ -895,15 +895,24 @@ static void mln_lang_tls_accept_handler(mln_event_t *ev, int fd, void *data)
                   sizeof(struct sockaddr) : sizeof(struct sockaddr_in6)];
     char ip[128] = {0};
     mln_u16_t port = 0;
-    socklen_t len = sizeof(addr);
+    socklen_t len;
     mln_lang_var_t *ret_var = NULL;
     mln_lang_tls_t *new_lt = NULL;
     mln_lang_tls_conf_t *cnode;
 
-    memset(addr, 0, sizeof(addr));
-    connfd = accept(fd, (struct sockaddr *)addr, &len);
-
+    /* Lock BEFORE accept() so accept() + rearm + cleanup all run
+     * inside the same critical section as any concurrent teardown.
+     * The bag deref above mirrors mln_lang_network_tcp_accept_handler;
+     * the lifetime guarantee is that the freer (tls_free) clears the
+     * event registration while holding this same mutex, so by the
+     * time the lock is acquired here the freer cannot proceed to
+     * release the bag until we drop the lock.  Doing accept() outside
+     * the lock would let a concurrent freer race with the syscall and
+     * the bag-frees in the resume_with_pre_var tail. */
     mln_lang_mutex_lock(lang);
+    memset(addr, 0, sizeof(addr));
+    len = sizeof(addr);
+    connfd = accept(fd, (struct sockaddr *)addr, &len);
     if (connfd < 0) {
         if (errno == EINTR || errno == EAGAIN
 #if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN

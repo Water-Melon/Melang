@@ -14,7 +14,11 @@
 //   - Port 18444 free on localhost.
 //
 // Run (from the tests/ directory):
-//   ../bin/melang https_test.m https_server.m
+//   ../bin/melang https_test.m
+//
+// (https_server.m is spawned automatically via Eval below; do NOT
+// also pass it on the command line -- that would start the server
+// twice and the second instance would fail to bind the port.)
 
 sys  = Import('sys');
 str  = Import('str');

@@ -14,18 +14,24 @@ cd tests
 ../bin/melang tls_test.m
 ```
 
-Multiple driver scripts can be passed to a single `melang` invocation
-so they share one scheduler.  For example, the TLS echo test is
-driven as:
+Each driver script spawns the helpers it needs via `Eval(...)`, so
+**only the driver should appear on the `melang` command line**.
+Passing the helper a second time would double-spawn it -- the second
+copy would race against the first and (for the server helpers)
+typically fail to bind the listen port.
+
+The single exception is the handoff test, where the driver and the
+client are designed as two cooperating top-level tasks; that test
+takes both names on the command line:
 
 ```
-../bin/melang tls_test.m tls_server.m
+../bin/melang tls_handoff_test.m tls_handoff_client.m
 ```
 
 To exercise the multi-threaded path, add `-t=N`:
 
 ```
-../bin/melang -t=2 tls_test.m tls_server.m
+../bin/melang -t=2 tls_test.m
 ```
 
 ## Inventory

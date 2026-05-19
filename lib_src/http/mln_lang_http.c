@@ -1279,15 +1279,27 @@ static void mln_lang_https_timeout_handler(mln_event_t *ev, int fd, void *data);
 static void mln_lang_ctx_https_free(mln_lang_ctx_https_t *lch);
 
 /* mln_lang_array_get with a C-string key.  Returns the stored value's
- * wrapper var on success (caller reads val/type/data) or NULL on
- * memory failure or absence. */
+ * wrapper var on success (caller reads val/type/data) or NULL when
+ * the key is absent OR when allocation failed.  The two cases were
+ * previously indistinguishable, so an OOM would surface as a wrong
+ * "args.<key> must be ..." type-mismatch error -- masking the real
+ * failure and confusing the caller.  The `out_oom` out-parameter
+ * (pass NULL if you don't care) is set to 1 on allocation failure
+ * and to 0 on either success or key-absent.  Callers that need to
+ * tell the two cases apart should check it before emitting their
+ * own "must be ..." message. */
 static mln_lang_var_t *
-mln_lang_https_arr_get(mln_lang_ctx_t *ctx, mln_lang_array_t *a, const char *key)
+mln_lang_https_arr_get(mln_lang_ctx_t *ctx, mln_lang_array_t *a,
+                       const char *key, int *out_oom)
 {
     mln_string_t k;
     mln_lang_var_t *kv, *v;
+    if (out_oom != NULL) *out_oom = 0;
     mln_string_nset(&k, (char *)key, strlen(key));
-    if ((kv = mln_lang_var_create_string(ctx, &k, NULL)) == NULL) return NULL;
+    if ((kv = mln_lang_var_create_string(ctx, &k, NULL)) == NULL) {
+        if (out_oom != NULL) *out_oom = 1;
+        return NULL;
+    }
     v = mln_lang_array_get(ctx, a, kv);
     mln_lang_var_free(kv);
     return v;
@@ -1456,6 +1468,12 @@ static int mln_lang_https_build_request(mln_lang_https_state_t *st)
         mln_chain_pool_release(c);
         goto nomem;
     }
+    /* Attach the buf to the chain immediately so that any subsequent
+     * failure path can release the buf together with the chain via
+     * mln_chain_pool_release(c) -- previously a failure in mln_alloc_m
+     * below would leak the freshly-allocated mln_buf_t because c->buf
+     * was still NULL. */
+    c->buf = b;
     if ((buf = (mln_u8ptr_t)mln_alloc_m(pool, len ? len : 1)) == NULL) {
         mln_chain_pool_release(c);
         goto nomem;
@@ -1463,7 +1481,6 @@ static int mln_lang_https_build_request(mln_lang_https_state_t *st)
     if (len) memcpy(buf, s->data, len);
     mln_string_free(s);
 
-    c->buf = b;
     b->left_pos      = buf;
     b->pos           = buf;
     b->start         = buf;
@@ -1775,11 +1792,14 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
     st->request = NULL;
 
     /* host */
-    if ((v = mln_lang_https_arr_get(ctx, a, "host")) == NULL ||
-        mln_lang_var_val_type_get(v) != M_LANG_VAL_TYPE_STRING)
     {
-        mln_lang_errmsg(ctx, "args.host must be a string.");
-        goto fail_arg;
+        int oom = 0;
+        v = mln_lang_https_arr_get(ctx, a, "host", &oom);
+        if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+        if (v == NULL || mln_lang_var_val_type_get(v) != M_LANG_VAL_TYPE_STRING) {
+            mln_lang_errmsg(ctx, "args.host must be a string.");
+            goto fail_arg;
+        }
     }
     if (v->val->data.s->len >= sizeof(host)) {
         mln_lang_errmsg(ctx, "args.host too long.");
@@ -1788,11 +1808,14 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
     memcpy(host, v->val->data.s->data, v->val->data.s->len);
 
     /* service */
-    if ((v = mln_lang_https_arr_get(ctx, a, "service")) == NULL ||
-        mln_lang_var_val_type_get(v) != M_LANG_VAL_TYPE_STRING)
     {
-        mln_lang_errmsg(ctx, "args.service must be a string.");
-        goto fail_arg;
+        int oom = 0;
+        v = mln_lang_https_arr_get(ctx, a, "service", &oom);
+        if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+        if (v == NULL || mln_lang_var_val_type_get(v) != M_LANG_VAL_TYPE_STRING) {
+            mln_lang_errmsg(ctx, "args.service must be a string.");
+            goto fail_arg;
+        }
     }
     if (v->val->data.s->len >= sizeof(service)) {
         mln_lang_errmsg(ctx, "args.service too long.");
@@ -1801,16 +1824,19 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
     memcpy(service, v->val->data.s->data, v->val->data.s->len);
 
     /* request */
-    if ((v = mln_lang_https_arr_get(ctx, a, "request")) == NULL ||
-        mln_lang_var_val_type_get(v) != M_LANG_VAL_TYPE_ARRAY)
     {
-        mln_lang_errmsg(ctx, "args.request must be an array.");
-        goto fail_arg;
+        int oom = 0;
+        v = mln_lang_https_arr_get(ctx, a, "request", &oom);
+        if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+        if (v == NULL || mln_lang_var_val_type_get(v) != M_LANG_VAL_TYPE_ARRAY) {
+            mln_lang_errmsg(ctx, "args.request must be an array.");
+            goto fail_arg;
+        }
     }
     st->request = v->val->data.array;
 
     /* timeout */
-    if ((v = mln_lang_https_arr_get(ctx, a, "timeout")) != NULL) {
+    if ((v = mln_lang_https_arr_get(ctx, a, "timeout", NULL)) != NULL) {
         mln_u32_t t = mln_lang_var_val_type_get(v);
         if (t == M_LANG_VAL_TYPE_NIL)        st->timeout = M_EV_UNLIMITED;
         else if (t == M_LANG_VAL_TYPE_INT && v->val->data.i >= 0)
@@ -1822,7 +1848,7 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
     }
 
     /* conf */
-    if ((v = mln_lang_https_arr_get(ctx, a, "conf")) != NULL
+    if ((v = mln_lang_https_arr_get(ctx, a, "conf", NULL)) != NULL
         && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_INT)
     {
         conf_id = v->val->data.i;
@@ -1854,12 +1880,12 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
         st->own_conf = 0;
         st->conf     = NULL;  /* resolved in connect handler */
     } else {
-        if ((v = mln_lang_https_arr_get(ctx, a, "ca")) != NULL
+        if ((v = mln_lang_https_arr_get(ctx, a, "ca", NULL)) != NULL
             && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_STRING)
         {
             ca = v->val->data.s;
         }
-        if ((v = mln_lang_https_arr_get(ctx, a, "verify")) != NULL) {
+        if ((v = mln_lang_https_arr_get(ctx, a, "verify", NULL)) != NULL) {
             mln_u32_t t = mln_lang_var_val_type_get(v);
             if (t == M_LANG_VAL_TYPE_BOOL)      verify = v->val->data.b ? 1 : 0;
             else if (t == M_LANG_VAL_TYPE_INT)  verify = v->val->data.i ? 1 : 0;
@@ -1873,12 +1899,12 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
         st->own_conf = 1;
     }
 
-    if ((v = mln_lang_https_arr_get(ctx, a, "sni")) != NULL
+    if ((v = mln_lang_https_arr_get(ctx, a, "sni", NULL)) != NULL
         && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_STRING)
     {
         sni = v->val->data.s;
     }
-    if ((v = mln_lang_https_arr_get(ctx, a, "verify_host")) != NULL
+    if ((v = mln_lang_https_arr_get(ctx, a, "verify_host", NULL)) != NULL
         && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_STRING)
     {
         vhost = v->val->data.s;
