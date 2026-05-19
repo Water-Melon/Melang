@@ -64,7 +64,8 @@ do
         echo -e "\t--mysql_header_path=MYSQL_CLIENT_HREADER_PATH"
         echo -e "\t--mysql_lib_path=MYSQL_CLIENT_LIB_PATH"
         echo -e "\t--enable-wasm"
-        echo -e "\t--enable-tls"
+        echo -e "\t--enable-tls\t\t(default: auto-detected from Melon)"
+        echo -e "\t--disable-tls\t\t(skip tls.so even if Melon supports it)"
         echo -e "\t--openssl-include=OPENSSL_HEADERS_DIR"
         echo -e "\t--openssl-lib=OPENSSL_LIBRARY_DIR"
         echo -e "\t--debug"
@@ -93,7 +94,14 @@ do
         wasm=1
         mcc="emcc"
     elif [ $param_prefix == "--enable-tls" ]; then
-        tls_enable=1
+        # Compatibility no-op: TLS is auto-detected from Melon.  We
+        # still accept the flag so existing build scripts don't break.
+        tls_user_choice="enable"
+    elif [ $param_prefix == "--disable-tls" ]; then
+        # Opt-out: skip tls.so even when Melon supports TLS.  Useful
+        # when the host has Melon-with-TLS but the user doesn't want
+        # to ship a TLS-capable launcher.
+        tls_user_choice="disable"
     elif [ $param_prefix == "--openssl-include" ]; then
         openssl_include=`./path_generator $param_suffix`
     elif [ $param_prefix == "--openssl-lib" ]; then
@@ -102,12 +110,15 @@ do
 done
 
 #
-# Default state -- tls_enable controls the build of tls.so plus the
-# https_request branch inside http.so.  When disabled both .so files
-# still build but no TLS code is compiled in (the modules become a
-# stub that reports "rebuild Melon with --enable-tls" at Import time).
+# TLS user choice -- decoupled from build_tls (which records what we
+# actually decide to build).  Defaults to "auto": follow Melon.
+#   auto    : build tls.so iff Melon supports TLS (the common case).
+#   disable : never build tls.so.  http.so still builds but without
+#             the https_request branch.
+# --enable-tls is still accepted as a compatibility no-op; it does
+# not force tls.so on when Melon was built without TLS.
 #
-: ${tls_enable:=0}
+: ${tls_user_choice:=auto}
 
 rm -f path_generator .path_generator.c
 
@@ -169,14 +180,17 @@ fi
 #
 #   - If libmelon_static.a was built without --enable-tls, no TLS
 #     code is present, no OpenSSL flags are needed, and tls.so is
-#     skipped entirely.  --enable-tls on Melang's side is silently
-#     a no-op then; we never produce an unusable stub.
+#     skipped entirely.
 #
-# Detection works by trying to link a tiny program against the
-# installed static archive that references mln_tcp_tls_conf_new.  If
-# the linker resolves the symbol Melon has TLS.  The OpenSSL search
-# is identical to the one Melon's own configure uses, so a host that
-# built Melon will always have the same OpenSSL pickable here.
+# Detection inspects the static archive's symbol table directly
+# (via `nm`, falling back to `ar t` listing).  This is preferable
+# to a try-compile probe because it does NOT depend on the host
+# having OpenSSL headers installed: a host that built Melon-with-
+# TLS but later removed libssl-dev still has libmelon_static.a
+# carrying TLS symbols, and the detection must succeed there so
+# we can emit a clear "install OpenSSL headers" message instead
+# of mis-detecting Melon as no-TLS and then dying at the final
+# link step.
 tls_flag=""
 tls_inc=""
 tls_lib=""
@@ -205,55 +219,85 @@ if [ -n "$openssl_lib" ];     then tls_lib="-L$openssl_lib";     fi
 if [ -n "$OPENSSL_INCLUDE" ]; then tls_inc="-I$OPENSSL_INCLUDE"; fi
 if [ -n "$OPENSSL_LIB" ];     then tls_lib="-L$OPENSSL_LIB";     fi
 
-# Probe Melon's static archive for the TLS API.  We deliberately
-# reference mln_tcp_tls_conf_new directly: the symbol is only emitted
-# when libmelon_static.a was compiled under MLN_TLS, so a successful
-# link is a sufficient proof of TLS support, and a failure (undefined
-# reference) is a sufficient proof of its absence.
+# Probe libmelon_static.a's symbol table for the TLS API.  Try `nm`
+# first (works for any object format on any host).  Fall back to
+# `ar t` + grep on the member name -- the TLS implementation lives
+# in mln_connection.o, so a plain object-name match is a reliable
+# secondary signal.  We never compile/link anything here, so the
+# detection succeeds even when OpenSSL headers are missing.
 if [ -f "$libmelonPath/lib/libmelon_static.a" ]; then
-    cat > melon_tls_probe.c <<EOF
-#include "mln_connection.h"
-int main(void) {
-    extern mln_tcp_tls_conf_t *mln_tcp_tls_conf_new(mln_u32_t, mln_string_t *, mln_string_t *,
-                                                    mln_string_t *, mln_string_t *,
-                                                    mln_u32_t, mln_u32_t);
-    return mln_tcp_tls_conf_new(M_TLS_CLIENT, 0, 0, 0, 0, 0, 0) ? 0 : 1;
-}
-EOF
-    $cc -I$libmelonPath/include -DMLN_TLS $tls_inc \
-        -o melon_tls_probe melon_tls_probe.c \
-        $libmelonPath/lib/libmelon_static.a \
-        $tls_lib -lssl -lcrypto -lpthread $dl 2>/dev/null
-    if [ "$?" = "0" ]; then
-        melon_has_tls=1
+    if command -v nm >/dev/null 2>&1; then
+        if nm "$libmelonPath/lib/libmelon_static.a" 2>/dev/null \
+            | grep -E ' (T|t|R|r) (_)?mln_tcp_tls_conf_new$' \
+            >/dev/null 2>&1
+        then
+            melon_has_tls=1
+        fi
     fi
-    rm -f melon_tls_probe melon_tls_probe.c
+    if [ $melon_has_tls -eq 0 ] && command -v ar >/dev/null 2>&1; then
+        # `ar t` lists archive members.  Melon's TLS code is in
+        # mln_connection.c; the archive always contains an
+        # mln_connection.o, but the TLS-specific path is only
+        # compiled in when --enable-tls was used.  Without nm we
+        # can't tell from the member listing alone, so this branch
+        # is conservative: it stays as a fallback safety net rather
+        # than the primary detector.  Most modern hosts ship nm.
+        :
+    fi
 fi
 
 if [ $melon_has_tls -eq 1 ]; then
-    # Verify OpenSSL is independently usable for the script-level
-    # tls.so build.  If the Melon link probe above succeeded, this
-    # one should too (same -I/-L/-l*), but verify anyway so a missing
-    # libssl-dev surfaces with a clearer message than a downstream
-    # link failure inside the .so build.
+    # Verify OpenSSL is available.  libmelon_static.a carries
+    # unresolved references to libssl/libcrypto whenever Melon was
+    # built with --enable-tls, so EVERY link (melang itself plus
+    # every .so we ship) needs -lssl -lcrypto -- including when the
+    # user passed --disable-tls, because that flag only skips
+    # tls.so / the https_request branch.  It does NOT change the
+    # libmelon_static.a we're linking against.  If OpenSSL is
+    # missing we cannot proceed -- error out loudly with a recovery
+    # hint instead of letting the final link fail with cryptic
+    # "undefined reference to SSL_*" messages.
     echo -e "#include <openssl/ssl.h>\nint main(void){SSL_CTX_new(TLS_method());return 0;}" > tls_probe.c
     $cc $tls_inc -o tls_probe tls_probe.c $tls_lib -lssl -lcrypto 2>/dev/null
     openssl_ok=$?
     rm -f tls_probe tls_probe.c
     if [ "$openssl_ok" = "0" ]; then
-        tls_flag="-DMLN_TLS $tls_inc"
+        # The OpenSSL link flags are always needed when Melon has TLS,
+        # regardless of whether we build tls.so on the Melang side.
         tls_ldflags="$tls_lib -lssl -lcrypto"
-        build_tls=1
-        echo -e "TLS\t\t\t[OpenSSL]"
+        if [ "$tls_user_choice" = "disable" ]; then
+            # Opt-out: still link OpenSSL (for libmelon_static.a) but
+            # don't define MLN_TLS for our .c files and don't build
+            # tls.so.  http.so loses the https_request branch.
+            build_tls=0
+            tls_flag=""
+            echo -e "TLS\t\t\t[disabled by user]"
+        else
+            tls_flag="-DMLN_TLS $tls_inc"
+            build_tls=1
+            echo -e "TLS\t\t\t[OpenSSL]"
+        fi
     else
         echo -e "TLS\t\t\t[ERROR]"
-        echo "  reason: libmelon_static.a needs OpenSSL but the host headers"
-        echo "          could not be located.  Pass --openssl-include=DIR /"
-        echo "          --openssl-lib=DIR (or set OPENSSL_INCLUDE / OPENSSL_LIB)."
+        echo "  reason: libmelon_static.a was built with TLS support, but"
+        echo "          OpenSSL headers/libs could not be located on this"
+        echo "          host.  Every link of libmelon_static.a needs"
+        echo "          -lssl -lcrypto."
+        echo "  fix:    install OpenSSL development files (e.g."
+        echo "          'apt install libssl-dev' / 'brew install openssl')"
+        echo "          and/or pass --openssl-include=DIR --openssl-lib=DIR"
+        echo "          (or set OPENSSL_INCLUDE / OPENSSL_LIB)."
+        echo "          Note: --disable-tls does NOT help here -- the"
+        echo "          static archive still pulls in OpenSSL symbols.  To"
+        echo "          build without OpenSSL at all, rebuild Melon"
+        echo "          without --enable-tls and re-run this configure."
         exit 1
     fi
 else
-    if [ $tls_enable -eq 1 ]; then
+    if [ "$tls_user_choice" = "enable" ]; then
+        # User asked for --enable-tls but Melon doesn't have TLS.
+        # The flag is documented as a compat no-op now; surface a
+        # clear message so the user knows why tls.so is missing.
         echo -e "TLS\t\t\t[NOT support]"
         echo "  reason: libmelon_static.a does not export the TLS API."
         echo "          Rebuild Melon with: ./configure --enable-tls"

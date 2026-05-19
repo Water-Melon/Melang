@@ -38,13 +38,13 @@ typedef struct mln_lang_tls_s {
     mln_tcp_conn_t         conn;
     char                   ip[128];
     mln_u16_t              port;
+    /* Bit-flags.  Only the in-flight markers (sending/recving) are
+     * tracked; this module does not expose a partial-shutdown API, so
+     * there is no "half-closed" state to record. */
     mln_u16_t              is_listen:1;
-    mln_u16_t              send_closed:1;
-    mln_u16_t              recv_closed:1;
     mln_u16_t              sending:1;
     mln_u16_t              recving:1;
-    mln_u16_t              shutting:1;
-    mln_u16_t              retry:10;
+    mln_u16_t              retry:13;
     mln_s32_t              timeout;
     mln_s32_t              connect_timeout;
     /* Non-NULL only while an accept is pending on this listen lt;

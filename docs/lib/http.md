@@ -147,10 +147,13 @@ Input:
   - `verify` (optional bool) - require peer certificate
     verification.  Defaults to `false`.  Ignored if `conf` is
     supplied.
-  - `sni` (optional string) - SNI hostname.  Defaults to no SNI;
-    most public servers require this to be the request hostname.
+  - `sni` (optional string) - SNI hostname.  Defaults to `host`
+    when `host` is a DNS name; the default is suppressed when
+    `host` is an IP literal because RFC 6066 forbids IP SNI.
   - `verify_host` (optional string) - hostname to match the peer
-    certificate against (RFC 6125).
+    certificate against (RFC 6125).  Defaults to `host` when
+    `verify=true` and `host` is a DNS name; the default is
+    suppressed for IP literals.
   - `conf` (optional int) - a pre-built TLS conf handle from
     `tls.conf_new`.  When provided, the call reuses the existing
     `SSL_CTX` instead of allocating one per request, which is

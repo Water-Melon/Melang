@@ -37,9 +37,9 @@ any coroutine that holds the integer can call `tls.send / recv /
 handshake / close` on it (a common pattern is to spawn a worker
 via `Eval('handler.m', cfd, false, ...)` and hand the fd off).
 
-While one coroutine has a `send`, `recv`, `handshake`, or
-`shutdown` in flight on a given fd, a call from a second
-coroutine on the same fd **returns immediately**:
+While one coroutine has a `send`, `recv`, or `handshake` in
+flight on a given fd, a call from a second coroutine on the
+same fd **returns immediately**:
 
 - `tls.send`, `tls.recv`, `tls.handshake` -> return `false` and
   set the error message *"Socket busy in another script task."*.

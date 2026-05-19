@@ -1185,8 +1185,11 @@ static inline mln_string_t *mln_lang_http_create_process_generate_string(mln_lan
  *    timeout      (int|nil)  optional.  Per-step timeout in ms.            *
  *    ca           (string)   optional.  Path to a CA bundle (PEM).         *
  *    verify       (bool)     optional.  Verify peer when CA is set.        *
- *    sni          (string)   optional.  SNI hostname (defaults to host).   *
- *    verify_host  (string)   optional.  Hostname to verify in cert.        *
+ *    sni          (string)   optional.  SNI hostname (defaults to host    *
+ *                                       when host is not an IP literal).  *
+ *    verify_host  (string)   optional.  Hostname to verify in cert.       *
+ *                                       Defaults to host when verify=true *
+ *                                       and host is not an IP literal.    *
  *    conf         (int)      optional.  Pre-built conf from tls.conf_new.  *
  *                                                                          *
  *  Returns the parsed response dictionary on success, false on error,      *
@@ -1597,16 +1600,22 @@ static void mln_lang_https_connect_handler(mln_event_t *ev, int fd, void *data)
     }
 #endif
     if (err == EINPROGRESS && (++st->retry <= MLN_LANG_HTTPS_RETRY_MAX)) {
-        mln_event_fd_set(ev, fd,
-                         M_EV_SEND|M_EV_ERROR|M_EV_NONBLOCK|M_EV_ONESHOT,
-                         st->timeout, st,
-                         mln_lang_https_connect_handler);
-        if (st->timeout != M_EV_UNLIMITED) {
-            mln_event_fd_timeout_handler_set(ev, fd, st,
-                                             mln_lang_https_timeout_handler);
+        /* Rearm-on-progress.  If the event registration fails we MUST
+         * fail the call cleanly instead of leaving the coroutine
+         * suspended forever -- fall through to the terminal-failure
+         * tear-down. */
+        if (mln_event_fd_set(ev, fd,
+                             M_EV_SEND|M_EV_ERROR|M_EV_NONBLOCK|M_EV_ONESHOT,
+                             st->timeout, st,
+                             mln_lang_https_connect_handler) == 0) {
+            if (st->timeout != M_EV_UNLIMITED) {
+                mln_event_fd_timeout_handler_set(ev, fd, st,
+                                                 mln_lang_https_timeout_handler);
+            }
+            mln_lang_mutex_unlock(lang);
+            return;
         }
-        mln_lang_mutex_unlock(lang);
-        return;
+        /* rearm failed -- terminal failure. */
     }
     if (err != 0) {
         mln_lang_https_resume_with(st, NULL);
@@ -1874,13 +1883,66 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
     {
         vhost = v->val->data.s;
     }
-    if (sni != NULL && mln_lang_https_dup_to(&st->sni_buf, &st->sni_len, sni) < 0) {
-        mln_lang_errmsg(ctx, "No memory.");
-        goto fail_arg;
+    if (sni != NULL) {
+        if (mln_lang_https_dup_to(&st->sni_buf, &st->sni_len, sni) < 0) {
+            mln_lang_errmsg(ctx, "No memory.");
+            goto fail_arg;
+        }
+    } else {
+        /* Default SNI to `host` so the request reaches the right
+         * virtual host without the caller having to repeat it.  We
+         * skip the default when host is an IP literal, because RFC
+         * 6066 forbids sending IPs in SNI -- some servers reject the
+         * handshake outright.  Heuristic: a-z / A-Z / '-' anywhere
+         * means it's a hostname; everything else (digits, dots,
+         * colons) is treated as an IP literal and the default is
+         * suppressed. */
+        mln_size_t hlen = strlen(host);
+        int looks_like_hostname = 0;
+        for (mln_size_t i = 0; i < hlen; ++i) {
+            unsigned char c = (unsigned char)host[i];
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-') {
+                looks_like_hostname = 1;
+                break;
+            }
+        }
+        if (hlen > 0 && looks_like_hostname) {
+            mln_string_t tmp;
+            mln_string_nset(&tmp, host, hlen);
+            if (mln_lang_https_dup_to(&st->sni_buf, &st->sni_len, &tmp) < 0) {
+                mln_lang_errmsg(ctx, "No memory.");
+                goto fail_arg;
+            }
+        }
     }
-    if (vhost != NULL && mln_lang_https_dup_to(&st->vhost_buf, &st->vhost_len, vhost) < 0) {
-        mln_lang_errmsg(ctx, "No memory.");
-        goto fail_arg;
+    if (vhost != NULL) {
+        if (mln_lang_https_dup_to(&st->vhost_buf, &st->vhost_len, vhost) < 0) {
+            mln_lang_errmsg(ctx, "No memory.");
+            goto fail_arg;
+        }
+    } else if (verify) {
+        /* When peer verification is on we also default the hostname
+         * being verified to `host`, mirroring what curl / browsers do.
+         * Only applies to confs we built ourselves -- a borrowed conf
+         * may have a different verification policy that the caller
+         * controls explicitly. */
+        mln_size_t hlen = strlen(host);
+        int looks_like_hostname = 0;
+        for (mln_size_t i = 0; i < hlen; ++i) {
+            unsigned char c = (unsigned char)host[i];
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-') {
+                looks_like_hostname = 1;
+                break;
+            }
+        }
+        if (hlen > 0 && looks_like_hostname) {
+            mln_string_t tmp;
+            mln_string_nset(&tmp, host, hlen);
+            if (mln_lang_https_dup_to(&st->vhost_buf, &st->vhost_len, &tmp) < 0) {
+                mln_lang_errmsg(ctx, "No memory.");
+                goto fail_arg;
+            }
+        }
     }
 
     /* DNS + socket + connect. */

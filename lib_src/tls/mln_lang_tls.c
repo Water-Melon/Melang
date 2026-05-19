@@ -356,7 +356,7 @@ static void mln_lang_tls_free(mln_lang_tls_t *lt)
             mln_lang_tls_chain_del(&lct->head, &lct->tail, lt);
             mln_lang_ctx_continue(lt->ctx);
             lt->ctx = NULL;
-            lt->sending = lt->recving = lt->shutting = 0;
+            lt->sending = lt->recving = 0;
         }
     }
     if (fd >= 0) {
@@ -437,7 +437,7 @@ static void mln_lang_ctx_tls_free(mln_lang_ctx_tls_t *lct)
             lt->accept_req = NULL;
         }
         lt->ctx = NULL;
-        lt->sending = lt->recving = lt->shutting = 0;
+        lt->sending = lt->recving = 0;
     }
     mln_alloc_free(lct);
 }
@@ -910,17 +910,22 @@ static void mln_lang_tls_accept_handler(mln_event_t *ev, int fd, void *data)
             || errno == EWOULDBLOCK
 #endif
             ) {
-            /* Spurious wake-up; re-arm. */
-            mln_event_fd_set(ev, fd,
-                             M_EV_RECV|M_EV_NONBLOCK|M_EV_ONESHOT,
-                             lt->timeout, req,
-                             mln_lang_tls_accept_handler);
-            if (lt->timeout != M_EV_UNLIMITED) {
-                mln_event_fd_timeout_handler_set(ev, fd, req,
-                                                 mln_lang_tls_accept_timeout_handler);
+            /* Spurious wake-up; re-arm.  If rearm fails (typically OOM)
+             * the script would otherwise hang suspended forever -- fall
+             * through to resume_with_pre_var, which restores the pre-set
+             * `false` and frees the bag. */
+            if (mln_event_fd_set(ev, fd,
+                                 M_EV_RECV|M_EV_NONBLOCK|M_EV_ONESHOT,
+                                 lt->timeout, req,
+                                 mln_lang_tls_accept_handler) == 0) {
+                if (lt->timeout != M_EV_UNLIMITED) {
+                    mln_event_fd_timeout_handler_set(ev, fd, req,
+                                                     mln_lang_tls_accept_timeout_handler);
+                }
+                mln_lang_mutex_unlock(lang);
+                return;
             }
-            mln_lang_mutex_unlock(lang);
-            return;
+            /* rearm failed -- terminal failure. */
         }
         goto resume_with_pre_var;
     }
@@ -1154,16 +1159,22 @@ static void mln_lang_tls_connect_handler(mln_event_t *ev, int fd, void *data)
         return;
     }
     if (err == EINPROGRESS && (++lt->retry <= MLN_LANG_TLS_CONNECT_RETRY)) {
-        mln_event_fd_set(ev, fd,
-                         M_EV_SEND|M_EV_ERROR|M_EV_NONBLOCK|M_EV_ONESHOT,
-                         lt->connect_timeout, lt,
-                         mln_lang_tls_connect_handler);
-        if (lt->connect_timeout != M_EV_UNLIMITED) {
-            mln_event_fd_timeout_handler_set(ev, fd, lt,
-                                             mln_lang_tls_connect_timeout_handler);
+        /* Rearm-on-progress.  If the event registration fails (OOM) we
+         * MUST NOT leave the script suspended forever -- fall through
+         * to the terminal-failure tear-down below, which resumes the
+         * coroutine with the pre-set false. */
+        if (mln_event_fd_set(ev, fd,
+                             M_EV_SEND|M_EV_ERROR|M_EV_NONBLOCK|M_EV_ONESHOT,
+                             lt->connect_timeout, lt,
+                             mln_lang_tls_connect_handler) == 0) {
+            if (lt->connect_timeout != M_EV_UNLIMITED) {
+                mln_event_fd_timeout_handler_set(ev, fd, lt,
+                                                 mln_lang_tls_connect_timeout_handler);
+            }
+            mln_lang_mutex_unlock(lang);
+            return;
         }
-        mln_lang_mutex_unlock(lang);
-        return;
+        /* rearm failed -- terminal failure. */
     }
     /* Fatal connect failure: tear the resource down so the fd is closed
      * exactly once.  Doing this here also frees the half-built lt; any
@@ -1238,6 +1249,18 @@ static mln_lang_var_t *mln_lang_tls_set_sni_process(mln_lang_ctx_t *ctx)
         }
         return ret_var;
     }
+    /* SSL_set_tlsext_host_name mutates SSL state.  Reject the call if
+     * another coroutine is mid-I/O on the same fd: doing it concurrently
+     * with SSL_read/SSL_write would violate OpenSSL's single-thread-per
+     * -SSL rule. */
+    if (lt->sending || lt->recving) {
+        mln_lang_errmsg(ctx, "Socket busy in another script task.");
+        if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+            mln_lang_errmsg(ctx, "No memory.");
+            return NULL;
+        }
+        return ret_var;
+    }
     if (mln_tcp_conn_tls_set_sni(&lt->conn, sym->data.var->val->data.s) < 0) {
         if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
@@ -1270,6 +1293,16 @@ static mln_lang_var_t *mln_lang_tls_set_verify_host_process(mln_lang_ctx_t *ctx)
     { mln_lang_errmsg(ctx, "Argument 'hostname' must be a string."); return NULL; }
 
     if ((lt = mln_lang_tls_resource_fetch(ctx->lang, fd)) == NULL || lt->is_listen) {
+        if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
+            mln_lang_errmsg(ctx, "No memory.");
+            return NULL;
+        }
+        return ret_var;
+    }
+    /* Same SSL-state mutation concern as set_sni: forbid concurrent
+     * verify_host changes while another coroutine is mid-I/O. */
+    if (lt->sending || lt->recving) {
+        mln_lang_errmsg(ctx, "Socket busy in another script task.");
         if ((ret_var = mln_lang_var_create_false(ctx, NULL)) == NULL) {
             mln_lang_errmsg(ctx, "No memory.");
             return NULL;
@@ -1358,7 +1391,7 @@ static mln_lang_var_t *mln_lang_tls_handshake_process(mln_lang_ctx_t *ctx)
         mln_lang_errmsg(ctx, "fd is a listen socket; cannot handshake.");
         return ret_var;
     }
-    if (lt->sending || lt->recving || lt->shutting) {
+    if (lt->sending || lt->recving) {
         mln_lang_errmsg(ctx, "Socket busy in another script task.");
         return ret_var;
     }
@@ -1485,12 +1518,8 @@ static mln_lang_var_t *mln_lang_tls_send_process(mln_lang_ctx_t *ctx)
         mln_lang_errmsg(ctx, "Cannot send on a listen socket.");
         return ret_var;
     }
-    if (lt->sending || lt->recving || lt->shutting) {
+    if (lt->sending || lt->recving) {
         mln_lang_errmsg(ctx, "Socket busy in another script task.");
-        return ret_var;
-    }
-    if (lt->send_closed) {
-        mln_lang_errmsg(ctx, "Socket send already shut down.");
         return ret_var;
     }
     if (data->len == 0) {
@@ -1668,12 +1697,8 @@ static mln_lang_var_t *mln_lang_tls_recv_process(mln_lang_ctx_t *ctx)
         mln_lang_errmsg(ctx, "Cannot recv on a listen socket; use accept.");
         return ret_var;
     }
-    if (lt->sending || lt->recving || lt->shutting) {
+    if (lt->sending || lt->recving) {
         mln_lang_errmsg(ctx, "Socket busy in another script task.");
-        return ret_var;
-    }
-    if (lt->recv_closed) {
-        mln_lang_errmsg(ctx, "Socket recv already shut down.");
         return ret_var;
     }
 
@@ -1696,8 +1721,19 @@ static mln_lang_var_t *mln_lang_tls_recv_process(mln_lang_ctx_t *ctx)
                 size += (mln_s64_t)mln_buf_left_size(c->buf);
             }
             if (size > 0) {
+                if ((mln_u64_t)size > (mln_u64_t)((size_t)-1)) {
+                    /* Drain to avoid leaving stale plaintext that the
+                     * next call would mis-attribute. */
+                    mln_chain_pool_release_all(mln_tcp_conn_remove(&lt->conn, M_C_RECV));
+                    mln_lang_errmsg(ctx, "TLS recv payload too large.");
+                    return ret_var; /* false */
+                }
                 mln_u8ptr_t fbuf = (mln_u8ptr_t)malloc((size_t)size);
                 if (fbuf == NULL) {
+                    /* Drain the recv queue so a subsequent recv doesn't
+                     * inherit stale plaintext that disagrees with the
+                     * false we're about to return. */
+                    mln_chain_pool_release_all(mln_tcp_conn_remove(&lt->conn, M_C_RECV));
                     mln_lang_var_free(ret_var);
                     mln_lang_errmsg(ctx, "No memory.");
                     return NULL;
@@ -1776,8 +1812,29 @@ static void mln_lang_tls_recv_handler(mln_event_t *ev, int fd, void *data)
     }
 
     if (size > 0) {
+        /* Cap the per-call coalesce at SIZE_MAX so a malicious / runaway
+         * peer cannot trick a 32-bit build into truncating the malloc
+         * length when the queued plaintext exceeds size_t range. */
+        if ((mln_u64_t)size > (mln_u64_t)((size_t)-1)) {
+            mln_chain_pool_release_all(mln_tcp_conn_remove(&lt->conn, M_C_RECV));
+            mln_lang_errmsg(lt->ctx, "TLS recv payload too large.");
+            mln_event_fd_set(ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+            lt->recving = 0;
+            mln_lang_ctx_continue(lt->ctx);
+            mln_lang_ctx_tls_resource_remove(lt);
+            mln_lang_mutex_unlock(lang);
+            return;
+        }
         mln_u8ptr_t buf = (mln_u8ptr_t)malloc((size_t)size);
         if (buf == NULL) {
+            /* OOM: surface a clean failure.  Drain the recv queue so no
+             * stale plaintext lingers for the next recv call (which would
+             * otherwise see the leftover bytes and disagree with the
+             * `false` we are about to return), and set an explicit
+             * error message so the script sees something better than a
+             * silent false. */
+            mln_chain_pool_release_all(mln_tcp_conn_remove(&lt->conn, M_C_RECV));
+            mln_lang_errmsg(lt->ctx, "No memory.");
             mln_event_fd_set(ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
             lt->recving = 0;
             mln_lang_ctx_continue(lt->ctx);
@@ -1798,6 +1855,8 @@ static void mln_lang_tls_recv_handler(mln_event_t *ev, int fd, void *data)
         free(buf);
         if (ret_var != NULL) {
             mln_lang_ctx_set_ret_var(lt->ctx, ret_var);
+        } else {
+            mln_lang_errmsg(lt->ctx, "No memory.");
         }
         mln_chain_pool_release_all(mln_tcp_conn_remove(&lt->conn, M_C_RECV));
     } else if (r == M_C_CLOSED || r == M_C_FINISH) {
@@ -1817,20 +1876,60 @@ static void mln_lang_tls_recv_handler(mln_event_t *ev, int fd, void *data)
  * which carries an extra request bag).  On timeout we drop any
  * partially-queued send buffers so that the next send call starts
  * with a clean queue -- leaving a half-sent record there would
- * corrupt the wire stream for the next operation. */
+ * corrupt the wire stream for the next operation.  For recv, we
+ * prefer to deliver any plaintext that landed before the timeout
+ * fired rather than discarding it: the bytes were received, only
+ * the wait took too long. */
 static void mln_lang_tls_timeout_handler(mln_event_t *ev, int fd, void *data)
 {
     mln_lang_tls_t *lt = (mln_lang_tls_t *)data;
     mln_lang_t *lang = lt->lang;
-    mln_lang_var_t *ret_var;
+    mln_lang_var_t *ret_var = NULL;
     mln_lang_mutex_lock(lang);
     mln_event_fd_set(ev, fd, M_EV_CLR, M_EV_UNLIMITED, NULL, NULL);
+    /* If this timeout fired during a recv and we have queued plaintext,
+     * coalesce it and deliver it instead of nil so the caller doesn't
+     * have to issue a second recv to find the bytes that already
+     * arrived.  Anything in M_C_SEND is dropped (a partially-encrypted
+     * record would corrupt the wire). */
+    if (lt->recving) {
+        mln_chain_t *c = mln_tcp_conn_head(&lt->conn, M_C_RECV);
+        mln_s64_t size = 0;
+        for (; c != NULL; c = c->next) {
+            if (c->buf == NULL) continue;
+            size += (mln_s64_t)mln_buf_left_size(c->buf);
+        }
+        if (size > 0 && (mln_u64_t)size <= (mln_u64_t)((size_t)-1)) {
+            mln_u8ptr_t buf = (mln_u8ptr_t)malloc((size_t)size);
+            if (buf != NULL) {
+                mln_u8ptr_t p = buf;
+                for (c = mln_tcp_conn_head(&lt->conn, M_C_RECV); c != NULL; c = c->next) {
+                    if (c->buf == NULL) continue;
+                    size_t n = mln_buf_left_size(c->buf);
+                    memcpy(p, c->buf->left_pos, n);
+                    p += n;
+                }
+                mln_string_t tmp;
+                mln_string_nset(&tmp, buf, (mln_size_t)size);
+                ret_var = mln_lang_var_create_string(lt->ctx, &tmp, NULL);
+                free(buf);
+            }
+        }
+        /* Drain the queue whether or not we built a return var: leaving
+         * it stale would let the next recv re-deliver the same bytes. */
+        mln_chain_pool_release_all(mln_tcp_conn_remove(&lt->conn, M_C_RECV));
+    }
     /* Drop any half-sent queues so a subsequent send/recv doesn't
      * inherit stale plaintext or sent-but-unreleased chains. */
     mln_chain_pool_release_all(mln_tcp_conn_remove(&lt->conn, M_C_SEND));
     mln_chain_pool_release_all(mln_tcp_conn_remove(&lt->conn, M_C_SENT));
-    lt->sending = lt->recving = lt->shutting = 0;
-    if ((ret_var = mln_lang_var_create_nil(lt->ctx, NULL)) != NULL)
+    lt->sending = lt->recving = 0;
+    if (ret_var == NULL) {
+        /* No queued data (or OOM building the return string): surface
+         * the timeout as nil. */
+        ret_var = mln_lang_var_create_nil(lt->ctx, NULL);
+    }
+    if (ret_var != NULL)
         mln_lang_ctx_set_ret_var(lt->ctx, ret_var);
     mln_lang_ctx_continue(lt->ctx);
     mln_lang_ctx_tls_resource_remove(lt);
@@ -1873,7 +1972,7 @@ static mln_lang_var_t *mln_lang_tls_close_process(mln_lang_ctx_t *ctx)
     if ((lt = mln_lang_tls_resource_fetch(ctx->lang, fd)) != NULL
         && !lt->is_listen && mln_tcp_conn_tls_enabled(&lt->conn))
     {
-        if (!lt->sending && !lt->recving && !lt->shutting) {
+        if (!lt->sending && !lt->recving) {
             (void)mln_tcp_conn_tls_shutdown(&lt->conn);
         }
     }
