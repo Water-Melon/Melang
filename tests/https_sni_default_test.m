@@ -5,8 +5,8 @@
 // complete the handshake; if our default doesn't fire, the handshake
 // fails and https_request returns false.
 //
-// Run:
-//   melang https_sni_default_test.m
+// Run (from the tests/ directory):
+//   ../bin/melang https_sni_default_test.m
 
 sys  = Import('sys');
 http = Import('http');

@@ -1883,30 +1883,30 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
     {
         vhost = v->val->data.s;
     }
-    if (sni != NULL) {
-        if (mln_lang_https_dup_to(&st->sni_buf, &st->sni_len, sni) < 0) {
-            mln_lang_errmsg(ctx, "No memory.");
-            goto fail_arg;
-        }
-    } else {
-        /* Default SNI to `host` so the request reaches the right
-         * virtual host without the caller having to repeat it.  We
-         * skip the default when host is an IP literal, because RFC
-         * 6066 forbids sending IPs in SNI -- some servers reject the
-         * handshake outright.  Heuristic: a-z / A-Z / '-' anywhere
-         * means it's a hostname; everything else (digits, dots,
-         * colons) is treated as an IP literal and the default is
-         * suppressed. */
+    /* `host` is an IP literal when inet_pton parses it as either an
+     * IPv4 or IPv6 address.  The earlier letter-based heuristic
+     * misclassified IPv6 literals (which contain a-f) as DNS names;
+     * inet_pton is the unambiguous test.  We suppress the SNI and
+     * verify_host defaults for IP literals because:
+     *   - RFC 6066 forbids sending IPs in SNI extensions, and some
+     *     servers reject the handshake when they see one.
+     *   - RFC 6125 hostname verification on an IP literal compares
+     *     the IP text against the cert's CN/SAN as a string, which
+     *     almost always fails -- much less useful than verifying an
+     *     IP-SAN entry via the standard X509 path. */
+    {
+        struct in_addr  ipv4_tmp;
+        struct in6_addr ipv6_tmp;
+        int host_is_ip = (inet_pton(AF_INET,  host, &ipv4_tmp) == 1) ||
+                         (inet_pton(AF_INET6, host, &ipv6_tmp) == 1);
         mln_size_t hlen = strlen(host);
-        int looks_like_hostname = 0;
-        for (mln_size_t i = 0; i < hlen; ++i) {
-            unsigned char c = (unsigned char)host[i];
-            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-') {
-                looks_like_hostname = 1;
-                break;
+
+        if (sni != NULL) {
+            if (mln_lang_https_dup_to(&st->sni_buf, &st->sni_len, sni) < 0) {
+                mln_lang_errmsg(ctx, "No memory.");
+                goto fail_arg;
             }
-        }
-        if (hlen > 0 && looks_like_hostname) {
+        } else if (hlen > 0 && !host_is_ip) {
             mln_string_t tmp;
             mln_string_nset(&tmp, host, hlen);
             if (mln_lang_https_dup_to(&st->sni_buf, &st->sni_len, &tmp) < 0) {
@@ -1914,28 +1914,18 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
                 goto fail_arg;
             }
         }
-    }
-    if (vhost != NULL) {
-        if (mln_lang_https_dup_to(&st->vhost_buf, &st->vhost_len, vhost) < 0) {
-            mln_lang_errmsg(ctx, "No memory.");
-            goto fail_arg;
-        }
-    } else if (verify) {
-        /* When peer verification is on we also default the hostname
-         * being verified to `host`, mirroring what curl / browsers do.
-         * Only applies to confs we built ourselves -- a borrowed conf
-         * may have a different verification policy that the caller
-         * controls explicitly. */
-        mln_size_t hlen = strlen(host);
-        int looks_like_hostname = 0;
-        for (mln_size_t i = 0; i < hlen; ++i) {
-            unsigned char c = (unsigned char)host[i];
-            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '-') {
-                looks_like_hostname = 1;
-                break;
+
+        if (vhost != NULL) {
+            if (mln_lang_https_dup_to(&st->vhost_buf, &st->vhost_len, vhost) < 0) {
+                mln_lang_errmsg(ctx, "No memory.");
+                goto fail_arg;
             }
-        }
-        if (hlen > 0 && looks_like_hostname) {
+        } else if (verify && hlen > 0 && !host_is_ip) {
+            /* When peer verification is on we default the hostname
+             * being verified to `host`, mirroring what curl / browsers
+             * do.  Only applies to confs we built ourselves -- a
+             * borrowed conf may have a different verification policy
+             * that the caller controls explicitly. */
             mln_string_t tmp;
             mln_string_nset(&tmp, host, hlen);
             if (mln_lang_https_dup_to(&st->vhost_buf, &st->vhost_len, &tmp) < 0) {

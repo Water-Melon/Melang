@@ -12,8 +12,8 @@
 // also holds; while the client's recv is in flight (waiting on the
 // slow server), the worker's call MUST return false immediately.
 //
-// Run:
-//   melang tls_busy_test.m
+// Run (from the tests/ directory):
+//   ../bin/melang tls_busy_test.m
 
 sys = Import('sys');
 str = Import('str');

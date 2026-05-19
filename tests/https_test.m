@@ -13,8 +13,8 @@
 //   - Self-signed cert/key at /tmp/melang_tls_test.{crt,key}
 //   - Port 18444 free on localhost.
 //
-// Run:
-//   melang https_test.m
+// Run (from the tests/ directory):
+//   ../bin/melang https_test.m https_server.m
 
 sys  = Import('sys');
 str  = Import('str');

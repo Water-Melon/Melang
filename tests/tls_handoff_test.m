@@ -21,8 +21,8 @@
 //   - Same as tls_test.m (Melon built with --enable-tls, cert/key
 //     at /tmp/melang_tls_test.{crt,key}, port 18445 free).
 //
-// Run:
-//   melang tls_handoff_test.m tls_handoff_client.m
+// Run (from the tests/ directory):
+//   ../bin/melang tls_handoff_test.m tls_handoff_client.m
 
 sys = Import('sys');
 tls = Import('tls');

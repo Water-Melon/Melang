@@ -219,30 +219,53 @@ if [ -n "$openssl_lib" ];     then tls_lib="-L$openssl_lib";     fi
 if [ -n "$OPENSSL_INCLUDE" ]; then tls_inc="-I$OPENSSL_INCLUDE"; fi
 if [ -n "$OPENSSL_LIB" ];     then tls_lib="-L$OPENSSL_LIB";     fi
 
-# Probe libmelon_static.a's symbol table for the TLS API.  Try `nm`
-# first (works for any object format on any host).  Fall back to
-# `ar t` + grep on the member name -- the TLS implementation lives
-# in mln_connection.o, so a plain object-name match is a reliable
-# secondary signal.  We never compile/link anything here, so the
-# detection succeeds even when OpenSSL headers are missing.
-if [ -f "$libmelonPath/lib/libmelon_static.a" ]; then
+# Probe libmelon_static.a for the TLS API by inspecting its symbol
+# table rather than compiling/linking against it.  The detection
+# must NOT require OpenSSL headers: that's the whole point of the
+# probe -- a host that built Melon-with-TLS but later removed
+# libssl-dev still has the TLS code in libmelon_static.a, and we
+# need to detect that so we can emit a clear OpenSSL-missing error
+# instead of mis-detecting Melon as no-TLS and dying at the final
+# link step.
+#
+# Order of preference (each tool is widely shipped in binutils):
+#   1. nm           -- most precise, decodes section type (T/t/R/r).
+#   2. objdump      -- same precision as nm; sometimes present when
+#                      nm isn't (e.g. some embedded toolchains).
+#   3. strings      -- universal fallback; matches the symbol name
+#                      as a string in the archive bytes.  Slightly
+#                      lossier (could match commentary in object
+#                      sections) but for a unique symbol name like
+#                      `mln_tcp_tls_conf_new` it is reliable in
+#                      practice.
+melon_archive="$libmelonPath/lib/libmelon_static.a"
+if [ -f "$melon_archive" ]; then
     if command -v nm >/dev/null 2>&1; then
-        if nm "$libmelonPath/lib/libmelon_static.a" 2>/dev/null \
+        if nm "$melon_archive" 2>/dev/null \
             | grep -E ' (T|t|R|r) (_)?mln_tcp_tls_conf_new$' \
             >/dev/null 2>&1
         then
             melon_has_tls=1
         fi
     fi
-    if [ $melon_has_tls -eq 0 ] && command -v ar >/dev/null 2>&1; then
-        # `ar t` lists archive members.  Melon's TLS code is in
-        # mln_connection.c; the archive always contains an
-        # mln_connection.o, but the TLS-specific path is only
-        # compiled in when --enable-tls was used.  Without nm we
-        # can't tell from the member listing alone, so this branch
-        # is conservative: it stays as a fallback safety net rather
-        # than the primary detector.  Most modern hosts ship nm.
-        :
+    if [ $melon_has_tls -eq 0 ] && command -v objdump >/dev/null 2>&1; then
+        if objdump --syms "$melon_archive" 2>/dev/null \
+            | grep -E '(^| )(_)?mln_tcp_tls_conf_new$' \
+            >/dev/null 2>&1
+        then
+            melon_has_tls=1
+        fi
+    fi
+    if [ $melon_has_tls -eq 0 ] && command -v strings >/dev/null 2>&1; then
+        # Anchor to a NUL-delimited match by checking line equality
+        # rather than relying on grep -E word boundaries, which are
+        # locale-dependent.
+        if strings "$melon_archive" 2>/dev/null \
+            | grep -E '^_?mln_tcp_tls_conf_new$' \
+            >/dev/null 2>&1
+        then
+            melon_has_tls=1
+        fi
     fi
 fi
 

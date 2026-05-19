@@ -19,8 +19,8 @@
 //
 //   - Port 18443 free on localhost.
 //
-// Run:
-//   melang tls_test.m
+// Run (from the tests/ directory):
+//   ../bin/melang tls_test.m tls_server.m
 
 sys = Import('sys');
 str = Import('str');
