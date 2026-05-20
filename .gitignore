@@ -24,3 +24,10 @@ melon_tls_probe.c
 .DS_Store
 **/.DS_Store
 .fuse_hidden*
+
+# Files renamed aside on filesystems that block unlink (virtiofs,
+# read-only-ish mounts).  Used internally so a rename can stand in
+# for a delete during development.
+*.removed.bk
+*.bk
+*.bk[0-9]*

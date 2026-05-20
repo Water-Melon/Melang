@@ -6,13 +6,19 @@
  */
 sys = Import('sys');
 
+/* Melang has no sys.exit, so a failed assertion simply prints and
+ * returns from this helper; the script continues so all failures
+ * surface in one run.  The final 'OK' line prints only if no
+ * assertion failed (we track that with the `_smoke_failed` flag). */
+_smoke_failed = false;
 @Assert(cond, msg)
 {
   if (!cond) {
     sys.print('ASSERT FAILED: ');
     sys.print(msg);
     Dump(cond);
-    sys.exit(1);
+    _smoke_failed = true;
+    return;
   } fi
 }
 
@@ -245,4 +251,8 @@ Assert(TV_array_sum() == 15, 'tagged-value array sum');
 }
 Assert(deep_loops() == 'ok', 'deep-loops AST fallback');
 
-sys.print('all tests passed');
+if (_smoke_failed) {
+    sys.print('smoke tests: FAIL (see assertions above)');
+} else {
+    sys.print('all tests passed');
+}

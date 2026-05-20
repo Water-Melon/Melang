@@ -1,24 +1,21 @@
 // https_test.m
 //
-// End-to-end HTTPS exchange test driven by two coroutines on one
-// event loop.  The server coroutine (https_server.m) accepts ROUNDS
-// connections, parses one HTTP/1.1 request per connection, and
-// answers with a 200 that echoes the X-Iter request header.  The
-// client coroutine (this file) calls http.https_request ROUNDS times
-// and verifies each echo end-to-end.
+// Self-contained end-to-end HTTPS exchange test.  Spawns its own
+// server coroutine via Eval(..., true) (inline source) on the same
+// scheduler, then calls http.https_request from the main coroutine
+// for ROUNDS rounds and verifies each echo end-to-end.  No helper
+// scripts.
 //
 // Requirements:
-//   - Melon built with --enable-tls
-//   - tls.so and http.so installed (or MELANG_DYNAMIC_PATH set)
-//   - Self-signed cert/key at /tmp/melang_tls_test.{crt,key}
+//   - Melon built with --enable-tls; Melang configure resolved [OpenSSL].
+//   - tls.so and http.so installed (or MELANG_DYNAMIC_PATH set).
+//   - Self-signed cert/key at /tmp/melang_tls_test.{crt,key} (see
+//     tls_test.m header for the openssl invocation).
 //   - Port 18444 free on localhost.
 //
 // Run (from the tests/ directory):
 //   ../bin/melang https_test.m
-//
-// (https_server.m is spawned automatically via Eval below; do NOT
-// also pass it on the command line -- that would start the server
-// twice and the second instance would fail to bind the port.)
+//   ../bin/melang -t=2 https_test.m
 
 sys  = Import('sys');
 str  = Import('str');
@@ -29,7 +26,76 @@ SERVICE = '18444';
 ROUNDS  = 50;
 TIMEOUT = 15000;
 
-Eval('https_server.m', nil, false, 'https_test_server');
+// Inline server: accepts ROUNDS HTTPS connections in series,
+// parses one HTTP/1.1 request per connection, answers a 200 that
+// echoes the X-Iter header so the client can confirm round-trip.
+server_src = "sys  = Import('sys');
+tls  = Import('tls');
+http = Import('http');
+conf = tls.conf_new('server',
+                    '/tmp/melang_tls_test.crt',
+                    '/tmp/melang_tls_test.key',
+                    nil, nil, false);
+if (!conf) {
+    sys.print('srv: conf_new failed (check cert/key paths)');
+    return;
+} fi
+lfd = tls.listen('localhost', '18444');
+if (lfd == false) {
+    sys.print('srv: listen failed');
+    tls.conf_free(conf);
+    return;
+} fi
+served = 0;
+while (served < 50) {
+    cfd = tls.accept(lfd, conf, 15000);
+    if (cfd == false || cfd == nil) {
+        sys.print('srv: accept failed at ' + sys.str(served));
+        break;
+    } fi
+    if (tls.handshake(cfd, 15000) != true) {
+        sys.print('srv: handshake failed at ' + sys.str(served));
+        tls.close(cfd);
+        served = served + 1;
+        continue;
+    } fi
+    buf = '';
+    req = nil;
+    while (req == nil) {
+        chunk = tls.recv(cfd, 15000);
+        if (chunk == false || chunk == nil || chunk == true) {
+            sys.print('srv: recv failed at ' + sys.str(served));
+            break;
+        } fi
+        buf = buf + chunk;
+        req = http.parse(buf);
+    }
+    if (req == nil || req == false) {
+        tls.close(cfd);
+        served = served + 1;
+        continue;
+    } fi
+    iter_val = req['headers']['X-Iter'];
+    if (iter_val == nil) iter_val = '?'; fi
+    resp = ['type':    'response',
+            'version': '1.1',
+            'code':    200,
+            'headers': ['Server':         'melang-https-test',
+                        'X-Iter':         iter_val,
+                        'Content-Length': '0'],
+            'body':    ''];
+    wire = http.create(resp);
+    if (tls.send(cfd, wire, 15000) != true) {
+        sys.print('srv: send failed at ' + sys.str(served));
+    } fi
+    tls.close(cfd);
+    served = served + 1;
+}
+tls.close(lfd);
+tls.conf_free(conf);
+";
+
+Eval(server_src, nil, true, 'https_test_server');
 sys.msleep(300);
 
 fails = 0;
