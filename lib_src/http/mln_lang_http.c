@@ -1836,23 +1836,41 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
     st->request = v->val->data.array;
 
     /* timeout */
-    if ((v = mln_lang_https_arr_get(ctx, a, "timeout", NULL)) != NULL) {
-        mln_u32_t t = mln_lang_var_val_type_get(v);
-        if (t == M_LANG_VAL_TYPE_NIL)        st->timeout = M_EV_UNLIMITED;
-        else if (t == M_LANG_VAL_TYPE_INT && v->val->data.i >= 0)
-                                              st->timeout = (int)v->val->data.i;
-        else {
-            mln_lang_errmsg(ctx, "args.timeout must be a non-negative int or nil.");
-            goto fail_arg;
+    {
+        int oom = 0;
+        v = mln_lang_https_arr_get(ctx, a, "timeout", &oom);
+        if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+        if (v != NULL) {
+            mln_u32_t t = mln_lang_var_val_type_get(v);
+            if (t == M_LANG_VAL_TYPE_NIL)        st->timeout = M_EV_UNLIMITED;
+            else if (t == M_LANG_VAL_TYPE_INT && v->val->data.i >= 0)
+                                                  st->timeout = (int)v->val->data.i;
+            else {
+                mln_lang_errmsg(ctx, "args.timeout must be a non-negative int or nil.");
+                goto fail_arg;
+            }
         }
     }
 
-    /* conf */
-    if ((v = mln_lang_https_arr_get(ctx, a, "conf", NULL)) != NULL
-        && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_INT)
+    /* conf -- nil/missing means "no preset conf, build one from
+     * ca/verify below"; an INT is treated as a tls.conf_new handle; any
+     * other type is a caller mistake (rejecting it explicitly is more
+     * useful than silently building a fresh conf and probably failing
+     * the handshake later). */
     {
-        conf_id = v->val->data.i;
-        has_conf = 1;
+        int oom = 0;
+        v = mln_lang_https_arr_get(ctx, a, "conf", &oom);
+        if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+        if (v != NULL) {
+            mln_u32_t t = mln_lang_var_val_type_get(v);
+            if (t == M_LANG_VAL_TYPE_INT) {
+                conf_id  = v->val->data.i;
+                has_conf = 1;
+            } else if (t != M_LANG_VAL_TYPE_NIL) {
+                mln_lang_errmsg(ctx, "args.conf must be an int or nil.");
+                goto fail_arg;
+            }
+        }
     }
 
     if (has_conf) {
@@ -1880,15 +1898,37 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
         st->own_conf = 0;
         st->conf     = NULL;  /* resolved in connect handler */
     } else {
-        if ((v = mln_lang_https_arr_get(ctx, a, "ca", NULL)) != NULL
-            && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_STRING)
+        /* ca -- nil/missing means "no extra trust store"; a STRING is a
+         * filesystem path; anything else is a caller mistake. */
         {
-            ca = v->val->data.s;
+            int oom = 0;
+            v = mln_lang_https_arr_get(ctx, a, "ca", &oom);
+            if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+            if (v != NULL) {
+                mln_u32_t t = mln_lang_var_val_type_get(v);
+                if (t == M_LANG_VAL_TYPE_STRING) ca = v->val->data.s;
+                else if (t != M_LANG_VAL_TYPE_NIL) {
+                    mln_lang_errmsg(ctx, "args.ca must be a string or nil.");
+                    goto fail_arg;
+                }
+            }
         }
-        if ((v = mln_lang_https_arr_get(ctx, a, "verify", NULL)) != NULL) {
-            mln_u32_t t = mln_lang_var_val_type_get(v);
-            if (t == M_LANG_VAL_TYPE_BOOL)      verify = v->val->data.b ? 1 : 0;
-            else if (t == M_LANG_VAL_TYPE_INT)  verify = v->val->data.i ? 1 : 0;
+        /* verify -- nil/missing means "off"; BOOL or INT both accepted
+         * (INT for symmetry with other Melang boolish args); anything
+         * else is a caller mistake. */
+        {
+            int oom = 0;
+            v = mln_lang_https_arr_get(ctx, a, "verify", &oom);
+            if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+            if (v != NULL) {
+                mln_u32_t t = mln_lang_var_val_type_get(v);
+                if (t == M_LANG_VAL_TYPE_BOOL)      verify = v->val->data.b ? 1 : 0;
+                else if (t == M_LANG_VAL_TYPE_INT)  verify = v->val->data.i ? 1 : 0;
+                else if (t != M_LANG_VAL_TYPE_NIL) {
+                    mln_lang_errmsg(ctx, "args.verify must be a bool, int, or nil.");
+                    goto fail_arg;
+                }
+            }
         }
         st->conf = mln_tcp_tls_conf_new(M_TLS_CLIENT, NULL, NULL, ca, NULL,
                                         M_TLS_VDEFAULT, verify);
@@ -1899,15 +1939,37 @@ static mln_lang_var_t *mln_lang_https_request_process(mln_lang_ctx_t *ctx)
         st->own_conf = 1;
     }
 
-    if ((v = mln_lang_https_arr_get(ctx, a, "sni", NULL)) != NULL
-        && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_STRING)
+    /* sni -- nil/missing means "default to host for DNS names, none for
+     * IP literals" (see the inet_pton block below); a STRING overrides
+     * the default; anything else is a caller mistake. */
     {
-        sni = v->val->data.s;
+        int oom = 0;
+        v = mln_lang_https_arr_get(ctx, a, "sni", &oom);
+        if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+        if (v != NULL) {
+            mln_u32_t t = mln_lang_var_val_type_get(v);
+            if (t == M_LANG_VAL_TYPE_STRING) sni = v->val->data.s;
+            else if (t != M_LANG_VAL_TYPE_NIL) {
+                mln_lang_errmsg(ctx, "args.sni must be a string or nil.");
+                goto fail_arg;
+            }
+        }
     }
-    if ((v = mln_lang_https_arr_get(ctx, a, "verify_host", NULL)) != NULL
-        && mln_lang_var_val_type_get(v) == M_LANG_VAL_TYPE_STRING)
+    /* verify_host -- nil/missing means "default to host when verify is
+     * on and host is a DNS name"; a STRING overrides; anything else is
+     * a caller mistake. */
     {
-        vhost = v->val->data.s;
+        int oom = 0;
+        v = mln_lang_https_arr_get(ctx, a, "verify_host", &oom);
+        if (oom) { mln_lang_errmsg(ctx, "No memory."); goto fail_arg; }
+        if (v != NULL) {
+            mln_u32_t t = mln_lang_var_val_type_get(v);
+            if (t == M_LANG_VAL_TYPE_STRING) vhost = v->val->data.s;
+            else if (t != M_LANG_VAL_TYPE_NIL) {
+                mln_lang_errmsg(ctx, "args.verify_host must be a string or nil.");
+                goto fail_arg;
+            }
+        }
     }
     /* `host` is an IP literal when inet_pton parses it as either an
      * IPv4 or IPv6 address.  The earlier letter-based heuristic

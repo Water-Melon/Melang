@@ -321,7 +321,7 @@ else
         # User asked for --enable-tls but Melon doesn't have TLS.
         # The flag is documented as a compat no-op now; surface a
         # clear message so the user knows why tls.so is missing.
-        echo -e "TLS\t\t\t[NOT support]"
+        echo -e "TLS\t\t\t[NOT supported]"
         echo "  reason: libmelon_static.a does not export the TLS API."
         echo "          Rebuild Melon with: ./configure --enable-tls"
         echo "  effect: tls.so will NOT be built or installed."
