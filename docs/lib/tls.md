@@ -14,9 +14,14 @@ Requirements:
 
 - The Melon C library must be built with `--enable-tls` so
   `libmelon_static.a` exports the `mln_tcp_conn_tls_*` symbols.
-- Melang must be configured with `--enable-tls` (see the launcher
-  page) so `tls.so` (and `http.so`'s `https_request` branch) is
-  built and links against the host OpenSSL.
+- Melang's `./configure` then auto-detects TLS support by inspecting
+  `libmelon_static.a` and emits `TLS  [OpenSSL]` when the symbols are
+  present; on that path `tls.so` (and `http.so`'s `https_request`
+  branch) is built and linked against the host OpenSSL.  No flag is
+  needed in the common case.  For non-standard OpenSSL layouts pass
+  `--openssl-include=DIR` and `--openssl-lib=DIR`.  `--enable-tls`
+  is still accepted as a compatibility no-op and `--disable-tls`
+  skips building `tls.so` even when Melon would support it.
 
 
 
@@ -84,9 +89,10 @@ Input:
   or `nil`.
 - `ciphers` - a string passed to `SSL_CTX_set_cipher_list` (TLSv1.2
   cipher list), or `nil` for the OpenSSL default.
-- `verify` - a boolean.  If `true`, the peer certificate is verified
-  against the CA bundle; on the server side the peer is also
-  required to present a certificate.
+- `verify` - a boolean, an integer (non-zero is treated as `true`),
+  or `nil` (treated as `false`).  When truthy, the peer certificate
+  is verified against the CA bundle; on the server side the peer
+  is also required to present a certificate.
 
 Return value:
 

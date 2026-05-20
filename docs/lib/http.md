@@ -118,9 +118,11 @@ Error:
 
 ##### https_request
 
-End-to-end HTTPS client.  Available only when Melon and Melang are
-built with `--enable-tls` (see the
-[TLS module](https://water-melon.github.io/Melang/lib/tls.html)).
+End-to-end HTTPS client.  Available only when Melon was built with
+`--enable-tls` and Melang's `./configure` resolved `TLS  [OpenSSL]`
+(auto-detected from `libmelon_static.a`; see the
+[TLS module](https://water-melon.github.io/Melang/lib/tls.html)
+for the full configure surface).
 The call drives the whole exchange — TCP connect, TLS handshake,
 request build (via `http.create`), encrypted send, encrypted recv,
 response parse (via `http.parse`) — in a single C state machine,
@@ -144,9 +146,12 @@ Input:
     milliseconds.  `nil` (or omitted) means wait forever.
   - `ca` (optional string) - path to a PEM CA bundle for peer
     verification.  Ignored if `conf` is supplied.
-  - `verify` (optional bool) - require peer certificate
-    verification.  Defaults to `false`.  Ignored if `conf` is
-    supplied.
+  - `verify` (optional bool / int / nil) - require peer certificate
+    verification.  A non-zero integer is treated as `true`; `nil` or
+    a missing key means "don't enable verification" (the same as
+    `false`), so the default when the caller doesn't care is "off".
+    Ignored if `conf` is supplied.  Any other type (e.g. a string)
+    is rejected with `args.verify must be a bool, int, or nil.`
   - `sni` (optional string) - SNI hostname.  Defaults to `host`
     when `host` is a DNS name; the default is suppressed when
     `host` is an IP literal because RFC 6066 forbids IP SNI.
