@@ -1358,3 +1358,56 @@ The output is
 xxx/a.m
 ```
 
+
+
+##### Exit
+
+Terminate the calling coroutine.
+
+This is a built-in function, not implemented in dynamic library.
+
+```
+Exit();
+```
+
+The coroutine that invokes `Exit` is removed from the scheduler and its resources (run-stack, scope chain, symbol table, GC arena, registered resources, etc.) are released at the next dispatch boundary. Statements following the `Exit()` call in the same coroutine are not executed.
+
+Only the calling coroutine is affected. All other coroutines created by `Eval` (or the top-level script tasks) keep running and the scheduler continues to dispatch them normally. This makes `Exit` the self-terminating counterpart of `Kill(alias)`, which targets another coroutine by its alias.
+
+Input: *none*
+
+Return value:
+
+- `nil` (the value is never observed by user code because execution does not continue in the calling coroutine).
+
+Notes:
+
+- `Exit` is safe to call from any depth: inside nested function calls, set methods, `Eval`-spawned coroutines, or from within a complex expression. The interpreter unwinds the active scopes and frees the coroutine cleanly.
+- `Exit` is idempotent. Calling it more than once (for example from a cleanup helper that is also reachable via a normal return path) has no additional effect.
+- Calling `Exit` from the top-level script ends only that script's coroutine; sibling script tasks launched on the same `melang` command line keep executing.
+
+Example:
+
+```
+sys = Import('sys');
+
+Eval('/path/to/worker.mln', nil, false, 'worker');
+
+for (i = 0; i < 3; ++i) {
+  sys.print(i);
+  if (i == 1) {
+    Exit();
+  }fi
+  sys.print('after-' + i);
+}
+sys.print('never reached');
+```
+
+If `worker.mln` contains its own loop, it continues to run after the snippet above exits. The output of the snippet alone is:
+
+```
+0
+after-0
+1
+```
+
