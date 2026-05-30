@@ -1580,6 +1580,14 @@ static mln_lang_var_t *mln_bin2real_process(mln_lang_ctx_t *ctx)
     mln_u8_t buf[sizeof(double)];
     double f;
 
+    /*
+     * buf is only partially filled when the script-supplied 'bin' string is
+     * shorter than sizeof(double); zero it first so the bytes copied into f
+     * are deterministic rather than leaking uninitialised stack memory back
+     * to the script.
+     */
+    memset(buf, 0, sizeof(buf));
+
     if ((sym = mln_lang_symbol_node_search(ctx, &v1, 1)) == NULL) {
         ASSERT(0);
         mln_lang_errmsg(ctx, "Argument missing.");

@@ -310,6 +310,21 @@ mln_lang_array2matrix(mln_lang_ctx_t *ctx, mln_lang_array_t *array)
     }
     col = array_val->val->data.i;
 
+    /*
+     * row/col are script-controlled. Reject non-positive dimensions and any
+     * row*col (and row*col*sizeof(double)) that would overflow mln_size_t:
+     * otherwise a wrapped product could spuriously match the data element
+     * count and desync the allocation size from the recorded dimensions,
+     * leading to out-of-bounds access in the matrix routines.
+     */
+    if ((mln_s64_t)row <= 0 || (mln_s64_t)col <= 0 || \
+        row > ((mln_size_t)-1) / col || \
+        row * col > ((mln_size_t)-1) / sizeof(double))
+    {
+        mln_lang_errmsg(ctx, "Invalid argument.");
+        return NULL;
+    }
+
     kvar.type = M_LANG_VAR_NORMAL;
     kvar.name = NULL;
     kvar.val = &kval;
