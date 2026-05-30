@@ -32,6 +32,13 @@ To exercise the multi-threaded path, add `-t=N`:
   `Eval`, and a handful of tagged-value-stack regressions).
 - `fib_bench.m` — naive recursive Fibonacci benchmark.
 
+### Security regressions
+- `network_overflow_test.m` — regression for the `net.udp_send`
+  `service` stack buffer overflow (the length guard compared against
+  the host buffer size instead of the service buffer size).  A fixed
+  build rejects the oversized argument and exits 0; a vulnerable build
+  aborts with a buffer-overflow / stack-smashing diagnostic.
+
 ### TLS
 - `tls_test.m` — 100-round non-blocking TLS echo.  Inline server
   + main-coroutine client on one scheduler.
