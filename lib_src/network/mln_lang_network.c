@@ -2215,7 +2215,7 @@ static mln_lang_var_t *mln_lang_network_udp_send_process(mln_lang_ctx_t *ctx)
         return NULL;
     }
     val = sym->data.var->val;
-    if (val->data.s->len > sizeof(host)-1) {
+    if (val->data.s->len > sizeof(service)-1) {
         mln_lang_errmsg(ctx, "Invalid service.");
         return NULL;
     }
